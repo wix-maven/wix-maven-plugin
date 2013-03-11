@@ -1,0 +1,36 @@
+<lifecycleMappingMetadata>
+	<pluginExecutions>
+		<pluginExecution>
+			<pluginExecutionFilter>
+				<goals>
+					<goal>validate</goal>
+					<goal>unpack-dependencies</goal>
+					<goal>prepare-package</goal>
+					<goal>package</goal>
+				</goals>
+			</pluginExecutionFilter>
+			<action>
+				<ignore />
+			</action>
+		</pluginExecution>
+		<pluginExecution>
+			<pluginExecutionFilter>
+				<goals>
+					<goal>candle</goal>
+					<goal>light</goal>
+					<goal>lit</goal>
+					<goal>torch</goal>
+				</goals>
+			</pluginExecutionFilter>
+			<action>
+				<ignore />
+			<!-- 
+				<execute>
+					<runOnIncremental>true</runOnIncremental>
+					<runOnConfiguration>false</runOnConfiguration> <!- - not sure, false seems more appropriate - ->
+				</execute>
+				 -->
+			</action>
+		</pluginExecution>
+	</pluginExecutions>
+</lifecycleMappingMetadata>

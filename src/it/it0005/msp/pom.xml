@@ -1,0 +1,66 @@
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>net.sf.wix.it</groupId>
+		<artifactId>it-parent</artifactId>
+		<version>1.0-SNAPSHOT</version>
+		<relativePath>../../it-parent/pom.xml</relativePath>
+	</parent>
+
+	<artifactId>msp</artifactId>
+	<packaging>msp</packaging>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>IT0005/msp - test msi lifecycle</name>
+	<description>Based on tutorial at http://www.tramontana.co.hu/wix/</description>
+
+	<properties>
+		<wix.locales>1033:en-US,1031:de-DE</wix.locales>
+	</properties>
+	
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>msiB</artifactId>
+			<version>${project.version}</version>
+			<type>msi</type>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>net.sf.wix</groupId>
+				<artifactId>wix-maven-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<verbose>true</verbose>
+					<platforms>
+						<arch>x86</arch>
+					</platforms>
+					<!-- 
+					<localeList>
+						<_1033>en-US</_1033>
+						<_1031>de-DE</_1031> 
+					</localeList>
+					 -->
+					<baseline>Sample</baseline>
+					<baseArtifactItem>
+						<groupId>${project.groupId}</groupId>
+						<artifactId>msiA</artifactId>
+						<version>${project.version}</version>
+					</baseArtifactItem>
+					<patchedArtifactItem>
+						<groupId>${project.groupId}</groupId>
+						<artifactId>msiB</artifactId>
+						<version>${project.version}</version>
+					</patchedArtifactItem>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

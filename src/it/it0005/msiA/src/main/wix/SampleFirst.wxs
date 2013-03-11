@@ -1,0 +1,82 @@
+<?xml version='1.0' encoding='windows-1252'?>
+<Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
+	<?if $(var.Platform) = x64 ?>
+	<?define PlatformProgramFilesFolder = "ProgramFiles64Folder" ?>
+	<?else ?>
+	<?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
+	<?endif ?>
+
+  <Product Name='Foobar' Id='!(loc.ProdCode)' UpgradeCode='00000001-7349-453F-94F6-BCB5110BA4FD'
+    Language='!(loc.LANG)' Codepage='1252' Version='1.0.0' Manufacturer='Acme Ltd.'>
+
+    <Package Id='*' Keywords='Installer' Description="Acme's Foobar 1.0 Installer"
+      Comments='Foobar is a registered trademark of Acme Ltd.' Manufacturer='Acme Ltd.'
+      InstallerVersion='300' Languages='!(loc.PackageLANG)' Compressed='yes' SummaryCodepage='1252' />
+
+    <Upgrade Id='00000001-7349-453F-94F6-BCB5110BA4FD'>
+      <UpgradeVersion OnlyDetect='yes' Property='NEWERFOUND' Minimum='1.0.0' IncludeMinimum='no' />
+    </Upgrade>
+    
+    <CustomAction Id='NoDowngrade' Error='A later version of [ProductName] is already installed.' />
+    
+    <InstallExecuteSequence>
+      <Custom Action='NoDowngrade' After='FindRelatedProducts'>NEWERFOUND</Custom>
+    </InstallExecuteSequence>
+    
+    <Media Id='1' Cabinet='Sample.cab' EmbedCab='yes' DiskPrompt="CD-ROM #1" />
+	<Media Id="2" Cabinet="localised_!(loc.LANG).cab" EmbedCab="yes" />  <!-- note loc.Culture is not a valid format in this example -->
+    <Property Id='DiskPrompt' Value="Acme's Foobar 1.0 Installation [1]" />
+
+    <Directory Id='TARGETDIR' Name='SourceDir'>
+      <Directory Id='$(var.PlatformProgramFilesFolder)' Name='PFiles'>
+        <Directory Id='Acme' Name='Acme'>
+          <Directory Id='INSTALLDIR' Name='Foobar 1.0'>
+
+            <Component Id='MainExecutable' Guid='00000001-83F1-4F22-985B-FDB3C8ABD471'>
+              <File Id='FoobarEXE' Name='FoobarAppl10.exe' DiskId='1' Source='FoobarAppl10.exe' KeyPath='yes'>
+                <Shortcut Id="startmenuFoobar10" Directory="ProgramMenuDir" Name="Foobar 1.0" WorkingDirectory='INSTALLDIR' Icon="Foobar10.exe" IconIndex="0" Advertise="yes" />
+                <Shortcut Id="desktopFoobar10" Directory="DesktopFolder" Name="Foobar 1.0" WorkingDirectory='INSTALLDIR' Icon="Foobar10.exe" IconIndex="0" Advertise="yes" />
+              </File>
+            </Component>
+
+            <Component Id='HelperLibrary' Guid='00000001-6BE3-460D-A14F-75658D16550B'>
+              <File Id='HelperDLL' Name='Helper.dll' DiskId='1' Source='Helper.dll' KeyPath='yes' />
+              <File Id='LocalDLL' Name='Local.dll' DiskId='2' Source='!(loc.Culture)\Local.dll' />
+            </Component>
+
+            <Component Id='Manual' Guid='00000001-574D-4A9A-A266-5B5EC2C022A4'>
+              <File Id='Manual' Name='Manual.pdf' DiskId='1' Source='Manual.pdf' KeyPath='yes'>
+                <Shortcut Id="startmenuManual" Directory="ProgramMenuDir" Name="Instruction Manual" Advertise="yes" />
+              </File>
+            </Component>
+
+          </Directory>
+        </Directory>
+      </Directory>
+
+      <Directory Id="ProgramMenuFolder" Name="Programs">
+        <Directory Id="ProgramMenuDir" Name="Foobar 1.0">
+          <Component Id="ProgramMenuDir" Guid="00000001-7E98-44CE-B049-C477CC0A2B00">
+            <RemoveFolder Id='ProgramMenuDir' On='uninstall' />
+            <RegistryValue Root='HKCU' Key='Software\[Manufacturer]\[ProductName]' Type='string' Value='' KeyPath='yes' />
+          </Component>
+        </Directory>
+      </Directory>
+
+      <Directory Id="DesktopFolder" Name="Desktop" />
+    </Directory>
+
+    <Feature Id='Complete' Level='1'>
+      <ComponentRef Id='MainExecutable' />
+      <ComponentRef Id='HelperLibrary' />
+      <Feature Id='Documentation' Level='1' Title="!(loc.doc_title)" Description="!(loc.description)">
+        <ComponentRef Id='Manual' />
+        <ComponentRef Id='ProgramMenuDir' />
+      </Feature>
+    </Feature>
+
+    <Icon Id="Foobar10.exe" SourceFile="FoobarAppl10.exe" />
+
+    <UIRef Id="sampleUI"/>
+  </Product>
+</Wix>

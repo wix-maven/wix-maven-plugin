@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+	 xmlns:loc="http://schemas.microsoft.com/wix/2006/localization">
+	<Fragment>
+		<Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
+		<Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="!(loc.UISCSLaunchReadme)" />
+		<Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1"/>
+
+		<!-- These are compiled in - they don't play well with localisation (wxl) at link time, but do take direction from the lookup folder /b option 
+		this means visual studio auto defining culture doesn't go far enough to support this either - so you only get the hard coded values in the project config for /b
+		-->
+		<WixVariable Id="WixUIBannerBmp" Value="banner.bmp" />
+		<WixVariable Id="WixUIDialogBmp" Value="dialog.bmp" />
+
+		<!-- Localisation not supported on these - have to customise dialogs or maybe fixed in next version
+		<WixVariable Id="WixUILicenseRtf" Value="!(loc.Culture)WixUILicense.rtf" />
+		<WixVariable Id="WixUIBannerBmp" Value="!(loc.Culture)WixUIBanner.bmp" />
+		<WixVariable Id="WixUIDialogBmp" Value="!(loc.Culture)WixUIDialog.bmp" />
+		<WixVariable Id="WixUIExclamationIco" Value="!(loc.Culture)WixUIExclamation.ico)" />
+		<WixVariable Id="WixUIInfoIco" Value="!(loc.Culture)WixUIInfo.ico)" />
+		<WixVariable Id="WixUINewIco" Value="!(loc.Culture)new.ico" />
+		<WixVariable Id="WixUIUpIco" Value="!(loc.Culture)up.ico" />
+			  -->
+		
+		<UI Id="sampleUI">
+			<!-- FeatureTree
+			 First-time install dialog sequence:	Maintenance dialog sequence:
+			 - WixUI_WelcomeDlg						- WixUI_MaintenanceWelcomeDlg
+			 - WixUI_LicenseAgreementDlg			- WixUI_MaintenanceTypeDlg
+			 - WixUI_CustomizeDlg					 - WixUI_CustomizeDlg
+			  - WixUI_VerifyReadyDlg				 - WixUI_VerifyReadyDlg
+			  - WixUI_DiskCostDlg
+			 -->
+			<UIRef Id="WixUI_FeatureTree"/><!--Don't need the custom/full choioce from WixUI_Mondo-->
+			<UIRef Id="WixUI_ErrorProgressText" />
+
+			<Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="LaunchReadMe">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>
+
+		</UI>
+		
+		<Property Id="WixShellExecTarget" Value="[INSTALLDIR]\readme.txt" />
+		<CustomAction Id="LaunchReadMe" BinaryKey="WixCA" DllEntry="WixShellExec" />
+		
+	</Fragment>
+</Wix>

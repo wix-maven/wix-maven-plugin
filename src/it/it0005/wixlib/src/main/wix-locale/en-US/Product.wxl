@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization xmlns="http://schemas.microsoft.com/wix/2006/localization" Culture="en-US" Codepage='1252'>
+
+	<String Id='LANG'>1033</String>
+	<String Id='PackageLANG'>1033,1031</String>
+	<String Id='ProdCode'>{96B01033-D2E2-41B9-AF5A-46598ACBEB89}</String>
+	<String Id='Codepage'>1252</String>
+	<String Id='Culture'>en-US</String>
+
+	<String Id="doc_title">ReadMe Launch</String>
+	<String Id="description">Launch ReadMe</String>
+
+</WixLocalization>

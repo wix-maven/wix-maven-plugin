@@ -1,0 +1,64 @@
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>net.sf.wix.it</groupId>
+		<artifactId>it-parent</artifactId>
+		<version>1.0-SNAPSHOT</version>
+		<relativePath>../../it-parent/pom.xml</relativePath>
+	</parent>
+
+	<artifactId>wixlib</artifactId>
+	<packaging>wixlib</packaging>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>IT0005/wixlib - test msi lifecycle</name>
+	<description>Based on tutorial at http://www.tramontana.co.hu/wix/</description>
+
+	<dependencies>
+		<dependency>
+			<groupId>${wixtools.groupId}</groupId>
+			<artifactId>wix-toolset</artifactId>
+			<version>${wixtools.version}</version>
+			<type>wixext</type>
+			<classifier>WixUIExtension</classifier>
+		</dependency>
+		<dependency>
+			<groupId>${wixtools.groupId}</groupId>
+			<artifactId>wix-toolset</artifactId>
+			<version>${wixtools.version}</version>
+			<type>wixext</type>
+			<classifier>WixUtilExtension</classifier>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<resources>
+			<resource>
+				<filtering>false</filtering>
+				<directory>src/main/wix-locale</directory>
+				<targetPath>wix-locale</targetPath>
+				<excludes>
+					<exclude>**\*.wxl</exclude>
+				</excludes>
+			</resource>
+		</resources>
+		<plugins>
+			<plugin>
+				<groupId>net.sf.wix</groupId>
+				<artifactId>wix-maven-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<verbose>true</verbose>
+					<platforms>
+						<arch>x86</arch>
+						<arch>x64</arch>
+					</platforms>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
