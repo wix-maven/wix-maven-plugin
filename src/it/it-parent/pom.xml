@@ -32,7 +32,7 @@
 	<properties>
 		<mavenVersion>2.0.9</mavenVersion>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<wixtools.version>3.6-SNAPSHOT</wixtools.version>
+		<wixtools.version>3.7-SNAPSHOT</wixtools.version>
 		<wixtools.groupId>org.wixtoolset</wixtools.groupId>
 	</properties>
 	
@@ -70,6 +70,13 @@
 					<groupId>net.sf.wix</groupId>
 					<artifactId>wix-maven-plugin</artifactId>
 					<version>0.0.1-SNAPSHOT</version>
+					<dependencies>
+						<dependency>
+							<groupId>${wixtools.groupId}</groupId>
+							<artifactId>wix-toolset</artifactId>
+							<version>${wixtools.version}</version>
+						</dependency>
+					</dependencies>
 				</plugin>
 			</plugins>
 		</pluginManagement>

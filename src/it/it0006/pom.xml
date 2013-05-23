@@ -11,17 +11,16 @@
 		<relativePath>../it-parent/pom.xml</relativePath>
 	</parent>
 
-	<artifactId>it0005</artifactId>
+	<artifactId>it0006</artifactId>
 	<packaging>pom</packaging>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>IT0005 - test msi multi module lifecycle</name>
+	<version>0.0.2-SNAPSHOT</version>
+	<name>IT0006 - test msp multi module lifecycle</name>
 	<description>Based on tutorial at http://www.tramontana.co.hu/wix/</description>
 
 	<modules>
-		<module>wixlib</module>
-<!-- 		<module>msm</module> -->
 		<module>msi</module>
-		<module>msiBundle</module>
+		<module>msp</module>
+		<module>mspBundle</module>
  	</modules>
 
 </project>

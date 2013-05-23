@@ -20,33 +20,68 @@ import java.io.*;
 
 try
 {
+/* wixlib */
     File file = new File( basedir, "wixlib/target/Release/x86/wixlib-0.0.1-SNAPSHOT.wixlib" );
     if ( !file.isFile() )
     {
         System.err.println( "Could not find wixlib package: " + file );
         return false;
     }
-
-    File file = new File( basedir, "msiA/target/Release/x86/msiA-0.0.1-SNAPSHOT.msi" );
+    File file = new File( basedir, "wixlib/target/Release/x64/wixlib-0.0.1-SNAPSHOT.wixlib" );
     if ( !file.isFile() )
     {
-        System.err.println( "Could not find merged installation package: " + file );
+        System.err.println( "Could not find wixlib package: " + file );
         return false;
     }
 
-    File file = new File( basedir, "msiB/target/Release/x86/msiB-0.0.1-SNAPSHOT.msi" );
-    if ( !file.isFile() )
+/* msi  - version 1 */
+    File file = new File( basedir, "msi/target/Release/x86/msi-0.0.1-SNAPSHOT.msi" );
+    if ( file.isFile() )
     {
-        System.err.println( "Could not find merged installation package: " + file );
+        System.err.println( "Found installation package without culture: " + file );
+        return false;
+    }
+    File file = new File( basedir, "msi/target/Release/en-US/msi-0.0.1-SNAPSHOT.msi" );
+    if ( file.isFile() )
+    {
+        System.err.println( "Found installation package without arch: " + file );
         return false;
     }
 
-    File file = new File( basedir, "msp/target/Release/x86/msp-0.0.1-SNAPSHOT.msp" );
+
+    File file = new File( basedir, "msi/target/Release/x86/en-US/msi-0.0.1-SNAPSHOT.msi" );
     if ( !file.isFile() )
     {
-        System.err.println( "Could not find installation package: " + file );
+        System.err.println( "Could not find installation 86 package: " + file );
         return false;
     }
+    File file = new File( basedir, "msi/target/Release/x64/en-US/msi-0.0.1-SNAPSHOT.msi" );
+    if ( !file.isFile() )
+    {
+        System.err.println( "Could not find installation 64 package: " + file );
+        return false;
+    }
+    File file = new File( basedir, "msi/target/Release/x86/de-DE/msi-0.0.1-SNAPSHOT.msi" );
+    if ( !file.isFile() )
+    {
+        System.err.println( "Could not find installation 86 package: " + file );
+        return false;
+    }
+    File file = new File( basedir, "msi/target/Release/x64/de-DE/msi-0.0.1-SNAPSHOT.msi" );
+    if ( !file.isFile() )
+    {
+        System.err.println( "Could not find installation 64 package: " + file );
+        return false;
+    }
+
+/* msiBundle */
+    File file = new File( basedir, "msiBundle/target/Release/x86/msiBundle-0.0.1-SNAPSHOT.exe" );
+    if ( !file.isFile() )
+    {
+        System.err.println( "Could not find installation bundle package: " + file );
+        return false;
+    }
+
 
 }
 catch( Throwable t )
