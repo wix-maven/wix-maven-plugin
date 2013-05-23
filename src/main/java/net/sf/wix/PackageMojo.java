@@ -79,8 +79,8 @@ public class PackageMojo extends AbstractPackageable {
 			String baseClassifier = arch + "-" + (baseCulturespec == null ? "neutral" : getPrimaryCulture(baseCulturespec));
 
 			if( ! ML_REPACK.equalsIgnoreCase(mergeLevel) || packLevel.contains(PL_PACKAGE) ){ // none,trans need to include base, full include every
-				archOutputFile = getOutput(arch, baseCulturespec, packaging);
-				projectHelper.attachArtifact(project, packaging, baseClassifier, archOutputFile);
+				archOutputFile = getOutput(arch, baseCulturespec, getPackageOutputExtension());
+				projectHelper.attachArtifact(project, getPackaging(), baseClassifier, archOutputFile);
 				if( packLevel.contains(PL_CULTURE_CAB) ){
 					packageCabs(cabs, arch, outputDirectory, baseClassifier, cabsCollection, null);
 				}
@@ -97,11 +97,11 @@ public class PackageMojo extends AbstractPackageable {
 			}
 
 			// can't repack anything but an msi it seems
-			if( ML_REPACK.equalsIgnoreCase(mergeLevel) && "msi".equalsIgnoreCase(packaging) ){
+			if( ML_REPACK.equalsIgnoreCase(mergeLevel) && PACK_INSTALL.equalsIgnoreCase(getPackaging()) ){
 				String repackClassifier =  arch + "-" + "multi";
 				if( packLevel.contains(PL_DEFAULT) ){
-					archOutputFile = getOutput(arch, null, packaging);
-					projectHelper.attachArtifact( project, packaging, repackClassifier, archOutputFile );
+					archOutputFile = getOutput(arch, null, getPackageOutputExtension());
+					projectHelper.attachArtifact( project, getPackaging(), repackClassifier, archOutputFile );
 				}
 				if( packLevel.contains(PL_CULTURE_CAB) || packLevel.contains(PL_DEFAULT) ){
 					packageCabs(cabs, arch, outputDirectory, repackClassifier, cabsCollection, null);
@@ -109,7 +109,7 @@ public class PackageMojo extends AbstractPackageable {
 			}
 			
 			if ( ! ML_BASE.equalsIgnoreCase(mergeLevel) 
-					&& ( "msi".equalsIgnoreCase(packaging) || "msp".equalsIgnoreCase(packaging) ) ) {
+					&& ( PACK_INSTALL.equalsIgnoreCase(getPackaging()) || PACK_PATCH.equalsIgnoreCase(getPackaging()) ) ) {
 
 				// if build includes cultures
 				for (String culturespec : alternateCulturespecs()) {
@@ -140,11 +140,11 @@ public class PackageMojo extends AbstractPackageable {
 					if( packLevel.contains(PL_PACKAGE) 
 							|| ( ML_DEFAULT.equalsIgnoreCase(mergeLevel) && packLevel.contains(PL_DEFAULT) ) 
 						) {
-						archOutputFile = getOutput(arch, culturespec, packaging);
+						archOutputFile = getOutput(arch, culturespec, getPackageOutputExtension());
 						if (archOutputFile.exists())
-							projectHelper.attachArtifact(project, packaging, classifier, archOutputFile);
+							projectHelper.attachArtifact(project, getPackaging(), classifier, archOutputFile);
 						else 
-							getLog().warn(String.format("Missing expected msi file for architecture", packaging, archOutputFile, culturespec));
+							getLog().warn(String.format("Missing expected msi file for architecture", getPackaging(), archOutputFile, culturespec));
 					}
 				}
 			}

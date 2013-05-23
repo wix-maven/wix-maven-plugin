@@ -88,11 +88,11 @@ public class LightMojo extends AbstractLinker {
 	}
 
 	private String outputExtension() {
-		if ("msp".equalsIgnoreCase(packaging)) { // final msp output is from pyro
+		if (PACK_PATCH.equalsIgnoreCase(getPackaging())) { // final msp output is from pyro
 			return "wixmsp";
 		}
 		// msi/msm extension - actual build differences are in xml
-		return packaging;
+		return getPackageOutputExtension();
 	}
 
 	protected Set<Artifact> getDependencySets() throws MojoExecutionException {
@@ -185,7 +185,7 @@ public class LightMojo extends AbstractLinker {
 						Artifact libGroup = i.next();
 						getLog().debug(libGroup.toString());
 						unpackResource(libGroup);
-						if ("wixlib".equalsIgnoreCase(libGroup.getType())) {
+						if (PACK_LIB.equalsIgnoreCase(libGroup.getType())) {
 							// try unpack resources
 							addResource(libGroup, culture, allSourceRoots);
 
@@ -195,8 +195,8 @@ public class LightMojo extends AbstractLinker {
 								objectFiles.add(lib.getFile().getAbsolutePath());
 							}
 						}
-						if ("msi".equalsIgnoreCase(libGroup.getType())
-//								|| "msp".equalsIgnoreCase(libGroup.getType())
+						if (PACK_INSTALL.equalsIgnoreCase(libGroup.getType())
+//								|| PACK_PATCH.equalsIgnoreCase(libGroup.getType())
 								) {
 							File resUnpackDirectory = new File(unpackDirectory, libGroup.getGroupId() + "-" + libGroup.getArtifactId());
 							if( resUnpackDirectory.exists() )
@@ -322,7 +322,7 @@ public class LightMojo extends AbstractLinker {
 			vr = VersionRange.createFromVersion(artifactItem.getVersion());
 		}
 
-		if ("wixlib".equalsIgnoreCase(artifactItem.getType()) || "msm".equalsIgnoreCase(artifactItem.getType())) {
+		if (PACK_LIB.equalsIgnoreCase(artifactItem.getType()) || PACK_MERGE.equalsIgnoreCase(artifactItem.getType())) {
 			boolean hasSomething = true;
 			// even if this module has culture it's base modules may be neutral
 			try {

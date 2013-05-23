@@ -22,7 +22,6 @@ public class AttachBundleEngineMojo extends AbstractInsigniaMojo {
 		if ( skip )
 		{
 			getLog().info( getClass().getName() + " skipped" );
-			return;
 		}
 
 		if( !signBundleEngine ){
@@ -31,8 +30,8 @@ public class AttachBundleEngineMojo extends AbstractInsigniaMojo {
 			return;
 		}
 		
-		if( !"bundle".equalsIgnoreCase(packaging) )
-			getLog().warn("Attempting to detach bundle from " + packaging );
+		if( !"bundle".equalsIgnoreCase(getPackaging()) )
+			getLog().warn("Attempting to detach bundle engine from " + getPackaging() );
 
 		File torchTool = validateTool();
 		defaultLocale();
@@ -40,7 +39,7 @@ public class AttachBundleEngineMojo extends AbstractInsigniaMojo {
 		for (String arch : getPlatforms()) {
 			for (String culture : culturespecs()) {
 
-				File archOutputFile = getOutput(arch, culture, packaging );
+				File archOutputFile = getOutput(arch, culture, getPackageOutputExtension() );
 
 				// TODO: allow for changing name of the output bundle
 				getLog().info(" -- Attaching bundle to : " + archOutputFile.getPath());

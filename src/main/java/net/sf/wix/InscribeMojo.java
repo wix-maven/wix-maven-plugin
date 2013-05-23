@@ -33,10 +33,6 @@ public class InscribeMojo extends AbstractInsigniaMojo {
 	 */
 	// protected boolean inscribeUsingCabCache;
 	
-	private String outputExtension() {
-		return packaging;
-	}
-
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		if( !inscribePackage )
 		{
@@ -56,7 +52,7 @@ public class InscribeMojo extends AbstractInsigniaMojo {
 		for (String arch : getPlatforms()) {
 			for (String culture : culturespecs()) {
 
-				File archOutputFile = getOutput(arch, culture, outputExtension());
+				File archOutputFile = getOutput(arch, culture, getPackageOutputExtension());
 
 				getLog().info(" -- Inscribing : " + archOutputFile.getPath());
 

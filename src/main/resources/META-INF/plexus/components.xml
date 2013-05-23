@@ -288,7 +288,7 @@
       <role-hint>bundle</role-hint>
       <implementation>org.apache.maven.artifact.handler.DefaultArtifactHandler</implementation>
       <configuration>
-        <extension>exe</extension>
+        <extension>bundle</extension>
         <type>bundle</type>
         <language>wi</language>
       </configuration>

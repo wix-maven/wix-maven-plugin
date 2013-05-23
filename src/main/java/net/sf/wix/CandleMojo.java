@@ -408,36 +408,39 @@ public class CandleMojo extends AbstractWixMojo {
 	 * -dinstall.TargetName=install 
 	 * -dinstall.TargetPath=C:\temp\install\target\Debug\x86\install.msi
 	 * 
-	 * mavenized msi  baz.boo:install:1-SNAPSHOT
+	 * mavenized msi/msp  baz.boo:install:1-SNAPSHOT  with internal name defined CompanyInstaller
+	 * from cache the files are all in the same location and match the artifact names - could shortcut adding classifier to source file name
 	 * -dinstall.TargetDir=C:\temp\.m2\repository\baz\boo\install\1-SNAPSHOT
 	 * -dinstall.TargetName=install-1-SNAPSHOT
+	 * from reactor however gives access to pre install names - which vary the paths not the names 
+	 * -dinstall.TargetPath-x86-en-US=C:\build\bazboo\install\target\Release\x86\en-US\1-SNAPSHOT\CompanyInstaller-1-SNAPSHOT.msi
+	 * -dinstall.TargetPath-x64-en-US=C:\build\bazboo\install\target\Release\x64\en-US\1-SNAPSHOT\CompanyInstaller-1-SNAPSHOT.msi
+	 * -dinstall.TargetPath-x86-de-DE=C:\build\bazboo\install\target\Release\x86\de-DE\1-SNAPSHOT\CompanyInstaller-1-SNAPSHOT.msi
+	 * -dinstall.TargetPath-x64-de-DE=C:\build\bazboo\install\target\Release\x64\de-DE\1-SNAPSHOT\CompanyInstaller-1-SNAPSHOT.msi
 	 * 
 	 * mavenized msm  foo.bar:merge:2
 	 * -dmerge.TargetDir=C:\temp\.m2\foo\bar\merge\2 
 	 * -dmerge.TargetName=merge-2 
-	 * -dmerge.TargetPathx86=C:\temp\.m2\foo\bar\merge\2\merge-2-x86.msm
-	 * -dmerge.TargetPathx64=C:\temp\.m2\foo\bar\merge\2\merge-2-x64.msm
+	 * -dmerge.TargetPath-x86=C:\temp\.m2\foo\bar\merge\2\merge-2-x86.msm
+	 * -dmerge.TargetPath-x64=C:\temp\.m2\foo\bar\merge\2\merge-2-x64.msm
 	 * 
 	 */
 	private void addWixDefines() throws MojoExecutionException {
 		Set<Artifact> wixArtifacts = getWixDependencySets();
 		getLog().info( "Adding "+wixArtifacts.size()+" dependent msm/msi/msp" );
 		if( !wixArtifacts.isEmpty() ){
-			for(Artifact nar : wixArtifacts){
-				getLog().debug( String.format("WIX added dependency %1$s", nar.getArtifactId() ) );
+			for(Artifact wix : wixArtifacts){
+				getLog().debug( String.format("WIX added dependency %1$s", wix.getArtifactId() ) );
 				// Warn: may need to make artifacts unique using groupId... but nar doesn't do that yet.
-				definitions.add(String.format("%1$s.TargetDir=%2$s", nar.getArtifactId(), nar.getFile().getParentFile().getAbsolutePath() ));
-				definitions.add(String.format("%1$s.TargetName=%1$s-%2$s", nar.getArtifactId(), nar.getVersion() ));
-
 				// TODO: resolve source platform issues - msm/msi don't have non classified artifacts.
-				if( "msm".equalsIgnoreCase( nar.getType() ) ){
-					if( nar.getClassifier().contains("x86"))
-						definitions.add(String.format("%1$s.TargetPathx86=%2$s", nar.getArtifactId(), nar.getFile().getAbsolutePath() ));
-					if( nar.getClassifier().contains("x64"))
-						definitions.add(String.format("%1$s.TargetPathx64=%2$s", nar.getArtifactId(), nar.getFile().getAbsolutePath() ));
-					if( nar.getClassifier().contains("intel"))
-						definitions.add(String.format("%1$s.TargetPathintel=%2$s", nar.getArtifactId(), nar.getFile().getAbsolutePath() ));
-				}
+//				if( PACK_MERGE.equalsIgnoreCase( wix.getType() ) ){
+//					definitions.add(String.format("%1$s.TargetDir-%3$s=%2$s", wix.getArtifactId(), wix.getFile().getParentFile().getAbsolutePath() ));
+//					definitions.add(String.format("%1$s.TargetName-%3$s=%2$s", wix.getArtifactId(), wix.getFile().getName() ));
+//					definitions.add(String.format("%1$s.TargetPath-%3$s=%2$s", wix.getArtifactId(), wix.getFile().getAbsolutePath() ));
+//				} 
+				// definitions.add(String.format("%1$s.TargetName=%2$s", wix.getArtifactId(), wix.getWixInfo().getName() ));
+				definitions.add(String.format("%1$s.TargetPath-%3$s=%2$s", wix.getArtifactId(), wix.getFile().getAbsolutePath(), wix.getClassifier() ));
+				
 			}
 		}
 	}
@@ -447,10 +450,10 @@ public class CandleMojo extends AbstractWixMojo {
 		Set<Artifact> jarArtifacts = getJARDependencySets();
 		getLog().info( "Adding "+jarArtifacts.size()+" dependent JARs" );
 		if( !jarArtifacts.isEmpty() ){
-			for(Artifact nar : jarArtifacts){
-				getLog().debug( String.format("JAR added dependency %1$s", nar.getArtifactId() ) );
+			for(Artifact jar : jarArtifacts){
+				getLog().debug( String.format("JAR added dependency %1$s", jar.getArtifactId() ) );
 				// Warn: may need to make artifacts unique using groupId... but nar doesn't do that yet.
-				definitions.add(String.format("%1$s.TargetJAR=%2$s", nar.getArtifactId(), nar.getFile()));
+				definitions.add(String.format("%1$s.TargetJAR=%2$s", jar.getArtifactId(), jar.getFile()));
 			}
 		}
 	}

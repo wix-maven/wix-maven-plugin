@@ -37,7 +37,7 @@ import org.codehaus.plexus.util.cli.StreamConsumer;
  * @requiresDependencyResolution compile
  */
 public class PatchMojo extends AbstractTorchMojo {
-
+// TODO:  might be good to make baseline + baseArt + patchedArt  an object and make a list of them  to allow multiple changes into 1 patch 
     /**
      * ArtifactItem to use as base. (ArtifactItem contains groupId, artifactId, version, type, classifier) 
      * See <a href="./usage.html">Usage</a> for details.
@@ -93,22 +93,30 @@ public class PatchMojo extends AbstractTorchMojo {
 	 * @param archOutputFile
 	 * @throws MojoExecutionException
 	 */
-//	protected void pyro(File pyroTool, File patchInputFile, File transformInputFile, File archOutputFile) throws MojoExecutionException {
-//		getLog().info(" -- Pyro : " + archOutputFile.getPath());
-//		Commandline cl = new Commandline();
-//
-//		cl.setExecutable(pyroTool.getAbsolutePath());
-//		// cl.setWorkingDirectory(wxsInputDirectory);
-//		addToolsetGeneralOptions(cl);
-//
-//		//addOptions(cl);
-//		addWixExtensions(cl);
-//		cl.addArguments(new String[] { patchInputFile.getAbsolutePath(), "-t", baseline, transformInputFile.getAbsolutePath(), "-out", archOutputFile.getAbsolutePath() });
-//		// addOtherOptions(cl);
-//
-//		pyro(cl);
-//	} 
+	protected void pyro(File pyroTool, File patchInputFile, File transformInputFile, File archOutputFile) throws MojoExecutionException {
+		getLog().info(" -- Pyro : " + archOutputFile.getPath());
+		Commandline cl = new Commandline();
 
+		cl.setExecutable(pyroTool.getAbsolutePath());
+		// cl.setWorkingDirectory(wxsInputDirectory);
+		addToolsetGeneralOptions(cl);
+
+		//addOptions(cl);
+		addWixExtensions(cl);
+		cl.addArguments(new String[] { patchInputFile.getAbsolutePath(), "-t", baseline, transformInputFile.getAbsolutePath(), "-out", archOutputFile.getAbsolutePath() });
+		// addOtherOptions(cl);
+
+		pyro(cl);
+	} 
+
+	/**
+	 * Prepare and execute the Uber pyro commandline
+	 * @param pyroTool
+	 * @param patchInputFile
+	 * @param transformInputFiles
+	 * @param archOutputFile
+	 * @throws MojoExecutionException
+	 */
 	protected void pyro(File pyroTool, File patchInputFile, Map<String,File> transformInputFiles, File archOutputFile) throws MojoExecutionException {
 		getLog().info(" -- Pyro : " + archOutputFile.getPath());
 		Commandline cl = new Commandline();
@@ -198,7 +206,7 @@ public class PatchMojo extends AbstractTorchMojo {
 		// filter.addFilter( new ArtifactIdFilter( DependencyUtil.cleanToBeTokenizedString( this.includeArtifactIds ),
 		// DependencyUtil.cleanToBeTokenizedString( this.excludeArtifactIds ) ) );
 
-		filter.addFilter(new TypeFilter("msi", ""));
+		filter.addFilter(new TypeFilter(PACK_INSTALL, ""));
 		// String clasfilter = arch+"-"+culture+","+arch+"-neutral";
 		// getLog().debug(clasfilter);
 		// filter.addFilter( new ClassifierFilter( clasfilter, "" ) );
@@ -234,7 +242,8 @@ public class PatchMojo extends AbstractTorchMojo {
 		//Set<Artifact> artifacts = getDependencySets();
 				
 		for (String arch : getPlatforms()) {
-			Map<String,File> archIntermediateFiles = new HashMap<String, File>();
+// for the Uber patch
+//			Map<String,File> archIntermediateFiles = new HashMap<String, File>();
 			for (String culture : culturespecs()) {
 
 				// download dependant msi versions
@@ -249,20 +258,20 @@ public class PatchMojo extends AbstractTorchMojo {
 			
 				// 
 				File archIntermediateFile = getOutput(intDirectory, arch, culture, "wixmst");
-				// TODO: do we really need culture specific patch files ever?  
-				//File archPatchFile = getOutput( intDirectory, arch, null, "wixmsp");
-
 				torch(torchTool, baseInputFile, latestInputFile, archIntermediateFile);
 
-//				File archPatchFile = getOutput(arch, culture, "wixmsp"); // output from earlier light
-//				File archOutputFile = getOutput(arch, culture, "msp");
-//				pyro(pyroTool, archPatchFile, archIntermediateFile, archOutputFile);
-				archIntermediateFiles.put(culture, archIntermediateFile);
+				File archPatchFile = getOutput(arch, culture, "wixmsp"); // output from earlier light
+				File archOutputFile = getOutput(arch, culture, getPackageOutputExtension());
+				pyro(pyroTool, archPatchFile, archIntermediateFile, archOutputFile);
+				
+// for Uber patch				
+//				archIntermediateFiles.put(culture, archIntermediateFile);
 			}
-			String culture = baseCulturespec();
-			File patchFile = getOutput(arch, culture, "wixmsp"); // output from earlier light
-			File outputFile = getOutput(arch, culture, "msp");
-			pyro(pyroTool, patchFile, archIntermediateFiles, outputFile);
+			// Uber patch..
+//			String culture = baseCulturespec();
+//			File patchFile = getOutput(arch, culture, "wixmsp"); // output from earlier light
+//			File outputFile = getOutput(arch, culture, getPackageOutputExtension());
+//			pyro(pyroTool, patchFile, archIntermediateFiles, outputFile);
 		}
 	}
 	

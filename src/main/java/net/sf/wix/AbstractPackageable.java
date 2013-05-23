@@ -22,8 +22,8 @@ public abstract class AbstractPackageable extends AbstractWixMojo {
 	 * @parameter default-value="${project.packaging}"
 	 * @required
 	 */
-	protected String packaging;
-
+	private String packaging;
+	
 	/**
 	 * Output directory <br>
 	 * - in future may have 'configuration' appended (default to Release, but not appended yet)<br>
@@ -204,5 +204,21 @@ public abstract class AbstractPackageable extends AbstractWixMojo {
 	
 	protected String[] getExternalCabs( ){
 		return externalCabs.split(",+");
+	}
+
+	protected String getPackageOutputExtension() {
+		if( "bundle".equalsIgnoreCase( packaging ) )
+			return "exe";
+		else
+			return packaging;
+	}
+	
+
+	protected String getPackaging() {
+		return packaging;
+	}
+
+	protected void setPackaging(String packaging) {
+		this.packaging = packaging;
 	}
 }

@@ -55,7 +55,7 @@ public class LitMojo extends AbstractLinker {
 
 		for (String arch : getPlatforms()) {
 			try {
-				File archOutputFile = getOutput(arch, null, packaging );
+				File archOutputFile = getOutput(arch, null, getPackageOutputExtension() );
 
 				getLog().info(" -- Linking : " + archOutputFile.getPath());
 				

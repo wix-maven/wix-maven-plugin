@@ -60,11 +60,11 @@ public class TransformMojo extends AbstractTorchMojo {
 
 		String extension = "mst";
 		for (String arch : getPlatforms()) {
-			File baseInputFile = getOutput(arch, base, packaging);
+			File baseInputFile = getOutput(arch, base, getPackageOutputExtension());
 
 			for (String culture : subcultures) {
 
-				File archInputFile = getOutput(arch, culture, packaging);
+				File archInputFile = getOutput(arch, culture, getPackageOutputExtension());
 				File archOutputFile = getOutput(arch, culture, extension);
 
 				torch(torchTool, baseInputFile, archInputFile, archOutputFile);

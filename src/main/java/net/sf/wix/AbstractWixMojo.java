@@ -225,6 +225,11 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 	 * */
 	protected MavenProject project;
 
+	public final String PACK_LIB="wixlib";
+	public final String PACK_MERGE="msm";
+	public final String PACK_INSTALL="msi";
+	public final String PACK_PATCH="msp";
+	public final String PACK_BUNDLE="bundle";
 
 	protected Set<String> getPlatforms() {
 		if (platforms == null)
@@ -392,12 +397,7 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 	protected File getOutput(File baseDir, String arch, String culture, String extension) {
 	
 		File outFile = getOutputPath(baseDir, arch, culture);
-		
-		// if we didn't have 1 to 1 match of packaging names to file extensions, then we could use the packaging info from components as the map to
-		// look it up
-		// ArtifactType type = ArtifactType.getArtifactTypeForPackagingName(project.getPackaging());
-		// File artifact = new File(outputDirectory, finalName + "." + type.getExtension());
-	
+			
 		outFile = new File(outFile, project.getBuild().getFinalName() + "."+ extension ); // TODO: does this nead to vary with package type? packaging
 	
 		return outFile;
