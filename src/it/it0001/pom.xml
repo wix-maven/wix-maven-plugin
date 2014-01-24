@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>net.sf.wix.it</groupId>
+		<groupId>com.github.wix-maven.it</groupId>
 		<artifactId>it-parent</artifactId>
 		<version>1.0-SNAPSHOT</version>
 		<relativePath>../it-parent/pom.xml</relativePath>
@@ -21,12 +21,12 @@ Based on tutorial at http://www.tramontana.co.hu/wix/</description>
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>net.sf.wix</groupId>
-				<artifactId>wix-maven-plugin</artifactId>
+				<groupId>@project.groupId@</groupId>
+				<artifactId>@project.artifactId@</artifactId>
 				<!--
 					<dependencies>
 					<dependency>
-					<groupId>net.sf.wix</groupId>
+					<groupId>com.github.wix-maven</groupId>
 					<artifactId>wix-tools</artifactId>
 					<version>${wixtools.version}</version>
 					<classifier>x86</classifier>

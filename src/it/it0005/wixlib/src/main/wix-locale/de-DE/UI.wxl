@@ -4,4 +4,5 @@
 	<!-- Finalise dialog -->
 	<String Id="UISCSLaunchReadme">Readme-Datei anzeigen</String>
 
+	<UI Dialog="ExitDialog" Control="OptionalCheckBox" X="13" Y="243" Width="145" Height="17"/>
 </WixLocalization>

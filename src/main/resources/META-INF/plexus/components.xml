@@ -25,25 +25,25 @@
       <configuration>
         <phases>
           <validate>
-            net.sf.wix:wix-maven-plugin:validate
+            com.github.wix-maven:wix-maven-plugin:validate
           </validate>
           <initialize>
-            net.sf.wix:wix-maven-plugin:toolset
+            com.github.wix-maven:wix-maven-plugin:toolset
           </initialize>
           <generate-sources></generate-sources>
           <process-sources>
-            net.sf.wix:wix-maven-plugin:unpack-dependencies
+            com.github.wix-maven:wix-maven-plugin:unpack-dependencies
           </process-sources>
           <generate-resources></generate-resources>
           <process-resources>
             org.apache.maven.plugins:maven-resources-plugin:resources
           </process-resources>
           <compile>
-            net.sf.wix:wix-maven-plugin:candle,
-            net.sf.wix:wix-maven-plugin:light,
-            net.sf.wix:wix-maven-plugin:transform
+            com.github.wix-maven:wix-maven-plugin:candle,
+            com.github.wix-maven:wix-maven-plugin:light,
+            com.github.wix-maven:wix-maven-plugin:transform
           </compile>
-          <!-- , net.sf.wix:wix-maven-plugin:merge -->
+          <!-- , com.github.wix-maven:wix-maven-plugin:merge -->
           <process-classes></process-classes>
           <generate-test-sources></generate-test-sources>
           <process-test-sources></process-test-sources>
@@ -51,13 +51,15 @@
           <process-test-resources></process-test-resources>
           <test-compile></test-compile>
           <process-test-classes></process-test-classes>
-          <test></test>
+          <test>
+            com.github.wix-maven:wix-maven-plugin:smoke
+          </test>
           <prepare-package>
-            net.sf.wix:wix-maven-plugin:inscribe,
-            net.sf.wix:wix-maven-plugin:prepare-package
+            com.github.wix-maven:wix-maven-plugin:inscribe,
+            com.github.wix-maven:wix-maven-plugin:prepare-package
           </prepare-package>
           <package>
-            net.sf.wix:wix-maven-plugin:package,
+            com.github.wix-maven:wix-maven-plugin:package,
             org.apache.maven.plugins:maven-jar-plugin:jar
           </package>
           <pre-integration-test></pre-integration-test>
@@ -81,27 +83,27 @@
       <configuration>
         <phases>
           <validate>
-            net.sf.wix:wix-maven-plugin:validate
+            com.github.wix-maven:wix-maven-plugin:validate
           </validate>
           <initialize>
-            net.sf.wix:wix-maven-plugin:toolset
+            com.github.wix-maven:wix-maven-plugin:toolset
           </initialize>
           <generate-sources></generate-sources>
           <process-sources>
-            net.sf.wix:wix-maven-plugin:unpack-dependencies
+            com.github.wix-maven:wix-maven-plugin:unpack-dependencies
           </process-sources>
           <generate-resources></generate-resources>
           <process-resources>
             org.apache.maven.plugins:maven-resources-plugin:resources
           </process-resources>
           <compile>
-            net.sf.wix:wix-maven-plugin:candle,
-            net.sf.wix:wix-maven-plugin:light,
-            net.sf.wix:wix-maven-plugin:patch
+            com.github.wix-maven:wix-maven-plugin:candle,
+            com.github.wix-maven:wix-maven-plugin:light,
+            com.github.wix-maven:wix-maven-plugin:patch
           </compile>
           <!-- ,
-            net.sf.wix:wix-maven-plugin:transform, 
-            net.sf.wix:wix-maven-plugin:merge -->
+            com.github.wix-maven:wix-maven-plugin:transform, 
+            com.github.wix-maven:wix-maven-plugin:merge -->
           <process-classes></process-classes>
           <generate-test-sources></generate-test-sources>
           <process-test-sources></process-test-sources>
@@ -111,11 +113,11 @@
           <process-test-classes></process-test-classes>
           <test></test>
           <prepare-package>
-            net.sf.wix:wix-maven-plugin:inscribe,
-            net.sf.wix:wix-maven-plugin:prepare-package
+            com.github.wix-maven:wix-maven-plugin:inscribe,
+            com.github.wix-maven:wix-maven-plugin:prepare-package
           </prepare-package>
           <package>
-            net.sf.wix:wix-maven-plugin:package,
+            com.github.wix-maven:wix-maven-plugin:package,
             org.apache.maven.plugins:maven-jar-plugin:jar
           </package>
           <pre-integration-test></pre-integration-test>
@@ -139,22 +141,22 @@
       <configuration>
         <phases>
           <validate>
-            net.sf.wix:wix-maven-plugin:validate
+            com.github.wix-maven:wix-maven-plugin:validate
           </validate>
           <initialize>
-            net.sf.wix:wix-maven-plugin:toolset
+            com.github.wix-maven:wix-maven-plugin:toolset
           </initialize>
           <generate-sources></generate-sources>
           <process-sources>
-            net.sf.wix:wix-maven-plugin:unpack-dependencies
+            com.github.wix-maven:wix-maven-plugin:unpack-dependencies
           </process-sources>
           <generate-resources></generate-resources>
           <process-resources>
             org.apache.maven.plugins:maven-resources-plugin:resources
           </process-resources>
           <compile>
-            net.sf.wix:wix-maven-plugin:candle,
-            net.sf.wix:wix-maven-plugin:lit
+            com.github.wix-maven:wix-maven-plugin:candle,
+            com.github.wix-maven:wix-maven-plugin:lit
           </compile>
           <process-classes></process-classes>
           <generate-test-sources></generate-test-sources>
@@ -165,10 +167,10 @@
           <process-test-classes></process-test-classes>
           <test></test>
           <prepare-package>
-            net.sf.wix:wix-maven-plugin:prepare-package
+            com.github.wix-maven:wix-maven-plugin:prepare-package
           </prepare-package>
           <package>
-            net.sf.wix:wix-maven-plugin:package,
+            com.github.wix-maven:wix-maven-plugin:package,
             org.apache.maven.plugins:maven-jar-plugin:jar
           </package>
           <pre-integration-test></pre-integration-test>
@@ -192,24 +194,24 @@
       <configuration>
         <phases>
           <validate>
-            net.sf.wix:wix-maven-plugin:validate
+            com.github.wix-maven:wix-maven-plugin:validate
           </validate>
           <initialize>
-            net.sf.wix:wix-maven-plugin:toolset
+            com.github.wix-maven:wix-maven-plugin:toolset
           </initialize>
           <generate-sources></generate-sources>
           <process-sources>
-            net.sf.wix:wix-maven-plugin:unpack-dependencies
+            com.github.wix-maven:wix-maven-plugin:unpack-dependencies
           </process-sources>
           <generate-resources></generate-resources>
           <process-resources>
             org.apache.maven.plugins:maven-resources-plugin:resources
           </process-resources>
           <compile>
-            net.sf.wix:wix-maven-plugin:candle,
-            net.sf.wix:wix-maven-plugin:light
+            com.github.wix-maven:wix-maven-plugin:candle,
+            com.github.wix-maven:wix-maven-plugin:light
           </compile>
-          <process-classes>net.sf.wix:wix-maven-plugin:detach-bundle</process-classes>
+          <process-classes>com.github.wix-maven:wix-maven-plugin:detach-bundle</process-classes>
           <generate-test-sources></generate-test-sources>
           <process-test-sources></process-test-sources>
           <generate-test-resources></generate-test-resources>
@@ -218,11 +220,11 @@
           <process-test-classes></process-test-classes>
           <test></test>
           <prepare-package>
-            net.sf.wix:wix-maven-plugin:attach-bundle,
-            net.sf.wix:wix-maven-plugin:prepare-package
+            com.github.wix-maven:wix-maven-plugin:attach-bundle,
+            com.github.wix-maven:wix-maven-plugin:prepare-package
           </prepare-package>
           <package>
-            net.sf.wix:wix-maven-plugin:package,
+            com.github.wix-maven:wix-maven-plugin:package,
             org.apache.maven.plugins:maven-jar-plugin:jar
           </package>
           <pre-integration-test></pre-integration-test>

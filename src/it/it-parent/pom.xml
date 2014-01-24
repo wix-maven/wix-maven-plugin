@@ -19,22 +19,20 @@
 	under the License.
 -->
 
-<project
-	xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>net.sf.wix.it</groupId>
-	<artifactId>it-parent</artifactId>
-	<version>1.0-SNAPSHOT</version>
-	<packaging>pom</packaging>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.github.wix-maven.it</groupId>
+  <artifactId>it-parent</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
 
-	<properties>
-		<mavenVersion>2.0.9</mavenVersion>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<wixtools.version>3.7-SNAPSHOT</wixtools.version>
-		<wixtools.groupId>org.wixtoolset</wixtools.groupId>
-	</properties>
+  <properties>
+    <mavenVersion>2.0.9</mavenVersion>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <wixtools.version>3.7-SNAPSHOT</wixtools.version>
+    <wixtools.groupId>org.wixtoolset.maven</wixtools.groupId>
+  </properties>
 	
 <!-- 
 	<repositories>
@@ -63,23 +61,28 @@
 		</pluginRepository>
 	</pluginRepositories>
  -->
-	<build>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>net.sf.wix</groupId>
-					<artifactId>wix-maven-plugin</artifactId>
-					<version>0.0.1-SNAPSHOT</version>
-					<dependencies>
-						<dependency>
-							<groupId>${wixtools.groupId}</groupId>
-							<artifactId>wix-toolset</artifactId>
-							<version>${wixtools.version}</version>
-						</dependency>
-					</dependencies>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-	</build>
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>@project.groupId@</groupId>
+          <artifactId>@project.artifactId@</artifactId>
+          <version>@project.version@</version>
+          <dependencies>
+            <dependency>
+              <groupId>${wixtools.groupId}</groupId>
+              <artifactId>wix-toolset</artifactId>
+              <version>${wixtools.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>${wixtools.groupId}</groupId>
+              <artifactId>wix-bootstrap</artifactId>
+              <version>${wixtools.version}</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
 
 </project>
