@@ -168,7 +168,7 @@ public class PatchMojo extends AbstractTorchMojo {
 					// there is a conflict between requirements for reactor 'compile' build Vs 'install' build that can later be used in a patch, 
 					// the conflict is due to pathing or lack there of from compile not having the package id in the path
 					// so -b option used in linking cannot specify just the local repo, it must include the full path to versioned package folder or 'target'
-					cl.addArguments(new String[] { bindPathOpt, jar.getFile().getParentFile().getAbsolutePath() + "\\\\" });//.getPath()
+					cl.addArguments(new String[] { bindPathOpt, jar.getFile().getParentFile().getAbsolutePath() + "\\" });//.getPath()
 				}
 			}
 		}
@@ -194,8 +194,8 @@ public class PatchMojo extends AbstractTorchMojo {
 	
 		if( "wixpdb".equals( baseInputArtifact.getType() ) ) { // already checked that artifact types match
 			if( narUnpackDirectory.exists() ){ // && if any nar dependencies, otherwise it isn't needed
-				cl.addArguments(new String[] { "-bt", narUnpackDirectory.getAbsolutePath() + "\\\\" });//.getPath()
-				cl.addArguments(new String[] { "-bu", narUnpackDirectory.getAbsolutePath() + "\\\\" });//.getPath()
+				cl.addArguments(new String[] { "-bt", narUnpackDirectory.getAbsolutePath() + "\\" });//.getPath()
+				cl.addArguments(new String[] { "-bu", narUnpackDirectory.getAbsolutePath() + "\\" });//.getPath()
 			}
 			addJARSourceRoots(cl, baseInputArtifact, "-bt" );
 			addJARSourceRoots(cl, latestInputArtifact, "-bu");

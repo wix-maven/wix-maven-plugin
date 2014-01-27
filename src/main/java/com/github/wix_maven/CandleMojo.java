@@ -156,10 +156,10 @@ public class CandleMojo extends AbstractWixMojo {
 
 		// TODO: shorten commandline, use relative paths where possible
 		cl.addArguments(new String[] { "-dConfiguration=Release" });
-		String intOutDir = getArchIntDirectory(arch).getAbsolutePath() + "\\\\";
-		cl.addArguments(new String[] { "-out", intOutDir, "-dOutDir=" + intDirectory.getAbsolutePath() + "\\\\" });  // VS OutDir doesn't include arch
+		String intOutDir = getArchIntDirectory(arch).getAbsolutePath() + "\\";
+		cl.addArguments(new String[] { "-out", intOutDir, "-dOutDir=" + intDirectory.getAbsolutePath() + "\\" });  // VS OutDir doesn't include arch
 		cl.addArguments(new String[] { "-arch", arch, "-dPlatform=" + arch });
-		cl.addArguments(new String[] { "-dProjectDir=" + project.getBasedir().getAbsolutePath() + "\\\\" });
+		cl.addArguments(new String[] { "-dProjectDir=" + project.getBasedir().getAbsolutePath() + "\\" });
 		// -dProjectExt=.wixproj -dProjectFileName=Baz.wixproj
 		// -dProjectName=Baz
 		// -dProjectPath=C:\Baz\SecureLogin-32.wixproj

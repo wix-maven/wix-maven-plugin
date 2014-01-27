@@ -158,7 +158,7 @@ public abstract class AbstractLinker extends AbstractPackageable {
 		
 		for (Iterator<String> i = allFileSourceRoots.iterator(); i.hasNext();) {
 			//  cannot contain a quote. Quotes are often accidentally introduced when trying to refer to a directory path with spaces in it, such as "C:\Out Directory" or "C:\Out Directory\".  The correct representation for that path is: "C:\Out Directory\\"
-			cl.addArguments(new String[] { "-b", i.next() + "\\\\" });//.getPath()
+			cl.addArguments(new String[] { "-b", i.next() + "\\" });//.getPath()
 		}
 		 
 		// undocumented command line used by votive?

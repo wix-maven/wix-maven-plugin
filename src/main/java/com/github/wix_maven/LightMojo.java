@@ -82,7 +82,7 @@ public class LightMojo extends AbstractLinker {
 		// TODO: culture might be a list of primary and fallback cultures
 		if (reuseCabs) {
 			File resolvedCabCacheDirectory = new File(cabCacheDirectory, arch); // TODO: provide pattern replace
-			cl.addArguments(new String[] { "-reusecab", "-cc", resolvedCabCacheDirectory.getAbsolutePath() + "\\\\" });
+			cl.addArguments(new String[] { "-reusecab", "-cc", resolvedCabCacheDirectory.getAbsolutePath() + "\\" });
 			if (!resolvedCabCacheDirectory.exists())
 				resolvedCabCacheDirectory.mkdirs();
 		}

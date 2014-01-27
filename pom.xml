@@ -61,13 +61,10 @@
 			<version>1.8</version>
 			<optional>false</optional>
 		</dependency>
-		<dependency> <!-- Appropriate quoting of command line -min 1.5.1- http://jira.codehaus.org/browse/MSHARED-21 -->
+		<dependency>
 			<groupId>org.codehaus.plexus</groupId>
 			<artifactId>plexus-utils</artifactId>
-			<!--
-				<version>[1.5.1,)</version>
-			-->
-			<version>RELEASE</version>
+			<version>3.0.16</version>
 		</dependency>
 
 		<!-- Shared -->
