@@ -1,0 +1,24 @@
+-classpath
+'C:/Data/Projects/MavenOS/wix-maven-plugin-gh/target/classes;C:/Data/.m2/repository/org/apache/maven/maven-core/2.0.6/maven-core-2.0.6.jar;C:/Data/.m2/repository/org/apache/maven/maven-archiver/2.5/maven-archiver-2.5.jar;C:/Data/.m2/repository/org/codehaus/plexus/plexus-container-default/1.0-alpha-9-stable-1/plexus-container-default-1.0-alpha-9-stable-1.jar;C:/Data/.m2/repository/org/apache/maven/maven-plugin-descriptor/2.0.6/maven-plugin-descriptor-2.0.6.jar;C:/Data/.m2/repository/org/codehaus/plexus/plexus-interactivity-api/1.0-alpha-4/plexus-interactivity-api-1.0-alpha-4.jar;C:/Data/.m2/repository/org/codehaus/plexus/plexus-compiler-api/1.8/plexus-compiler-api-1.8.jar;C:/Data/.m2/repository/org/apache/maven/maven-error-diagnostics/2.0.6/maven-error-diagnostics-2.0.6.jar;C:/Data/.m2/repository/org/apache/maven/maven-project/2.0.9/maven-project-2.0.9.jar;C:/Data/.m2/repository/junit/junit/3.8.1/junit-3.8.1.jar;C:/Data/.m2/repository/org/apache/maven/shared/maven-common-artifact-filters/1.4/maven-common-artifact-filters-1.4.jar;C:/Data/.m2/repository/org/apache/maven/maven-settings/2.0.9/maven-settings-2.0.9.jar;C:/Data/.m2/repository/org/apache/maven/maven-artifact/2.0.9/maven-artifact-2.0.9.jar;C:/Data/.m2/repository/org/apache/maven/wagon/wagon-provider-api/1.0-beta-2/wagon-provider-api-1.0-beta-2.jar;C:/Data/.m2/repository/classworlds/classworlds/1.1-alpha-2/classworlds-1.1-alpha-2.jar;C:/Data/.m2/repository/org/codehaus/plexus/plexus-utils/3.0.16/plexus-utils-3.0.16.jar;C:/Data/.m2/repository/org/apache/maven/doxia/doxia-sink-api/1.0-alpha-7/doxia-sink-api-1.0-alpha-7.jar;C:/Data/.m2/repository/org/apache/maven/maven-model/2.0.9/maven-model-2.0.9.jar;C:/Data/.m2/repository/org/apache/maven/maven-monitor/2.0.6/maven-monitor-2.0.6.jar;C:/Data/.m2/repository/org/apache/maven/maven-profile/2.0.9/maven-profile-2.0.9.jar;C:/Data/.m2/repository/commons-cli/commons-cli/1.0/commons-cli-1.0.jar;C:/Data/.m2/repository/org/codehaus/plexus/plexus-io/2.0.2/plexus-io-2.0.2.jar;C:/Data/.m2/repository/org/apache/maven/maven-repository-metadata/2.0.9/maven-repository-metadata-2.0.9.jar;C:/Data/.m2/repository/org/apache/maven/maven-artifact-manager/2.0.9/maven-artifact-manager-2.0.9.jar;C:/Data/.m2/repository/org/apache/maven/maven-plugin-registry/2.0.9/maven-plugin-registry-2.0.9.jar;C:/Data/.m2/repository/org/codehaus/plexus/plexus-interpolation/1.15/plexus-interpolation-1.15.jar;C:/Data/.m2/repository/org/apache/maven/reporting/maven-reporting-api/2.0.6/maven-reporting-api-2.0.6.jar;C:/Data/.m2/repository/org/apache/maven/maven-plugin-api/2.0.9/maven-plugin-api-2.0.9.jar;C:/Data/.m2/repository/org/codehaus/plexus/plexus-archiver/2.1/plexus-archiver-2.1.jar;C:/Data/.m2/repository/org/apache/maven/maven-plugin-parameter-documenter/2.0.6/maven-plugin-parameter-documenter-2.0.6.jar'
+-encoding
+'UTF-8'
+-protected
+-sourcepath
+'C:/Data/Projects/MavenOS/wix-maven-plugin-gh/src/main/java'
+-author
+-bottom
+'Copyright &#169; 2013-2014. All Rights Reserved.'
+-charset
+'UTF-8'
+-d
+'C:/Data/Projects/MavenOS/wix-maven-plugin-gh/target/site/apidocs'
+-docencoding
+'UTF-8'
+-doctitle
+'WiX Maven Plugin 0.1.0-SNAPSHOT API'
+-link
+'http://java.sun.com/j2se/1.5.0/docs/api'
+-use
+-version
+-windowtitle
+'WiX Maven Plugin 0.1.0-SNAPSHOT API'
