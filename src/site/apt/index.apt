@@ -1,0 +1,115 @@
+~~~
+~~ #%L
+~~ Windows Installer XML (WiX) toolset Maven Plugin
+~~ %%
+~~ 
+~~ %%
+~~ Licensed under the Apache License, Version 2.0 (the "License");
+~~ you may not use this file except in compliance with the License.
+~~ You may obtain a copy of the License at
+~~ 
+~~      http://www.apache.org/licenses/LICENSE-2.0
+~~ 
+~~ Unless required by applicable law or agreed to in writing, software
+~~ distributed under the License is distributed on an "AS IS" BASIS,
+~~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~~ See the License for the specific language governing permissions and
+~~ limitations under the License.
+~~ #L%
+~~~
+ -----
+ Introduction
+ -----
+
+WiX Plugin
+
+ The {{{http://wix.sourceforge.net}Windows Installer XML (WiX)}} is a toolset that builds {{{http://en.wikipedia.org/wiki/Windows_Installer}Windows installation 
+ packages}} from XML source code. The toolset supports a command line environment that developers may integrate into 
+ their build processes to build MSI/MSP setup packages, related intermediate MSM, wixlib and associated content MST, wixmst, wixpdb. 
+
+ The goal of this plugin is to provide an installer build lifecycle that extends beyond that provided in default MSVS Votive.
+ This includes 
+ 
+ * managing dependencies - platform and locale aware with installer dependencies, also working with jar and nar. (future npanday)
+ 
+ * finding source and resources in standard locations without the need for configuring.
+ 
+ * using the well known maven phases to provide points where additional actions can be taken such as signing.
+ 
+ * inscribing cab details on msi
+ 
+ * detach the bundle app for processing and attach the bundle app
+ 
+ * creating transforms, and optionally embedding into a multi lingual installer for automatic selection.
+ 
+ * creating patches
+
+ The plugin has been developed and tested with WiX version 3.6 and 3.7.  
+ It should also work with other versions of WiX, the wix toolset is defined as a dependent artifact.
+
+ The integration tests for this plugin are (will be) based on the excellent tutorial at
+ {{{http://www.tramontana.co.hu/wix/}http://www.tramontana.co.hu/wix/}}.
+
+
+* Lifecycle Overview
+
+ * wixlib  a shared archive of fragments (re usable only within wix toolset) (Votive Library / WiX Library template)
+   - WiX Toolset team suggest preferred over MSM for use when only Wix Toolset is involved. Allows finer grained inclusion.
+ 
+ * msm (todo) a shared installer database, merged into an msi as a single unit. (Votive Module / WiX Merge Module template)
+
+ * msi     a windows installer package (Votive Package / WiX Project template)
+ 
+ * msp     a windows patch package  (Votive PatchCreation / no WiX template)
+ 
+ * bundle  a bootstrap application to execute multiple installation actions (Votive Bundle / WiX Bootstrapper template)
+
+ See {{{http://wixtoolset.org/documentation/manual/v3/votive/votive_project_templates.html}Votive Project Templates}} for comparison. 
+
+** Wix custom actions are not included as a lifecycle for building in this plugin.
+ 
+ Native C++ doesn't not require additional build steps - suggest NAR build.
+ DotNet managed does require an additional build step of running MakeSfxCA.exe this would be a seperate plugin to add to, such as to the NPanday lifecycle for library.   
+
+* Goals Overview
+
+ The WiX plugin has several goals:
+
+ * {{{./validate-mojo.html}wix:validate}}  
+ 
+ * {{{./toolset-mojo.html}wix:toolset}} unpacks the wix toolset to the target folder or configured location
+ 
+ * {{{./unpack-dependencies-mojo.html}wix:unpack-dependencies}} unpacks the project dependencies from the repository to a defined location (for NAR and wixlib)
+        
+ * {{{./candle-mojo.html}wix:candle}} compiles WiX XML source (.wxs) file into a WiX Object (.wixobj) file.
+
+ * {{{./lit-mojo.html}wix:lit}} archives WiX Object (.wixobj) file(s) into re usable library modules (.wixlib file).
+
+ * {{{./light-mojo.html}wix:light}} links WiX Object (.wixobj), WiX library (.wixlib) and source files into an installation package (.msi/.exe file) or patch module(.wixmsp) and (.wixpdb).
+
+ * {{{./patch-mojo.html}wix:patch}}  run torch to diff 2 versions of installers package (either .msi or .wixpdb) creating transofmr (.wixmst) and links with patch module (.wixmsp) using pyro 
+ 
+ * {{{./transform-mojo.html}wix:transform}}  run torch to generate language based difference (.mst) between a base and localized msi 
+ 
+ * {{{./smoke-mojo.html}wix:smoke}} run the ICE validation, to support separate reporting from compiling 
+
+ * {{{./inscribe-mojo.html}wix:inscribe}} capture the signatures of external cabs and update the installer database
+
+ * {{{./detach-bundle-mojo.html}wix:detach-bundle}} detach the installer bundle executable so that it can be signed
+
+ * {{{./attach-bundle-mojo.html}wix:attach-bundle}} attach an installer bundle executable
+
+ * {{{./prepare-package-mojo.html}wix:prepare-package}}  (todo) attaches meta information about the build.
+
+ * {{{./package-mojo.html}wix:package}} attaches the classified artifacts based on configuration
+
+
+* Usage
+
+ Instructions on how to use the WiX plugin goals:
+
+ * {{{./usage/index.html}Complete example}}
+
+ * {{{./usage/candle.html}Create a WiX object file with candle}}
+
+ * {{{./usage/light.html}Create an installation package (.msi file) with light}}
