@@ -28,6 +28,9 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.plugin.MojoExecutionException;
+
 public abstract class AbstractPackageable extends AbstractWixMojo {
 
 	/**
@@ -120,9 +123,9 @@ public abstract class AbstractPackageable extends AbstractWixMojo {
 	 * a csv of locale, where a locale is a langId:culturespec, and a culturespec is a semicolon seperate list of cultures. 
 	 * ie. 1033:en-US,1031:de-DE;en-US
 	 * 
-	 * @parameter property="locales" expression="${wix.locales}" default-value="neutral"
+	 * @parameter expression="${wix.locales}" default-value="neutral"
 	 */
-	private String _locales = null;
+	private String locales = null;
 	// Note: Plexus has bug where a property doesn't allow using an empty/null string - to provide an expression of wix.locales, we have to provide a non null/empty default-value in case wix.locales is null/empty. 
 
 	/**
@@ -134,14 +137,14 @@ public abstract class AbstractPackageable extends AbstractWixMojo {
 	protected File narUnpackDirectory;
 	
 	public String getLocales() {
-		return _locales;
+		return locales;
 	}
 
-	public void setLocales(String locales) {
-		if (locales != null && !locales.isEmpty() && !"neutral".equalsIgnoreCase(locales) ) {
-			_locales = locales;
+	public void setLocales(String locales_) {
+		if (locales_ != null && !locales_.isEmpty() && !"neutral".equalsIgnoreCase(locales_) ) {
+			locales = locales_;
 //			getLog().debug("Setting locales from string " + locales);
-			for (String locale : _locales.split(",")) {
+			for (String locale : locales.split(",")) {
 				String[] splitLocale = locale.split(":", 2);
 				if (splitLocale.length == 2) {
 					String langId = splitLocale[0].trim();
@@ -169,12 +172,6 @@ public abstract class AbstractPackageable extends AbstractWixMojo {
 			getLog().debug("No locales specified");
 			localeList.put(null, null);
 		}
-	}
-	
-	public final String getPrimaryCulture(String culturespec) {
-		if (null != culturespec)
-			return culturespec.split(";")[0];
-		return culturespec;
 	}
 
 	protected File getOutput(String arch, String culturespec, String extension) {

@@ -59,26 +59,26 @@
       <?define ic_de = "UserLanguageID = 1031 OR UserLanguageID = 2055 OR UserLanguageID = 3079 OR UserLanguageID = 4103 OR UserUILanguage = 5127"?>
 
       <!-- As the default package, the InstallCondition for en.msi must complement the InstallConditions for the other mst packages. -->
-      <MsiPackage Id="NSL_EN_64" Compressed="yes" SourceFile="$(var.msi.TargetPath-x64-en-US)" Vital="yes" InstallCondition="VersionNT64 AND NOT ($(var.ic_de))" DisplayInternalUI="yes" >
+      <MsiPackage Id="EN_64" Compressed="yes" SourceFile="$(var.com.github.wix-maven.it.msi.TargetPath-x64-en-US)" Vital="yes" InstallCondition="VersionNT64 AND NOT ($(var.ic_de))" DisplayInternalUI="yes" >
 <!-- 
         <PayloadGroupRef Id="Cabinets64"/>
         <MsiProperty Name="ADDLOCAL" Value="[ADDLOCAL]"/>
          -->
       </MsiPackage>
-      <MsiPackage Id="NSL_EN_32" Compressed="yes" SourceFile="$(var.msi.TargetPath-x86-en-US)" Vital="yes" InstallCondition="NOT VersionNT64 AND NOT ($(var.ic_de))" DisplayInternalUI="yes">
+      <MsiPackage Id="EN_32" Compressed="yes" SourceFile="$(var.com.github.wix-maven.it.msi.TargetPath-x86-en-US)" Vital="yes" InstallCondition="NOT VersionNT64 AND NOT ($(var.ic_de))" DisplayInternalUI="yes">
 <!-- 
         <PayloadGroupRef Id="Cabinets32"/>
         <MsiProperty Name="ADDLOCAL" Value="[ADDLOCAL]"/>
          -->
       </MsiPackage>
 
-      <MsiPackage Id="NSL_DE_64" Compressed="yes" SourceFile="$(var.msi.TargetPath-x64-de-DE)" Vital="yes" InstallCondition="VersionNT64 AND ($(var.ic_de))" DisplayInternalUI="yes">
+      <MsiPackage Id="DE_64" Compressed="yes" SourceFile="$(var.com.github.wix-maven.it.msi.TargetPath-x64-de-DE)" Vital="yes" InstallCondition="VersionNT64 AND ($(var.ic_de))" DisplayInternalUI="yes">
 <!-- 
         <PayloadGroupRef Id="Cabinets64"/>
         <MsiProperty Name="ADDLOCAL" Value="[ADDLOCAL]"/>
          -->
       </MsiPackage>
-      <MsiPackage Id="NSL_DE_32" Compressed="yes" SourceFile="$(var.msi.TargetPath-x86-de-DE)" Vital="yes" InstallCondition="NOT VersionNT64 AND ($(var.ic_de))" DisplayInternalUI="yes">
+      <MsiPackage Id="DE_32" Compressed="yes" SourceFile="$(var.com.github.wix-maven.it.msi.TargetPath-x86-de-DE)" Vital="yes" InstallCondition="NOT VersionNT64 AND ($(var.ic_de))" DisplayInternalUI="yes">
 <!-- 
         <PayloadGroupRef Id="Cabinets32"/>
         <MsiProperty Name="ADDLOCAL" Value="[ADDLOCAL]"/>

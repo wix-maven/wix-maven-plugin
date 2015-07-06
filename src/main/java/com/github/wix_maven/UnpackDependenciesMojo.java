@@ -116,10 +116,10 @@ public class UnpackDependenciesMojo extends AbstractWixMojo {
 		getLog().info("WiX dependencies");
 		for (Artifact artifact : artifacts) {
 			getLog().info(artifact.getFile().getName());
-			Set<Artifact> depArtifacts = getRelatedArtifacts(artifact);
-			for (Artifact depArtifact : depArtifacts) {
-				getLog().info(depArtifact.getFile().getName());
-			}
+//			Set<Artifact> depArtifacts = getRelatedArtifacts(artifact);
+//			for (Artifact depArtifact : depArtifacts) {
+//				getLog().info(depArtifact.getFile().getName());
+//			}
 		}
 
 		// DependencyStatusSets dss = getDependencySets( );

@@ -35,11 +35,13 @@ import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
 import org.apache.maven.artifact.resolver.ArtifactResolutionException;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
+import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.artifact.filter.collection.ArtifactFilterException;
+import org.apache.maven.shared.artifact.filter.collection.ClassifierFilter;
 import org.apache.maven.shared.artifact.filter.collection.FilterArtifacts;
 import org.apache.maven.shared.artifact.filter.collection.ProjectTransitivityFilter;
 import org.apache.maven.shared.artifact.filter.collection.TypeFilter;
@@ -175,7 +177,7 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 	 * @parameter default-value="wix-toolset"
 	 * @required
 	 */
-	private String toolsPluginArtifactId = "wix-toolset";
+	private String toolsPluginArtifactId;
 	
 	/**
 	 * Group id of the toolset jar to unpack.
@@ -191,7 +193,7 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 	 * @parameter default-value="wix-bootstrap"
 	 * @required
 	 */
-	private String bootstrapPluginArtifactId = "wix-boostrap";
+	private String bootstrapPluginArtifactId;
 	
 	/**
 	 * Group id of the toolset jar to unpack.
@@ -200,6 +202,15 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 	 * @required
 	 * */
 	private String bootstrapPluginGroupId;
+
+	/**
+	 * Base Name of the generated wix objects.
+	 * 
+	 * @parameter expression="${wix.finalName}" default-value="${project.build.finalName}"
+	 * @required
+	 */
+	//@Parameter(alias = "wixName", property = "wix.finalName", defaultValue = "${project.build.finalName}")
+	private String finalName;
 	
 	/**
 	 * @parameter default-value="${plugin.artifacts}"
@@ -277,11 +288,11 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 	 * */
 	protected MavenProject project;
 
-	public final String PACK_LIB="wixlib";
-	public final String PACK_MERGE="msm";
-	public final String PACK_INSTALL="msi";
-	public final String PACK_PATCH="msp";
-	public final String PACK_BUNDLE="bundle";
+	public final String PACK_LIB = "wixlib";
+	public final String PACK_MERGE = "msm";
+	public final String PACK_INSTALL = "msi";
+	public final String PACK_PATCH = "msp";
+	public final String PACK_BUNDLE = "bundle";
 
 	protected Set<String> getPlatforms() {
 		if (platforms == null)
@@ -314,7 +325,7 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 		// if( visualStudioUse )
 		// zipUnArchiver.extract( "etc", toolDirectory );	
 
-		return tools.toArray(new Artifact[1]); 
+		return tools.toArray(new Artifact[tools.size()]); 
 	}
 	
 	// TODO: should be a better pattern for lookup of the tools attached to this pluggin
@@ -347,7 +358,7 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 
 			pluginJar = artifact.getFile();
 
-			getLog().debug(String.format("Extracting %1$s to %2$s", pluginJar, toolDirectory));
+			getLog().debug(String.format("Using tools jar %1$s", pluginJar));
 
 			zipUnArchiver.setSourceFile(pluginJar);
 			
@@ -465,7 +476,7 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 	
 		File outFile = getOutputPath(baseDir, arch, culture);
 			
-		outFile = new File(outFile, project.getBuild().getFinalName() + "."+ extension ); // TODO: does this nead to vary with package type? packaging
+		outFile = new File(outFile, finalName + "."+ extension ); // TODO: does this nead to vary with package type? packaging
 	
 		return outFile;
 	}
@@ -547,6 +558,70 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 	
 			return artifacts;
 		}
+	
+	protected Set<Artifact> getNPANDAYDependencySets()
+			throws MojoExecutionException {
+		FilterArtifacts filter = new FilterArtifacts();
+		// Cannot do this filter in maven3 as it blocks classifiers - works in maven 2.
+		// filter.addFilter(new ProjectTransitivityFilter(project.getDependencyArtifacts(), true));
+		filter.addFilter(new TypeFilter(
+				"dotnet-library,dll,dotnet-library-config,dll.config,dotnet-executable,exe,dotnet-executable-config,exe.config",
+				""));
+
+		// start with all artifacts.
+		@SuppressWarnings("unchecked")
+		Set<Artifact> artifacts = project.getArtifacts();
+
+		// perform filtering
+		try {
+			artifacts = filter.filter(artifacts);
+		} catch (ArtifactFilterException e) {
+			throw new MojoExecutionException(e.getMessage(), e);
+		}
+
+		return artifacts;
+	}
+
+	public final String getPrimaryCulture(String culturespec) {
+		if (null != culturespec)
+			return culturespec.split(";")[0];
+		return culturespec;
+	}
+
+	protected Set<Artifact> getWixDependencySets() throws MojoExecutionException {
+		FilterArtifacts filter = new FilterArtifacts();
+		filter.addFilter(new ProjectTransitivityFilter(project.getDependencyArtifacts(), true));
+		filter.addFilter(new TypeFilter("wixlib,msm,msp,msi,bundle", null));
+		filter.addFilter(new ClassifierFilter( "x86,x64,intel", null){
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see org.apache.maven.plugin.dependency.utils.filters.AbstractArtifactFeatureFilter#compareFeatures(String,String)
+			 */
+			
+			protected boolean compareFeatures( String lhs, String rhs )
+			{
+			    return lhs == null || lhs.startsWith( rhs );
+			}
+		} );
+		
+		// start with all artifacts.
+		@SuppressWarnings("unchecked")
+		Set<Artifact> artifacts = project.getArtifacts();
+	
+		// perform filtering
+		try {
+			artifacts = filter.filter(artifacts);
+		} catch (ArtifactFilterException e) {
+			throw new MojoExecutionException(e.getMessage(), e);
+		}
+	
+		return artifacts;
+	}
+
+	protected File wixUnpackDirectory(Artifact wixArtifact) {
+		return new File(unpackDirectory, wixArtifact.getGroupId() + "-" + wixArtifact.getArtifactId() + "-" + wixArtifact.getBaseVersion() );
+	}
 
 	/**
 	 * Copied from Maven-dependency-plugin Returns <code>true</code> if the artifact has a file.
@@ -569,9 +644,12 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 	 * @return <code>true</code> if and only if the two artifacts have the same groupId, artifactId, version, type and classifier.
 	 */
 	private static boolean equals(Artifact a, Artifact b) {
-		return a == b || !(a == null || b == null) && StringUtils.equals(a.getGroupId(), b.getGroupId())
-				&& StringUtils.equals(a.getArtifactId(), b.getArtifactId()) && StringUtils.equals(a.getVersion(), b.getVersion())
-				&& StringUtils.equals(a.getType(), b.getType()) && StringUtils.equals(a.getClassifier(), b.getClassifier());
+		return a == b || !(a == null || b == null) 
+				&& StringUtils.equals(a.getGroupId(), b.getGroupId())
+				&& StringUtils.equals(a.getArtifactId(), b.getArtifactId())
+				&& StringUtils.equals(a.getVersion(), b.getVersion())
+				&& StringUtils.equals(a.getType(), b.getType())
+				&& StringUtils.equals(a.getClassifier(), b.getClassifier());
 	}
 
 	protected String getRelative( File target ) {
@@ -584,7 +662,93 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 		return target.getPath();
 	}
 	
-    /**
+	/**
+	 * Based on Maven-dependency-plugin AbstractFromConfigurationMojo.
+	 * 
+	 * Resolves the Artifact from the remote repository if necessary. If no version is specified, it will be retrieved from the dependency list or
+	 * from the DependencyManagement section of the pom.
+	 * 
+	 * @param artifactItem
+	 *            containing information about artifact from plugin configuration.
+	 * @return Artifact object representing the specified file.
+	 * @throws MojoExecutionException
+	 *             with a message if the version can't be found in DependencyManagement.
+	 */
+	protected Set<Artifact> getRelatedArtifacts(Artifact artifactItem, String arch, String culture)
+			throws MojoExecutionException {
+
+		Set<Artifact> artifactSet = new HashSet<Artifact>();
+
+		// Map managedVersions = createManagedVersionMap( factory, project.getId(), project.getDependencyManagement() );
+		VersionRange vr;
+		try {
+			vr = VersionRange.createFromVersionSpec(artifactItem.getVersion());
+		} catch (InvalidVersionSpecificationException e1) {
+			vr = VersionRange.createFromVersion(artifactItem.getVersion());
+		}
+
+		if (PACK_LIB.equalsIgnoreCase(artifactItem.getType()) || PACK_MERGE.equalsIgnoreCase(artifactItem.getType())) {
+			boolean hasSomething = true;
+			// even if this module has culture it's base modules may be neutral
+			try {
+				String classifier = arch + "-" + "neutral";
+				getArtifact(artifactItem.getGroupId(), artifactItem.getArtifactId(), artifactItem.getType(), artifactSet, vr, classifier);
+			} catch (MojoExecutionException e) {
+				if (culture == null)
+					throw e;
+				hasSomething = false;
+			}
+
+			if (culture != null) {
+				try {
+					String classifier = arch + "-" + getPrimaryCulture(culture);
+					getArtifact(artifactItem.getGroupId(), artifactItem.getArtifactId(), artifactItem.getType(), artifactSet, vr, classifier);
+				} catch (MojoExecutionException e) {
+					if (hasSomething == false)
+						throw e;
+				}
+			}
+		}
+
+		// list out all the dependencies with their classifiers
+//		if ("msi".equalsIgnoreCase(artifactItem.getType()) ) {
+//			boolean hasSomething = true;
+//			// even if this module has culture it's base modules may be neutral
+//			try {
+//				String classifier = arch + "-" + "neutral";
+//				getArtifact(artifactItem.getGroupId(), artifactItem.getArtifactId(), artifactItem.getType(), artifactSet, vr, classifier);
+//			} catch (MojoExecutionException e) {
+//				if (culture == null)
+//					throw e;
+//				hasSomething = false;
+//			}
+//
+//			if (culture != null) {
+//				try {
+//					String classifier = arch + "-" + getPrimaryCulture(culture);
+//					getArtifact(artifactItem.getGroupId(), artifactItem.getArtifactId(), artifactItem.getType(), artifactSet, vr, classifier);
+//				} catch (MojoExecutionException e) {
+//					if (hasSomething == false)
+//						throw e;
+//				}
+//			}
+//		}		
+//		
+		// else if ("nar".equalsIgnoreCase(artifactItem.getType())) {
+		// get one of both 32 & 64 bit... how do we tell whats there to use?
+		// go through nar
+		// for (String arch : getPlatforms()) {
+		// for (String culture : cultures) {
+		// String culture = null;
+		// String classifier = arch + "-" + (culture == null ? "neutral" : culture);
+
+		// getArtifact(artifactItem.getGroupId(), artifactItem.getArtifactId(), artifactItem.getType(), artifactSet, vr, "x86-Windows-msvc-shared");
+		// }
+		// }
+		return artifactSet;
+	}
+
+	/**
      * Returns a relative path for the targetFile relative to the base directory.
      * - copied from Ant CPPTasks
      * 

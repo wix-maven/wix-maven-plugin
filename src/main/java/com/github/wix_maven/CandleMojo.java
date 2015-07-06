@@ -23,9 +23,7 @@ package com.github.wix_maven;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.shared.artifact.filter.collection.ArtifactFilterException;
-import org.apache.maven.shared.artifact.filter.collection.ClassifierFilter;
 import org.apache.maven.shared.artifact.filter.collection.FilterArtifacts;
-import org.apache.maven.shared.artifact.filter.collection.ProjectTransitivityFilter;
 import org.apache.maven.shared.artifact.filter.collection.TypeFilter;
 import org.codehaus.plexus.compiler.util.scan.*;
 import org.codehaus.plexus.compiler.util.scan.mapping.*;
@@ -192,57 +190,6 @@ public class CandleMojo extends AbstractWixMojo {
 		}
 	}
 	
-	protected Set<Artifact> getWixDependencySets() throws MojoExecutionException {
-		FilterArtifacts filter = new FilterArtifacts();
-		filter.addFilter(new ProjectTransitivityFilter(project.getDependencyArtifacts(), true));
-		filter.addFilter(new TypeFilter("msm,msp,msi", null));
-		filter.addFilter(new ClassifierFilter( "x86,x64,intel,", null){
-		    /*
-		     * (non-Javadoc)
-		     * 
-		     * @see org.apache.maven.plugin.dependency.utils.filters.AbstractArtifactFeatureFilter#compareFeatures(String,String)
-		     */
-
-		    protected boolean compareFeatures( String lhs, String rhs )
-		    {
-		        return lhs != null && lhs.startsWith( rhs );
-		    }
-		} );
-		
-		// start with all artifacts.
-		@SuppressWarnings("unchecked")
-		Set<Artifact> artifacts = project.getArtifacts();
-
-		// perform filtering
-		try {
-			artifacts = filter.filter(artifacts);
-		} catch (ArtifactFilterException e) {
-			throw new MojoExecutionException(e.getMessage(), e);
-		}
-
-		return artifacts;
-	}
-	
-	protected Set<Artifact> getNARDependencySets() throws MojoExecutionException {
-		FilterArtifacts filter = new FilterArtifacts();
-// Cannot do this filter in maven3 as it blocks classifiers - works in maven 2. 
-//		filter.addFilter(new ProjectTransitivityFilter(project.getDependencyArtifacts(), true));
-		filter.addFilter(new TypeFilter("nar", ""));
-
-		// start with all artifacts.
-		@SuppressWarnings("unchecked")
-		Set<Artifact> artifacts = project.getArtifacts();
-
-		// perform filtering
-		try {
-			artifacts = filter.filter(artifacts);
-		} catch (ArtifactFilterException e) {
-			throw new MojoExecutionException(e.getMessage(), e);
-		}
-
-		return artifacts;
-	}
-
 	protected void compile(Set<String> files, File toolDirectory, String arch) throws MojoExecutionException {
 
 		Commandline cl = new Commandline();
@@ -288,12 +235,10 @@ public class CandleMojo extends AbstractWixMojo {
 			});
 
 			if (returnValue != 0) {
-				throw new MojoExecutionException("Problem executing compiler, return code " + returnValue);
+				throw new MojoExecutionException("Problem executing compiler, return code " + returnValue + "\nFailed execution of " + cl.toString());
 			}
 		} catch (CommandLineException e) {
-			// throw new MojoExecutionException(
-			// "Error running mapping-tools.", e );
-			throw new MojoExecutionException("Problem executing compiler candle", e);
+			throw new MojoExecutionException("Problem executing compiler candle \nFailed execution of " + cl.toString(), e);
 		}
 	}
 
@@ -312,21 +257,14 @@ public class CandleMojo extends AbstractWixMojo {
 		addWixDefines();
 		addNARDefines();
 		addJARDefines();
+		addNPANDAYDefines();
 		
 		for (String arch : getPlatforms() ) {
 
 			getArchIntDirectory(arch).mkdirs();
 
 			definitionsArch.clear();
-			if( "x86".equals(arch) ){
-				definitionsArch.add("IsWin64=no");
-				definitionsArch.add("narDir.dll=x86-Windows-msvc-shared/lib/x86-Windows-msvc/shared");
-				definitionsArch.add("narDir.exe=x86-Windows-msvc-executable/bin/x86-Windows-msvc");
-			} else {
-				definitionsArch.add("IsWin64=yes");
-				definitionsArch.add("narDir.dll=amd64-Windows-msvc-shared/lib/amd64-Windows-msvc/shared");
-				definitionsArch.add("narDir.exe=amd64-Windows-msvc-executable/bin/amd64-Windows-msvc");
-			}
+			addNARArchDefines(arch);
 			// and intel... and... 
 			try {
 
@@ -386,38 +324,60 @@ public class CandleMojo extends AbstractWixMojo {
 
 	}
 
-	/* Maybe wixlib as well, though I see no reason why as it is a linker issue normally...
-	 * msvc adds, arch specific
-	 * -dinstall.TargetDir=C:\temp\install\target\Debug\x86\ 
-	 * -dinstall.TargetExt=.msi 
-	 * -dinstall.TargetFileName=install.msi 
-	 * -dinstall.TargetName=install 
-	 * -dinstall.TargetPath=C:\temp\install\target\Debug\x86\install.msi
-	 * 
-	 * mavenized msi/msp  baz.boo:install:1-SNAPSHOT  with internal name defined CompanyInstaller
-	 * from cache the files are all in the same location and match the artifact names - could shortcut adding classifier to source file name
-	 * -dinstall.TargetDir=C:\temp\.m2\repository\baz\boo\install\1-SNAPSHOT
-	 * -dinstall.TargetName=install-1-SNAPSHOT
-	 * from reactor however gives access to pre install names - which vary the paths not the names 
-	 * -dinstall.TargetPath-x86-en-US=C:\build\bazboo\install\target\Release\x86\en-US\1-SNAPSHOT\CompanyInstaller-1-SNAPSHOT.msi
-	 * -dinstall.TargetPath-x64-en-US=C:\build\bazboo\install\target\Release\x64\en-US\1-SNAPSHOT\CompanyInstaller-1-SNAPSHOT.msi
-	 * -dinstall.TargetPath-x86-de-DE=C:\build\bazboo\install\target\Release\x86\de-DE\1-SNAPSHOT\CompanyInstaller-1-SNAPSHOT.msi
-	 * -dinstall.TargetPath-x64-de-DE=C:\build\bazboo\install\target\Release\x64\de-DE\1-SNAPSHOT\CompanyInstaller-1-SNAPSHOT.msi
-	 * 
-	 * mavenized msm  foo.bar:merge:2
-	 * -dmerge.TargetDir=C:\temp\.m2\foo\bar\merge\2 
-	 * -dmerge.TargetName=merge-2 
-	 * -dmerge.TargetPath-x86=C:\temp\.m2\foo\bar\merge\2\merge-2-x86.msm
-	 * -dmerge.TargetPath-x64=C:\temp\.m2\foo\bar\merge\2\merge-2-x64.msm
-	 * 
-	 */
-	private void addWixDefines() throws MojoExecutionException {
+	private void addNARArchDefines(String arch) {
+		if( "x86".equals(arch) ){
+			definitionsArch.add("IsWin64=no");
+			definitionsArch.add("narDir.dll=x86-Windows-msvc-shared/lib/x86-Windows-msvc/shared");
+			definitionsArch.add("narDir.exe=x86-Windows-msvc-executable/bin/x86-Windows-msvc");
+		} else {
+			definitionsArch.add("IsWin64=yes");
+			definitionsArch.add("narDir.dll=amd64-Windows-msvc-shared/lib/amd64-Windows-msvc/shared");
+			definitionsArch.add("narDir.exe=amd64-Windows-msvc-executable/bin/amd64-Windows-msvc");
+		}
+	}
+
+	protected void addDefinition(String def ) {
+		definitions.add(def);
+	}
+
+	protected Set<Artifact> getNARDependencySets() throws MojoExecutionException {
+		FilterArtifacts filter = new FilterArtifacts();
+// Cannot do this filter in maven3 as it blocks classifiers - works in maven 2. 
+//		filter.addFilter(new ProjectTransitivityFilter(project.getDependencyArtifacts(), true));
+		filter.addFilter(new TypeFilter("nar", ""));
+
+		// start with all artifacts.
+		@SuppressWarnings("unchecked")
+		Set<Artifact> artifacts = project.getArtifacts();
+
+		// perform filtering
+		try {
+			artifacts = filter.filter(artifacts);
+		} catch (ArtifactFilterException e) {
+			throw new MojoExecutionException(e.getMessage(), e);
+		}
+
+		return artifacts;
+	}
+
+	protected void addWixDefines() throws MojoExecutionException {
 		Set<Artifact> wixArtifacts = getWixDependencySets();
-		getLog().info( "Adding "+wixArtifacts.size()+" dependent msm/msi/msp" );
+		getLog().info( "Adding "+wixArtifacts.size()+" dependent msm/msi/msp/wixlib/bundle" );
 		if( !wixArtifacts.isEmpty() ){
 			for(Artifact wix : wixArtifacts){
-				getLog().debug( String.format("WIX added dependency %1$s", wix.getArtifactId() ) );
-				// Warn: may need to make artifacts unique using groupId... but nar doesn't do that yet.
+				if( verbose )
+					getLog().info( String.format("WIX added dependency %1$s", wix.getArtifactId() ) );
+				else 
+					getLog().debug( String.format("WIX added dependency %1$s", wix.getArtifactId() ) );
+				
+				if( ! wix.hasClassifier() ){
+					File resUnpackDirectory = wixUnpackDirectory(wix);
+					// if( resUnpackDirectory.exists() )  pending move of unpack to earlier phase, currently run after this goal.
+					{
+						addDefinition(String.format("%1$s.%2$s.UnpackPath=%3$s", wix.getGroupId(), wix.getArtifactId(), defineWixUnpackFile( resUnpackDirectory ) ) );
+					}
+				}
+
 				// TODO: resolve source platform issues - msm/msi don't have non classified artifacts.
 //				if( PACK_MERGE.equalsIgnoreCase( wix.getType() ) ){
 //					definitions.add(String.format("%1$s.TargetDir-%3$s=%2$s", wix.getArtifactId(), wix.getFile().getParentFile().getAbsolutePath() ));
@@ -425,13 +385,15 @@ public class CandleMojo extends AbstractWixMojo {
 //					definitions.add(String.format("%1$s.TargetPath-%3$s=%2$s", wix.getArtifactId(), wix.getFile().getAbsolutePath() ));
 //				} 
 				// definitions.add(String.format("%1$s.TargetName=%2$s", wix.getArtifactId(), wix.getWixInfo().getName() ));
-				definitions.add(String.format("%1$s.TargetPath-%3$s=%2$s", wix.getArtifactId(), wix.getFile().getAbsolutePath(), wix.getClassifier() ));
-				
+				if( wix.hasClassifier() ){
+					addDefinition(String.format("%1$s.%2$s.TargetPath-%4$s=%3$s", wix.getGroupId(), wix.getArtifactId(), defineRepoFile( wix.getFile() ), wix.getClassifier() ));
+				}
 			}
 		}
 	}
-	
-	private void addJARDefines() throws MojoExecutionException {
+
+
+	protected void addJARDefines() throws MojoExecutionException {
 		// TODO: transitive only through direct attached jars...
 		Set<Artifact> jarArtifacts = getJARDependencySets();
 		getLog().info( "Adding "+jarArtifacts.size()+" dependent JARs" );
@@ -444,14 +406,12 @@ public class CandleMojo extends AbstractWixMojo {
 				// the conflict is due to pathing or lack there of from compile not having the package id in the path
 				// so -b option used in linking cannot specify just the local repo, it must include the full path to versioned package folder or 'target'
 				// ie.  foo/target/foo-1.jar  repo/com/foo/1/foo-1.jar  repo/net/foo/1/foo-1.jar
-				definitions.add(String.format("%1$s.TargetJAR=%2$s", jar.getArtifactId(), jar.getFile().getName()));
+				addDefinition(String.format("%1$s.%2$s.TargetJAR=%3$s", jar.getGroupId(), jar.getArtifactId(), defineRepoFile( jar.getFile() )) );
 			}
 		}
 	}
 
-	// Files included in the install that may need to be patched need to findable if the source location changes from host to host
-	// these locations work in combination with light link option -b to redirect the base 'narunpack' folder.
-	private void addNARDefines() throws MojoExecutionException {
+	protected void addNARDefines() throws MojoExecutionException {
 		// TODO: transitive only through direct attached nars...
 		Set<Artifact> narArtifacts = getNARDependencySets();
 		getLog().info( "Adding "+narArtifacts.size()+" dependent NARs" );
@@ -475,24 +435,56 @@ public class CandleMojo extends AbstractWixMojo {
 			 * -dConsoleApplication1.TargetDir=ConsoleApplication1-1.0.0-
 			 * -dConsoleApplication1.TargetFileName=CA1.exe 
 			 */
-
+	
 			// TODO: work out what narUnpack happened?
 			// Nar Layout 21 segments.. 
-			definitions.add("narDirx86.dll=x86-Windows-msvc-shared/lib/x86-Windows-msvc/shared");
-			definitions.add("narDirx86.exe=x86-Windows-msvc-executable/bin/x86-Windows-msvc");
-			definitions.add("narDiramd64.dll=amd64-Windows-msvc-shared/lib/amd64-Windows-msvc/shared");
-			definitions.add("narDiramd64.exe=amd64-Windows-msvc-executable/bin/amd64-Windows-msvc");
+			addDefinition("narDirx86.dll=x86-Windows-msvc-shared/lib/x86-Windows-msvc/shared");
+			addDefinition("narDirx86.exe=x86-Windows-msvc-executable/bin/x86-Windows-msvc");
+			addDefinition("narDiramd64.dll=amd64-Windows-msvc-shared/lib/amd64-Windows-msvc/shared");
+			addDefinition("narDiramd64.exe=amd64-Windows-msvc-executable/bin/amd64-Windows-msvc");
 			// and intel... and... 
-			definitions.add("narDirNA=noarch");
+			addDefinition("narDirNA=noarch");
 			for(Artifact nar : narArtifacts){
 				getLog().debug( String.format("NAR added dependency %1$s", nar.getArtifactId() ) );
 				// Warn: may need to make artifacts unique using groupId... but nar doesn't do that yet.
-				definitions.add(String.format("%1$s.TargetDir=%1$s-%2$s-", nar.getArtifactId(), nar.getVersion()));
-				//definitions.add(String.format("%1$s.TargetNAR=%2$s", nar.getArtifactId(), nar.getFile()));
+				addDefinition(String.format("%1$s.TargetDir=%1$s-%2$s-", nar.getArtifactId(), nar.getVersion()));
+				addDefinition(String.format("%1$s.TargetNAR=%2$s", nar.getArtifactId(), defineRepoFile( nar.getFile() ) ));
 				// ... have to open up the narInfo to get the name... it can wait
 				//definitions.add(String.format("%1$s.TargetFileName=%1$s-%2$s-", nar.getArtifactId(), narInfo.getOutput() ));
 			}
 		}
 	}
 
+	protected void addNPANDAYDefines() throws MojoExecutionException {
+		// TODO: transitive only through direct attached nars...
+		Set<Artifact> npandayArtifacts = getNPANDAYDependencySets();
+		getLog().info( "Adding "+npandayArtifacts.size()+" dependent NPANDAY dependencies" );
+		
+		if( !npandayArtifacts.isEmpty() ){
+			/* VisualStudio Reference Projects 
+			 * 
+			 * Working with nar unpack adding equivelant -b c:\sln  and narDir partials.
+			 */
+	
+			// Overall definitions for NPANDAY?  definitions.add("narDirNA=noarch");
+			for(Artifact npanday : npandayArtifacts){
+// TODO: There are various different types for npanday, this list might need to expand to support multiple
+				if( !( npanday.getType().endsWith("-config") || npanday.getType().endsWith(".config")) ){
+					getLog().debug( String.format("NPANDAY added dependency %1$s", npanday.getArtifactId() ) );
+					addDefinition(String.format("%1$s.%2$s.TargetNPANDAY=%3$s", npanday.getGroupId(), npanday.getArtifactId(), defineRepoFile( npanday.getFile() ) ));
+				} else { 
+					getLog().debug( String.format("NPANDAY added config dependency %1$s", npanday.getArtifactId() ) );
+					addDefinition(String.format("%1$s.%2$s.TargetNPANDAYConfig=%3$s", npanday.getGroupId(), npanday.getArtifactId(), defineRepoFile( npanday.getFile() ) ));
+				}
+			}
+		}
+	}
+	
+	protected String defineRepoFile( File toTrim ){
+		return toTrim.getAbsolutePath().replace(localRepository.getBasedir()+"\\", "");
+	}
+
+	protected String defineWixUnpackFile( File toTrim ){
+		return toTrim.getAbsolutePath().replace(unpackDirectory+"\\", "");
+	}
 }

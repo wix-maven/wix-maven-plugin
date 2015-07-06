@@ -59,13 +59,13 @@
       <!-- Keep these in sync with the payloads in the BootstrapperApplicationRef above -->
       <?define ic_de = "UserLanguageID = 1031 OR UserLanguageID = 2055 OR UserLanguageID = 3079 OR UserLanguageID = 4103 OR UserUILanguage = 5127"?>
 
-      <MspPackage Id="NSL_EN_32" Compressed="yes" SourceFile="$(var.msp.TargetPath-x86-en-US)" Vital="yes" InstallCondition="NOT VersionNT64 " > <!-- AND NOT ($(var.ic_de)) -->
+      <MspPackage Id="EN_32" Compressed="yes" SourceFile="$(var.com.github.wix-maven.it.msp.TargetPath-x86-en-US)" Vital="yes" InstallCondition="NOT VersionNT64 " > <!-- AND NOT ($(var.ic_de)) -->
 <!-- 
         <PayloadGroupRef Id="Cabinets32"/>
         <MsiProperty Name="ADDLOCAL" Value="[ADDLOCAL]"/>
          -->
       </MspPackage>
-      <MspPackage Id="NSL_DE_32" Compressed="yes" SourceFile="$(var.msp.TargetPath-x86-de-DE)" Vital="yes" InstallCondition="NOT VersionNT64 " > <!-- AND ($(var.ic_de))-->
+      <MspPackage Id="DE_32" Compressed="yes" SourceFile="$(var.com.github.wix-maven.it.msp.TargetPath-x86-de-DE)" Vital="yes" InstallCondition="NOT VersionNT64 " > <!-- AND ($(var.ic_de))-->
 <!-- 
         <PayloadGroupRef Id="Cabinets32"/>
         <MsiProperty Name="ADDLOCAL" Value="[ADDLOCAL]"/>

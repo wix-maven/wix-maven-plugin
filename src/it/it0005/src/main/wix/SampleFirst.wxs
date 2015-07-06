@@ -16,7 +16,7 @@
           <Directory Id='INSTALLDIR' Name='JUnit 1.0'>
 
             <Component Id='HelperLibrary' Guid='00000001-6BE3-460D-A14F-75658D16550B'>
-              <File Id='JUnit' Name='Junit.jar' DiskId='1' Source='$(var.junit.TargetJAR)' KeyPath='yes' />
+              <File Id='JUnit' Name='Junit.jar' DiskId='1' Source='$(var.junit.junit.TargetJAR)' KeyPath='yes' />
             </Component>
 
           </Directory>

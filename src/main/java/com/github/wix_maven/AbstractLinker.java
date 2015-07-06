@@ -143,26 +143,7 @@ public abstract class AbstractLinker extends AbstractPackageable {
 	public final Set<String> getLocaleExcludes() {
 		return wxlExcludes;
 	}
-
-	private void addJARSourceRoots(Set<String> allFileSourceRoots) throws MojoExecutionException {
-		// TODO: transitive only through direct attached jars...
-		Set<Artifact> jarArtifacts = getJARDependencySets();
-		getLog().info( "Adding "+jarArtifacts.size()+" dependent JAR paths" );
-		if( !jarArtifacts.isEmpty() ){
-			for(Artifact jar : jarArtifacts){
-				if( null != jar.getFile().getParentFile() ){ // file is ment to always be in some folder.. just in case? hacky defensive programming...
-					getLog().debug( String.format("JAR added dependency %1$s", jar.getArtifactId() ) );
-					// Warn: may need to make artifacts unique using groupId... but nar doesn't do that yet.
-					// when there are multiple jars with the same name,
-					// there is a conflict between requirements for reactor 'compile' build Vs 'install' build that can later be used in a patch, 
-					// the conflict is due to pathing or lack there of from compile not having the package id in the path
-					// so -b option used in linking cannot specify just the local repo, it must include the full path to versioned package folder or 'target'
-					allFileSourceRoots.add(jar.getFile().getParentFile().getAbsolutePath());
-				}
-			}
-		}
-	}
-
+	
 	protected void addOptions(Commandline cl, Set<String> allFileSourceRoots) throws MojoExecutionException {
 // defensive assert(allFileSourceRoots != null)
 		if( wxsInputDirectory.exists() )
@@ -173,8 +154,11 @@ public abstract class AbstractLinker extends AbstractPackageable {
 
 		if( narUnpackDirectory.exists() )
 			allFileSourceRoots.add(narUnpackDirectory.getAbsolutePath());
-		
-		addJARSourceRoots(allFileSourceRoots);
+
+		if( unpackDirectory.exists() )
+			allFileSourceRoots.add(unpackDirectory.getAbsolutePath());
+
+		allFileSourceRoots.add(localRepository.getBasedir());
 		
 		for (Iterator<String> i = allFileSourceRoots.iterator(); i.hasNext();) {
 			//  cannot contain a quote. Quotes are often accidentally introduced when trying to refer to a directory path with spaces in it, such as "C:\Out Directory" or "C:\Out Directory\".  The correct representation for that path is: "C:\Out Directory\\"
@@ -248,8 +232,6 @@ public abstract class AbstractLinker extends AbstractPackageable {
 				throw new MojoExecutionException("Problem executing linker, return code " + returnValue );
 			}
 		} catch (CommandLineException e) {
-			// throw new MojoExecutionException( "Error running mapping-tools.",
-			// e );
 			throw new MojoExecutionException("Problem executing linker", e);
 		} finally {
 			getLog().info(cl.toString());

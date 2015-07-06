@@ -21,8 +21,6 @@ package com.github.wix_maven;
  */
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
-import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.shared.artifact.filter.collection.ArtifactFilterException;
 import org.apache.maven.shared.artifact.filter.collection.ClassifierFilter;
@@ -100,37 +98,6 @@ public class LightMojo extends AbstractLinker {
 		return getPackageOutputExtension();
 	}
 
-	protected Set<Artifact> getDependencySets() throws MojoExecutionException {
-		FilterArtifacts filter = new FilterArtifacts();
-		filter.addFilter(new ProjectTransitivityFilter(project.getDependencyArtifacts(), true));
-		filter.addFilter(new ClassifierFilter(null,"x86,x64,intel"){
-		    /*
-		     * (non-Javadoc)
-		     * 
-		     * @see org.apache.maven.plugin.dependency.utils.filters.AbstractArtifactFeatureFilter#compareFeatures(String,String)
-		     */
-
-		    protected boolean compareFeatures( String lhs, String rhs )
-		    {
-		        return lhs != null && lhs.startsWith( rhs );
-		    }
-		});
-		filter.addFilter(new TypeFilter("wixlib,msi,msp", null));
-
-		// start with all artifacts.
-		@SuppressWarnings("unchecked")
-		Set<Artifact> artifacts = project.getArtifacts();
-
-		// perform filtering
-		try {
-			artifacts = filter.filter(artifacts);
-		} catch (ArtifactFilterException e) {
-			throw new MojoExecutionException(e.getMessage(), e);
-		}
-
-		return artifacts;
-	}
-
 	@Override
 	protected void multilink(File toolDirectory) throws MojoExecutionException {
 
@@ -140,12 +107,14 @@ public class LightMojo extends AbstractLinker {
 
 		defaultLocale();
 
-		Set<Artifact> artifacts = getDependencySets();
+		Set<Artifact> wixDependencies = getWixDependencySets();
 		
-		for (Iterator<Artifact> i = artifacts.iterator(); i.hasNext();) {
+		for (Iterator<Artifact> i = wixDependencies.iterator(); i.hasNext();) {
 			Artifact libGroup = i.next();
-			getLog().debug("Attempting to unpack resources for " + libGroup.toString());
-			unpackResource(libGroup);
+			if( !libGroup.hasClassifier() ){
+				getLog().debug("Attempting to unpack resources for " + libGroup.toString());
+				unpackResource(libGroup);
+			}
 		}
 		
 		for (String arch : getPlatforms()) {
@@ -187,10 +156,9 @@ public class LightMojo extends AbstractLinker {
 							objectFiles.add(getRelative( i.next() ) );
 						}
 					}
-					for (Iterator<Artifact> i = artifacts.iterator(); i.hasNext();) {
+					for (Iterator<Artifact> i = wixDependencies.iterator(); i.hasNext();) {
 						Artifact libGroup = i.next();
 						getLog().debug(libGroup.toString());
-						unpackResource(libGroup);
 						if (PACK_LIB.equalsIgnoreCase(libGroup.getType())) {
 							// try unpack resources
 							addResource(libGroup, culture, allSourceRoots);
@@ -284,7 +252,7 @@ public class LightMojo extends AbstractLinker {
 	 * @param allSourceRoots
 	 */
 	private void addResource(Artifact libGroup, String culture, Set<String> allSourceRoots) {
-		File resUnpackDirectory = new File(unpackDirectory, libGroup.getGroupId() + "-" + libGroup.getArtifactId());		
+		File resUnpackDirectory = wixUnpackDirectory(libGroup);
 
 		File neutralFolder = new File(resUnpackDirectory, "wix-locale");
 		if (neutralFolder.exists()) {
@@ -297,7 +265,7 @@ public class LightMojo extends AbstractLinker {
 	private void unpackResource(Artifact libGroup) {
 		// TODO: support compile if( libGroup.getFile().isFile() )
 		zipUnArchiver.setSourceFile(libGroup.getFile());
-		File resUnpackDirectory = new File(unpackDirectory, libGroup.getGroupId() + "-" + libGroup.getArtifactId());
+		File resUnpackDirectory = wixUnpackDirectory(libGroup);
 //		zipUnArchiver.extract(subfolder, resUnpackDirectory);
 
 		if( !resUnpackDirectory.exists() )
@@ -308,90 +276,5 @@ public class LightMojo extends AbstractLinker {
 		selectors[0].setIncludes( "wix-locale/**,cabs/**".split( "," ) );
 		zipUnArchiver.setFileSelectors( selectors );
 		zipUnArchiver.extract();
-	}
-	
-	/**
-	 * Based on Maven-dependency-plugin AbstractFromConfigurationMojo.
-	 * 
-	 * Resolves the Artifact from the remote repository if necessary. If no version is specified, it will be retrieved from the dependency list or
-	 * from the DependencyManagement section of the pom.
-	 * 
-	 * @param artifactItem
-	 *            containing information about artifact from plugin configuration.
-	 * @return Artifact object representing the specified file.
-	 * @throws MojoExecutionException
-	 *             with a message if the version can't be found in DependencyManagement.
-	 */
-	protected Set<Artifact> getRelatedArtifacts(Artifact artifactItem, String arch, String culture) throws MojoExecutionException {
-
-		Set<Artifact> artifactSet = new HashSet<Artifact>();
-
-		// Map managedVersions = createManagedVersionMap( factory, project.getId(), project.getDependencyManagement() );
-		VersionRange vr;
-		try {
-			vr = VersionRange.createFromVersionSpec(artifactItem.getVersion());
-		} catch (InvalidVersionSpecificationException e1) {
-			vr = VersionRange.createFromVersion(artifactItem.getVersion());
-		}
-
-		if (PACK_LIB.equalsIgnoreCase(artifactItem.getType()) || PACK_MERGE.equalsIgnoreCase(artifactItem.getType())) {
-			boolean hasSomething = true;
-			// even if this module has culture it's base modules may be neutral
-			try {
-				String classifier = arch + "-" + "neutral";
-				getArtifact(artifactItem.getGroupId(), artifactItem.getArtifactId(), artifactItem.getType(), artifactSet, vr, classifier);
-			} catch (MojoExecutionException e) {
-				if (culture == null)
-					throw e;
-				hasSomething = false;
-			}
-
-			if (culture != null) {
-				try {
-					String classifier = arch + "-" + getPrimaryCulture(culture);
-					getArtifact(artifactItem.getGroupId(), artifactItem.getArtifactId(), artifactItem.getType(), artifactSet, vr, classifier);
-				} catch (MojoExecutionException e) {
-					if (hasSomething == false)
-						throw e;
-				}
-			}
-		}
-
-		// list out all the dependencies with their classifiers
-//		if ("msi".equalsIgnoreCase(artifactItem.getType()) ) {
-//			boolean hasSomething = true;
-//			// even if this module has culture it's base modules may be neutral
-//			try {
-//				String classifier = arch + "-" + "neutral";
-//				getArtifact(artifactItem.getGroupId(), artifactItem.getArtifactId(), artifactItem.getType(), artifactSet, vr, classifier);
-//			} catch (MojoExecutionException e) {
-//				if (culture == null)
-//					throw e;
-//				hasSomething = false;
-//			}
-//
-//			if (culture != null) {
-//				try {
-//					String classifier = arch + "-" + getPrimaryCulture(culture);
-//					getArtifact(artifactItem.getGroupId(), artifactItem.getArtifactId(), artifactItem.getType(), artifactSet, vr, classifier);
-//				} catch (MojoExecutionException e) {
-//					if (hasSomething == false)
-//						throw e;
-//				}
-//			}
-//		}		
-//		
-		// else if ("nar".equalsIgnoreCase(artifactItem.getType())) {
-		// get one of both 32 & 64 bit... how do we tell whats there to use?
-		// go through nar
-		// for (String arch : getPlatforms()) {
-		// for (String culture : cultures) {
-		// String culture = null;
-		// String classifier = arch + "-" + (culture == null ? "neutral" : culture);
-
-		// getArtifact(artifactItem.getGroupId(), artifactItem.getArtifactId(), artifactItem.getType(), artifactSet, vr, "x86-Windows-msvc-shared");
-		// }
-		// }
-		return artifactSet;
 	}
 }
