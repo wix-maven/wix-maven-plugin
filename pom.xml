@@ -41,12 +41,13 @@ Provides lifecycles for
  * bundle
 </description>
   <inceptionYear>2013</inceptionYear>
+  <url>http://wix-maven.github.io/wix-maven-plugin</url>
 
   <prerequisites><maven>${mavenVersion}</maven></prerequisites>
   
   <organization>
-    <name>GregDomjan</name>
-    <url></url>
+    <name>com.github.wix-maven</name>
+    <url>http://github.com/wix-maven</url>
   </organization>
   
   <developers>
@@ -70,9 +71,9 @@ Provides lifecycles for
   </licenses>
   
   <scm>
-    <connection>scm:git:https://github.com:GregDomjan/wix-maven-plugin.git</connection>
-    <developerConnection>scm:git:https://github@github.com:GregDomjan/wix-maven-plugin.git</developerConnection>
-    <url>http://github.com/GregDomjan/wix-maven-plugin</url>
+    <connection>scm:git:https://github.com:wix-maven/wix-maven-plugin.git</connection>
+    <developerConnection>scm:git:https://github@github.com:wix-maven/wix-maven-plugin.git</developerConnection>
+    <url>http://github.com/wix-maven/wix-maven-plugin</url>
   </scm>
 
   <issueManagement>
@@ -119,7 +120,7 @@ Provides lifecycles for
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-utils</artifactId>
-      <version>3.0.16</version>
+      <version>3.0.17</version>
     </dependency>
 
     <!-- Shared -->
