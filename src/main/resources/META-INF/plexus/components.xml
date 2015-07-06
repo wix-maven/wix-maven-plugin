@@ -113,7 +113,6 @@
           <process-test-classes></process-test-classes>
           <test></test>
           <prepare-package>
-            com.github.wix-maven:wix-maven-plugin:inscribe,
             com.github.wix-maven:wix-maven-plugin:prepare-package
           </prepare-package>
           <package>
