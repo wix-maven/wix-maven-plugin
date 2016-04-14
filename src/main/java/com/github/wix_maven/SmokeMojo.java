@@ -21,6 +21,8 @@ package com.github.wix_maven;
  */
 
 import java.io.File;
+import java.io.FileWriter;
+import java.util.ArrayList;
 import java.util.Set;
 
 import org.apache.maven.plugin.MojoExecutionException;
