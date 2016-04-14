@@ -30,7 +30,9 @@
           <initialize>
             com.github.wix-maven:wix-maven-plugin:toolset
           </initialize>
-          <generate-sources></generate-sources>
+          <generate-sources>
+            com.github.wix-maven:wix-maven-plugin:harvest
+          </generate-sources>
           <process-sources>
             com.github.wix-maven:wix-maven-plugin:unpack-dependencies
           </process-sources>
