@@ -22,11 +22,6 @@ package com.github.wix_maven;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.shared.artifact.filter.collection.ArtifactFilterException;
-import org.apache.maven.shared.artifact.filter.collection.ClassifierFilter;
-import org.apache.maven.shared.artifact.filter.collection.FilterArtifacts;
-import org.apache.maven.shared.artifact.filter.collection.ProjectTransitivityFilter;
-import org.apache.maven.shared.artifact.filter.collection.TypeFilter;
 import org.codehaus.plexus.compiler.util.scan.*;
 import org.codehaus.plexus.compiler.util.scan.mapping.*;
 import org.codehaus.plexus.components.io.fileselectors.IncludeExcludeFileSelector;

@@ -28,9 +28,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.plugin.MojoExecutionException;
-
 public abstract class AbstractPackageable extends AbstractWixMojo {
 
 	/**

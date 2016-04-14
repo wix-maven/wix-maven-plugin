@@ -20,8 +20,6 @@ package com.github.wix_maven;
  * #L%
  */
 
-import java.io.File;
-
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProjectHelper;
 
