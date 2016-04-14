@@ -1,0 +1,57 @@
+
+Usage
+
+ The following example shows how to create a project using the msi lifecycle to build the matrix x86 and x64 platforms for english and german
+
++-----+
+<project>
+  ...
+  <packaging>msi</packaging>
+  
+  <properties>
+    <wix.locales>1033:en-US,1031:de-DE;en-US</wix.locales>
+  </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.github.wix-maven</groupId>
+        <artifactId>wix-maven-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <platforms>
+            <arch>x86</arch>
+            <arch>x64</arch>
+          </platforms>
+        </configuration>
+      </plugin>
++-----+
+
+ Using wix extensions, add as a dependency.
+
++-----+
+  <properties>
+    <wix.groupId>org.wixtoolset</wix.groupId>
+    <wix.version>3.7</wix.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>${wix.groupId}</groupId>
+      <artifactId>wix-toolset</artifactId>
+      <version>${wix.version}</version>
+      <classifier>WixNetFxExtension</classifier>
+      <scope>provided</scope>
+      <type>wixext</type>
+    </dependency>
+    <dependency>
+      <groupId>${wix.groupId}</groupId>
+      <artifactId>wix-toolset</artifactId>
+      <version>${wix.version}</version>
+      <classifier>WixUtilExtension</classifier>
+      <scope>provided</scope>
+      <type>wixext</type>
+    </dependency>
+  </dependencies>
+
++-----+

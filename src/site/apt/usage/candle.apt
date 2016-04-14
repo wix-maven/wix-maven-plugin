@@ -1,0 +1,104 @@
+~~~
+~~ #%L
+~~ Windows Installer XML (WiX) toolset Maven Plugin
+~~ %%
+~~ 
+~~ %%
+~~ Licensed under the Apache License, Version 2.0 (the "License");
+~~ you may not use this file except in compliance with the License.
+~~ You may obtain a copy of the License at
+~~ 
+~~      http://www.apache.org/licenses/LICENSE-2.0
+~~ 
+~~ Unless required by applicable law or agreed to in writing, software
+~~ distributed under the License is distributed on an "AS IS" BASIS,
+~~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~~ See the License for the specific language governing permissions and
+~~ limitations under the License.
+~~ #L%
+~~~
+ -----
+ Candle Mojo Usage
+ -----
+~~Licensed to the Apache Software Foundation (ASF) under one
+~~or more contributor license agreements.  See the NOTICE file
+~~distributed with this work for additional information
+~~regarding copyright ownership.  The ASF licenses this file
+~~to you under the Apache License, Version 2.0 (the
+~~"License"); you may not use this file except in compliance
+~~with the License.  You may obtain a copy of the License at
+~~
+~~    http://www.apache.org/licenses/LICENSE-2.0
+~~
+~~Unless required by applicable law or agreed to in writing,
+~~software distributed under the License is distributed on an
+~~"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+~~KIND, either express or implied.  See the License for the
+~~specific language governing permissions and limitations
+~~under the License.
+
+Candle Mojo Usage
+
+ Brief examples on how to use the candle goal without using project.packaging
+ 
+* The <<<candle>>> mojo
+
+ If you want to convert a WiX Source (.wxs) file into a WiX Object (.wixobj) file, use the following configuration in your POM along with the goal wix:candle :
+ Generally this will be done in a separate module with pom or some other packaging.
+
+ default input directory is src/main/wix, and intDirectory is target/Release
+ 
++---+
+<project>
+  ...
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.npanday.plugins</groupId>
+        <artifactId>wix-maven-plugin</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <configuration>
+          <wxsInputDirectory>src/test</wxsInputDirectory>
+          <includes>
+            <include>**/Test*.wxs</include>
+          </includes>
+          <intDirectory>target/test</intDirectory>
+        </configuration>
+      </plugin>
+    </plugins>
+  ...
+  </build>
+...
+</project>
++---+
+
+
+ You can add an execution so that the plugin runs automatically during the build.
+ By default it will run in the <<<package>>> phase.
+
++----+
+      <plugin>
+        <groupId>org.apache.npanday.plugins</groupId>
+        <artifactId>wix-maven-plugin</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <configuration>
+          <wxsInputDirectory>src/IT</wxsInputDirectory>
+          <includes>
+            <include>**/IT*.wxs</include>
+          </includes>
+		  <excludes>
+            <exclude>**/Test*.wxs</exclude>
+          </excludes>
+          <intDirectory>target/IT</intDirectory>
+        </configuration>
+        <executions>
+          <execution>
+            <id>wix</id>
+            <goals>
+              <goal>candle</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
++----+
+
