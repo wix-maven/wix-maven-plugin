@@ -104,7 +104,7 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 	// protected String[] referencePaths;
 
 	/**
-	 * See <a href="http://java.sun.com/javase/6/docs/technotes/tools/windows/jarsigner.html#Options">options</a>.
+	 * Show additional info such as the wix toolset logo
 	 * 
 	 * @parameter expression="${wix.verbose}" default-value="false"
 	 */
@@ -124,7 +124,7 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 	/**
 	 * Intermediate directory - will have ${arch} appended
 	 * 
-	 * @parameter expression="${wix.outputDirectory}" default-value="${project.build.directory}/wixobj/Release"
+	 * @parameter expression="${wix.intDirectory}" default-value="${project.build.directory}/wixobj/Release"
 	 * @required
 	 */
 	protected File intDirectory;
@@ -177,8 +177,8 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 	 * @parameter default-value="wix-toolset"
 	 * @required
 	 */
-	private String toolsPluginArtifactId;
-	
+	protected String toolsPluginArtifactId;
+
 	/**
 	 * Group id of the toolset jar to unpack.
 	 * 
@@ -456,12 +456,17 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 		return null;
 	}
 
+	protected void addExtension(Commandline cl, String extFile){
+		cl.addArguments(new String[] { "-ext", extFile });
+	}
+	
 	protected void addWixExtensions(Commandline cl) throws MojoExecutionException {
 		Set<Artifact> dependentExtensions = getExtDependencySets();
 		getLog().info( "Adding "+dependentExtensions.size()+" dependentExtensions" );
 		for (Artifact ext : dependentExtensions) {
 			getLog().info(ext.getFile().getName());
-			cl.addArguments(new String[] { "-ext", ext.getFile().getAbsolutePath() });
+
+			addExtension( cl, ext.getFile().getAbsolutePath() );
 		}
 //		if (extensions != null) {
 //			for (String ext : extensions) {
@@ -541,24 +546,24 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 	}
 
 	protected Set<Artifact> getJARDependencySets() throws MojoExecutionException {
-			FilterArtifacts filter = new FilterArtifacts();
-	//		filter.addFilter(new ProjectTransitivityFilter(project.getDependencyArtifacts(), true));
-			filter.addFilter(new TypeFilter("jar", ""));
-	
-			// start with all artifacts.
-			@SuppressWarnings("unchecked")
-			Set<Artifact> artifacts = project.getArtifacts();
-	
-			// perform filtering
-			try {
-				artifacts = filter.filter(artifacts);
-			} catch (ArtifactFilterException e) {
-				throw new MojoExecutionException(e.getMessage(), e);
-			}
-	
-			return artifacts;
+		FilterArtifacts filter = new FilterArtifacts();
+//		filter.addFilter(new ProjectTransitivityFilter(project.getDependencyArtifacts(), true));
+		filter.addFilter(new TypeFilter("jar", ""));
+
+		// start with all artifacts.
+		@SuppressWarnings("unchecked")
+		Set<Artifact> artifacts = project.getArtifacts();
+
+		// perform filtering
+		try {
+			artifacts = filter.filter(artifacts);
+		} catch (ArtifactFilterException e) {
+			throw new MojoExecutionException(e.getMessage(), e);
 		}
-	
+
+		return artifacts;
+	}
+
 	protected Set<Artifact> getNPANDAYDependencySets()
 			throws MojoExecutionException {
 		FilterArtifacts filter = new FilterArtifacts();
@@ -582,27 +587,21 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 		return artifacts;
 	}
 
-	public final String getPrimaryCulture(String culturespec) {
-		if (null != culturespec)
-			return culturespec.split(";")[0];
-		return culturespec;
-	}
-
 	protected Set<Artifact> getWixDependencySets() throws MojoExecutionException {
 		FilterArtifacts filter = new FilterArtifacts();
 		filter.addFilter(new ProjectTransitivityFilter(project.getDependencyArtifacts(), true));
 		filter.addFilter(new TypeFilter("wixlib,msm,msp,msi,bundle", null));
 		filter.addFilter(new ClassifierFilter( "x86,x64,intel", null){
-			/*
-			 * (non-Javadoc)
-			 * 
-			 * @see org.apache.maven.plugin.dependency.utils.filters.AbstractArtifactFeatureFilter#compareFeatures(String,String)
-			 */
-			
-			protected boolean compareFeatures( String lhs, String rhs )
-			{
-			    return lhs == null || lhs.startsWith( rhs );
-			}
+		    /*
+		     * (non-Javadoc)
+		     * 
+		     * @see org.apache.maven.plugin.dependency.utils.filters.AbstractArtifactFeatureFilter#compareFeatures(String,String)
+		     */
+	
+		    protected boolean compareFeatures( String lhs, String rhs )
+		    {
+		        return lhs == null || lhs.startsWith( rhs );
+		    }
 		} );
 		
 		// start with all artifacts.
@@ -621,6 +620,12 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 
 	protected File wixUnpackDirectory(Artifact wixArtifact) {
 		return new File(unpackDirectory, wixArtifact.getGroupId() + "-" + wixArtifact.getArtifactId() + "-" + wixArtifact.getBaseVersion() );
+	}
+
+	public static final String getPrimaryCulture(String culturespec) {
+		if (null != culturespec)
+			return culturespec.split(";")[0];
+		return culturespec;
 	}
 
 	/**
@@ -749,109 +754,110 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 	}
 
 	/**
-     * Returns a relative path for the targetFile relative to the base directory.
-     * - copied from Ant CPPTasks
-     * 
-     * @param base
-     *            base directory as returned by File.getCanonicalPath()
-     * @param targetFile
-     *            target file
-     * @return relative path of target file. Returns targetFile if there were
-     *         no commonalities between the base and the target
-     *
-     */
-    public static String getRelativePath(final String base, final File targetFile) {
-        try {
-            //
-            //   remove trailing file separator
-            //
-            String canonicalBase = base;
-            if (base.charAt(base.length() - 1) != File.separatorChar) {
-                canonicalBase = base + File.separatorChar;
-            }
-            //
-            //   get canonical name of target
-            //
-            String canonicalTarget;
-//            if (System.getProperty("os.name").equals("OS/400"))
-//                canonicalTarget = targetFile.getPath();
-//            else
-                canonicalTarget = targetFile.getCanonicalPath();
-            if (canonicalBase.startsWith(canonicalTarget + File.separatorChar)) {
-                canonicalTarget = canonicalTarget + File.separator;
-            }
-            if (canonicalTarget.equals(canonicalBase)) {
-                return ".";
-            }
-            //
-            //  see if the prefixes are the same
-            //
-            if (canonicalBase.substring(0, 2).equals("\\\\")) {
-                //
-                //  UNC file name, if target file doesn't also start with same
-                //      server name, don't go there
-                int endPrefix = canonicalBase.indexOf('\\', 2);
-                String prefix1 = canonicalBase.substring(0, endPrefix);
-                String prefix2 = canonicalTarget.substring(0, endPrefix);
-                if (!prefix1.equals(prefix2)) {
-                    return canonicalTarget;
-                }
-            } else {
-                if (canonicalBase.substring(1, 3).equals(":\\")) {
-                    int endPrefix = 2;
-                    String prefix1 = canonicalBase.substring(0, endPrefix);
-                    String prefix2 = canonicalTarget.substring(0, endPrefix);
-                    if (!prefix1.equals(prefix2)) {
-                        return canonicalTarget;
-                    }
-                } else {
-                    if (canonicalBase.charAt(0) == '/') {
-                        if (canonicalTarget.charAt(0) != '/') {
-                            return canonicalTarget;
-                        }
-                    }
-                }
-            }
-            char separator = File.separatorChar;
-            int lastCommonSeparator = -1;
-            int minLength = canonicalBase.length();
-            if (canonicalTarget.length() < minLength) {
-                minLength = canonicalTarget.length();
-            }
-            //
-            //  walk to the shorter of the two paths
-            //      finding the last separator they have in common
-            for (int i = 0; i < minLength; i++) {
-                if (canonicalTarget.charAt(i) == canonicalBase.charAt(i)) {
-                    if (canonicalTarget.charAt(i) == separator) {
-                        lastCommonSeparator = i;
-                    }
-                } else {
-                    break;
-                }
-            }
-            StringBuffer relativePath = new StringBuffer(50);
-            //
-            //   walk from the first difference to the end of the base
-            //      adding "../" for each separator encountered
-            //
-            for (int i = lastCommonSeparator + 1; i < canonicalBase.length(); i++) {
-                if (canonicalBase.charAt(i) == separator) {
-                    if (relativePath.length() > 0) {
-                        relativePath.append(separator);
-                    }
-                    relativePath.append("..");
-                }
-            }
-            if (canonicalTarget.length() > lastCommonSeparator + 1) {
-                if (relativePath.length() > 0) {
-                    relativePath.append(separator);
-                }
-                relativePath.append(canonicalTarget.substring(lastCommonSeparator + 1));
-            }
-            return relativePath.toString();
-        } catch (IOException ex) {
-        }
-        return targetFile.toString();
-    }
+	 * Returns a relative path for the targetFile relative to the base
+	 * directory. - copied from Ant CPPTasks
+	 * 
+	 * @param base
+	 *            base directory as returned by File.getCanonicalPath()
+	 * @param targetFile
+	 *            target file
+	 * @return relative path of target file. Returns targetFile if there were no
+	 *         commonalities between the base and the target
+	 * 
+	 */
+	public static String getRelativePath(final String base,
+			final File targetFile) {
+		try {
+			//
+			// remove trailing file separator
+			//
+			String canonicalBase = base;
+			if (base.charAt(base.length() - 1) != File.separatorChar) {
+				canonicalBase = base + File.separatorChar;
+			}
+			//
+			// get canonical name of target
+			//
+			String canonicalTarget;
+			// if (System.getProperty("os.name").equals("OS/400"))
+			// canonicalTarget = targetFile.getPath();
+			// else
+			canonicalTarget = targetFile.getCanonicalPath();
+			if (canonicalBase.startsWith(canonicalTarget + File.separatorChar)) {
+				canonicalTarget = canonicalTarget + File.separator;
+			}
+			if (canonicalTarget.equals(canonicalBase)) {
+				return ".";
+			}
+			//
+			// see if the prefixes are the same
+			//
+			if (canonicalBase.substring(0, 2).equals("\\\\")) {
+				//
+				// UNC file name, if target file doesn't also start with same
+				// server name, don't go there
+				int endPrefix = canonicalBase.indexOf('\\', 2);
+				String prefix1 = canonicalBase.substring(0, endPrefix);
+				String prefix2 = canonicalTarget.substring(0, endPrefix);
+				if (!prefix1.equals(prefix2)) {
+					return canonicalTarget;
+				}
+			} else {
+				if (canonicalBase.substring(1, 3).equals(":\\")) {
+					int endPrefix = 2;
+					String prefix1 = canonicalBase.substring(0, endPrefix);
+					String prefix2 = canonicalTarget.substring(0, endPrefix);
+					if (!prefix1.equals(prefix2)) {
+						return canonicalTarget;
+					}
+				} else {
+					if (canonicalBase.charAt(0) == '/') {
+						if (canonicalTarget.charAt(0) != '/') {
+							return canonicalTarget;
+						}
+					}
+				}
+			}
+			char separator = File.separatorChar;
+			int lastCommonSeparator = -1;
+			int minLength = canonicalBase.length();
+			if (canonicalTarget.length() < minLength) {
+				minLength = canonicalTarget.length();
+			}
+			//
+			// walk to the shorter of the two paths
+			// finding the last separator they have in common
+			for (int i = 0; i < minLength; i++) {
+				if (canonicalTarget.charAt(i) == canonicalBase.charAt(i)) {
+					if (canonicalTarget.charAt(i) == separator) {
+						lastCommonSeparator = i;
+					}
+				} else {
+					break;
+				}
+			}
+			StringBuffer relativePath = new StringBuffer(50);
+			//
+			// walk from the first difference to the end of the base
+			// adding "../" for each separator encountered
+			//
+			for (int i = lastCommonSeparator + 1; i < canonicalBase.length(); i++) {
+				if (canonicalBase.charAt(i) == separator) {
+					if (relativePath.length() > 0) {
+						relativePath.append(separator);
+					}
+					relativePath.append("..");
+				}
+			}
+			if (canonicalTarget.length() > lastCommonSeparator + 1) {
+				if (relativePath.length() > 0) {
+					relativePath.append(separator);
+				}
+				relativePath.append(canonicalTarget.substring(lastCommonSeparator + 1));
+			}
+			return relativePath.toString();
+		} catch (IOException ex) {
+		}
+		return targetFile.toString();
+	}
 }
