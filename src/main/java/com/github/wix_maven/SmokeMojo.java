@@ -51,42 +51,59 @@ public class SmokeMojo extends AbstractPackageable {
 	protected boolean skipTests;
 	
 	/**
-	 * Skip running of smoke goal.
+	 * Where to store the results as an xml report.
 	 * 
 	 * @parameter expression="${wix.reportDirectory}" default-value="${projec.basedir}/surefire-reports"
 	 */
 	protected File reportDirectory;
-	
-	protected void addOptions(Commandline cl) throws MojoExecutionException {
-		if( VALIDATE_SUPPRESS.equalsIgnoreCase(validate) 
-				|| VALIDATE_LINK.equalsIgnoreCase(validate)
-				){
-			cl.addArguments( new String[] { "-sval" } );
-		}
-	}
 
-	public void multiSmoke(File smokeTool) throws MojoExecutionException, MojoFailureException {
+	/**
+	 * Where to store the validation log file.
+	 * 
+	 * @parameter expression="${wix.validationLogFile}" default-value="${projec.basedir}/wix-log/validation.txt"
+	 */
+//	protected File validationLogFile;
 
+	/**
+	 * Run smoke on installers created for all cultures. When false only runs against the base culture.
+	 * 
+	 * @parameter expression="${wix.validateAllCultures}" default-value="false"
+	 */
+	protected boolean validateAllCultures;
+
+	public void multiSmoke(File smokeTool) throws MojoExecutionException, MojoFailureException 
+	{
 		defaultLocale();
 
+		ArrayList<String> files = new ArrayList<String>(2);
+
 		for (String arch : getPlatforms()) {
-// TODO: validate all?			for (String culture : culturespecs()) {
-			String culture = baseCulturespec();
-			{
-				File archOutputFile = getOutput(arch, culture, outputExtension());
-
-				getLog().info(" -- Smoke testing : " + archOutputFile.getPath());
-				
-				Commandline cl = new Commandline();
-
-				cl.setExecutable(smokeTool.getAbsolutePath());
-				cl.setWorkingDirectory(relativeBase);
-				addToolsetGeneralOptions(cl);
-				addOptions(cl);
+			if (validateAllCultures) {
+				for (String culture : culturespecs()) {
+					File archOutputFile = getOutput(arch, culture,
+							outputExtension());
+					files.add(archOutputFile.getPath());
+				}
+			} else {
+				String culture = baseCulturespec();
+				File archOutputFile = getOutput(arch, culture,
+						outputExtension());
+				files.add(archOutputFile.getPath());
 			}
 		}
-	}
 
+		getLog().info(" -- Smoke testing : " + files.toString());
+
+		Commandline cl = new Commandline();
+
+		cl.setExecutable(smokeTool.getAbsolutePath());
+		cl.setWorkingDirectory(relativeBase);
+		addToolsetGeneralOptions(cl);
+		addWixExtensions(cl);
+		cl.addArguments(files.toArray(new String[0]));
+
+		smoke(cl);
+	}
 
 	protected void smoke(Commandline cl) throws MojoExecutionException {
 		try {
@@ -96,19 +113,29 @@ public class SmokeMojo extends AbstractPackageable {
 				getLog().debug(cl.toString());
 			}
 
+// TODO:  write out log file
+//			if (!validationLogFile.exists()) {
+//				validationLogFile.createNewFile();
+//			}
+//			FileWriter fw = new FileWriter(validationLogFile.getAbsoluteFile());
+//			BufferedWriter bw = new BufferedWriter(fw);
+
 			// TODO: maybe should report or do something with return value.
 			int returnValue = CommandLineUtils.executeCommandLine(cl, new StreamConsumer() {
 
 				public void consumeLine(final String line) {
 					if (line.contains(" : error ")) {
 						getLog().error(line);
-					} else if (line.contains(" : warning ")) {
+					} else if (line.contains(" : warning ")) { // TODO: option to write warning to log only as often many warning.
+						getLog().warn(line);
+					} else if (line.contains("usage: ")) {
 						getLog().warn(line);
 					} else if (verbose) {
 						getLog().info(line);
 					} else {
 						getLog().debug(line);
 					}
+//					bw.write(line);
 				}
 
 			}, new StreamConsumer() {
@@ -118,6 +145,8 @@ public class SmokeMojo extends AbstractPackageable {
 				}
 
 			});
+
+//			bw.close();
 
 			if (returnValue != 0) {
 				throw new MojoExecutionException("Problem executing smoke, return code " + returnValue);
@@ -134,17 +163,25 @@ public class SmokeMojo extends AbstractPackageable {
 		if ( skip || skipTests )
 		{
 			if( verbose )
-				getLog().info( getClass().getName() + " skipped" );
+				getLog().info( getClass().getName() + " skipped due to skip " + skip + " or skipTests " + skipTests );
 			return;
 		}
-
-		if (reportDirectory != null)
-			reportDirectory.mkdirs();
 
 		if( ! ( PACK_INSTALL.equalsIgnoreCase(getPackaging())
 				|| PACK_PATCH.equalsIgnoreCase(getPackaging())
 				) )
 			throw new MojoFailureException("Can only smoke test .msi or .msp");
+
+		if( VALIDATE_SUPPRESS.equalsIgnoreCase(validate) 
+				|| VALIDATE_LINK.equalsIgnoreCase(validate)
+				){
+			if( verbose )
+				getLog().info( getClass().getName() + " skipped due to validate=" + validate );
+			return;
+		}
+
+		if (reportDirectory != null)
+			reportDirectory.mkdirs();
 
 		File smokeTool = new File(toolDirectory, "/bin/smoke.exe");
 		if (!smokeTool.exists())

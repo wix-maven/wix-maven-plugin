@@ -90,6 +90,14 @@ public class LightMojo extends AbstractLinker {
 		}
 	}
 
+	protected void addValidationOptions(Commandline cl) throws MojoExecutionException {
+		if( VALIDATE_SUPPRESS.equalsIgnoreCase(validate) 
+				|| VALIDATE_UNIT.equalsIgnoreCase(validate)
+				){
+			cl.addArguments( new String[] { "-sval" } );
+		}
+	}
+
 	private String outputExtension() {
 		if (PACK_PATCH.equalsIgnoreCase(getPackaging())) { // final msp output is from pyro
 			return "wixmsp";
@@ -149,6 +157,9 @@ public class LightMojo extends AbstractLinker {
 
 						addBinderOption(wxlInputDirectory, culture, allSourceRoots);
 					}
+					if( unpackDirectory.exists() ){
+						allSourceRoots.add(unpackDirectory.getAbsolutePath());
+					}
 
 					Set<String> objectFiles = new HashSet<String>();
 					if (!objects.isEmpty()) {
@@ -169,13 +180,6 @@ public class LightMojo extends AbstractLinker {
 								objectFiles.add(getRelative( lib.getFile() ));
 							}
 						}
-						if (PACK_INSTALL.equalsIgnoreCase(libGroup.getType())
-//								|| PACK_PATCH.equalsIgnoreCase(libGroup.getType())
-								) {
-							File resUnpackDirectory = new File(unpackDirectory, libGroup.getGroupId() + "-" + libGroup.getArtifactId());
-							if( resUnpackDirectory.exists() )
-								allSourceRoots.add(resUnpackDirectory.getAbsolutePath());
-						}
 					}
 
 					if (!objectFiles.isEmpty()) {
@@ -191,13 +195,8 @@ public class LightMojo extends AbstractLinker {
 						cl.addArguments(new String[] { "-out", archOutputFile.getAbsolutePath() });
 
 						addOptions(cl, allSourceRoots);
+						addValidationOptions(cl);
 						addLocaleOptions(cl, culture);
-						
-						if( VALIDATE_SUPPRESS.equalsIgnoreCase(validate) 
-								|| VALIDATE_UNIT.equalsIgnoreCase(validate)
-								){
-							cl.addArguments( new String[] { "-sval" } );
-						}
 
 						if (locales != null) {
 							for (Iterator<File> i = locales.iterator(); i.hasNext();) {
