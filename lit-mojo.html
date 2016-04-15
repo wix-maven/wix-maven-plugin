@@ -194,7 +194,7 @@ dropped in, rather than having to install/deploy the wix-tools.<br /><b>Default 
             
 <td><tt>-</tt></td>
             
-<td>Intermediate directory - will have ${arch} appended<br /><b>Default value is</b>: <tt>${project.build.directory}/unpack</tt>.<br /><b>User property is</b>: <tt>wix.unpackPath</tt>.</td>
+<td>Intermediate directory - will have ${arch} appended<br /><b>Default value is</b>: <tt>${project.build.directory}/unpack</tt>.<br /><b>User property is</b>: <tt>wix.unpackDirectory</tt>.</td>
           </tr>
           
 <tr class="b">
@@ -452,7 +452,7 @@ into 1 msi note: first culture listed is base</li>
             
 <td><tt>-</tt></td>
             
-<td>Target directory for Nar file unpacking.<br /><b>Default value is</b>: <tt>${project.build.directory}/nar</tt>.<br /><b>User property is</b>: <tt>wix.unpackDirectory</tt>.</td>
+<td>Target directory for Nar file unpacking.<br /><b>Default value is</b>: <tt>${project.build.directory}/nar</tt>.<br /><b>User property is</b>: <tt>wix.narUnpackDirectory</tt>.</td>
           </tr>
           
 <tr class="a">
@@ -878,7 +878,7 @@ into 1 msi note: first culture listed is base</li>
           
 <li><b>Required</b>: <tt>No</tt></li>
           
-<li><b>User Property</b>: <tt>wix.unpackDirectory</tt></li>
+<li><b>User Property</b>: <tt>wix.narUnpackDirectory</tt></li>
           
 <li><b>Default</b>: <tt>${project.build.directory}/nar</tt></li>
         </ul><hr />
@@ -1093,7 +1093,7 @@ dropped in, rather than having to install/deploy the wix-tools.</div>
           
 <li><b>Required</b>: <tt>Yes</tt></li>
           
-<li><b>User Property</b>: <tt>wix.unpackPath</tt></li>
+<li><b>User Property</b>: <tt>wix.unpackDirectory</tt></li>
           
 <li><b>Default</b>: <tt>${project.build.directory}/unpack</tt></li>
         </ul><hr />
