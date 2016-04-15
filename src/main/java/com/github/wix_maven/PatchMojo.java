@@ -36,6 +36,11 @@ import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
 import org.apache.maven.project.ProjectBuildingException;
@@ -59,53 +64,41 @@ import org.codehaus.plexus.util.cli.StreamConsumer;
  */
 /**
  * Goal which executes WiX torch & pyro to create msp files.
- * 
- * @goal patch
- * @phase package
- * @requiresProject true
- * @requiresDependencyResolution compile
  */
+@Mojo( name = "patch", requiresProject= true, defaultPhase=LifecyclePhase.PACKAGE, requiresDependencyResolution=ResolutionScope.COMPILE )
 public class PatchMojo extends AbstractTorchMojo {
 // TODO:  might be good to make baseline + baseArt + patchedArt  an object and make a list of them  to allow multiple changes into 1 patch 
     /**
      * ArtifactItem to use as base. (ArtifactItem contains groupId, artifactId, version, type, classifier) 
      * See <a href="./usage.html">Usage</a> for details.
-     *
-     * @parameter
-     * @required
      */
+	@Parameter( required=true )
     private ArtifactItem baseArtifactItem;
     
     /**
      * ArtifactItem to use as patch. (ArtifactItem contains groupId, artifactId, version, type, classifier) 
      * See <a href="./usage.html">Usage</a> for details.
-     *
-     * @parameter
-     * @required
      */
+	@Parameter( required=true )
     private ArtifactItem patchedArtifactItem;
 
 	/**
 	 * Baseline id... needs to match the baseline in the patch file, why then is it needed...I don't get how this works...
 	 * Can we just read this from the input xml?
-	 * 
-	 * @parameter expression="${wix.baseline}"
-	 * @required
 	 */
+	@Parameter( property="wix.baseline", required=true )
 	protected String baseline;
 	
 	/**
 	 * Properties catch all in case we missed some configuration. Passed directly to pyro
-	 * 
-	 * @parameter
 	 */
+	@Parameter
 	private Properties patchProperties;
 	
     /**
-     * Project builder -- builds a model from a pom.xml
-     * 
-     * @component 
+     * Project builder -- builds a model from a pom.xml 
      */
+	@Component
     protected MavenProjectBuilder mavenProjectBuilder;
 
 	public PatchMojo() {
@@ -143,15 +136,15 @@ public class PatchMojo extends AbstractTorchMojo {
 	protected String torchOutputExtension() {
 		return "wixmst";
 	}
-//	private DependencyTreeBuilder treeBuilder;
+
+	//	private DependencyTreeBuilder treeBuilder;
+	@SuppressWarnings("unchecked")
 	protected Set<Artifact> getJARDependencySets(Artifact inputArtifact) throws MojoExecutionException {
 		FilterArtifacts filter = new FilterArtifacts();
 //		filter.addFilter(new ProjectTransitivityFilter(project.getDependencyArtifacts(), true));
 		filter.addFilter(new TypeFilter("jar", ""));
 
 		// start with all artifacts.
-		//@SuppressWarnings("unchecked")
-		//Set<Artifact> artifacts = project.getArtifacts();
 		Set<Artifact> artifacts;
 		try {
 			artifacts = resolveArtifactDependencies(inputArtifact);
@@ -309,6 +302,7 @@ public class PatchMojo extends AbstractTorchMojo {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	protected Set<Artifact> getDependencySets() throws MojoExecutionException {
 		// add filters in well known order, least specific to most specific
 		FilterArtifacts filter = new FilterArtifacts();
@@ -336,7 +330,6 @@ public class PatchMojo extends AbstractTorchMojo {
 		// filter.addFilter( new ClassifierFilter( clasfilter, "" ) );
 
 		// start with all artifacts.
-		@SuppressWarnings("unchecked")
 		Set<Artifact> artifacts = project.getArtifacts();
 
 		// perform filtering
@@ -453,6 +446,8 @@ public class PatchMojo extends AbstractTorchMojo {
 //	  new DefaultArtifact("junit", "junit-dep", "", "jar", "4.10"),
 //	  JavaScopes.RUNTIME
 //	);
+
+	@SuppressWarnings("unchecked")
     protected Set<Artifact> resolveDependencyArtifacts( MavenProject theProject )
             throws ArtifactResolutionException, ArtifactNotFoundException, InvalidDependencyVersionException
     {

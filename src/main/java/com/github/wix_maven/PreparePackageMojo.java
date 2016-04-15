@@ -45,15 +45,14 @@ import java.util.Set;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
 import org.codehaus.plexus.util.StringUtils;
 
 /**
  * Create meta about this build for dependency inclusion.
- * 
- * @goal prepare-package
- * @phase prepare-package
- * @requiresProject
  */
+@Mojo( name = "prepare-package", requiresProject= true, defaultPhase=LifecyclePhase.PREPARE_PACKAGE )
 public class PreparePackageMojo extends AbstractPackageable {
 
 	public void execute() throws MojoExecutionException, MojoFailureException {

@@ -20,10 +20,16 @@ package com.github.wix_maven;
  * #L%
  */
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.cli.CommandLineException;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.codehaus.plexus.util.cli.Commandline;
@@ -33,11 +39,8 @@ import org.codehaus.plexus.util.cli.StreamConsumer;
  * Smoke to perform 'unit' testing of msi/msp
  * Smoke runs ICE similar to light, this goal allows a seperate execution from the linker step.
  * Optionally translate into unit test report output
- * 
- * @goal smoke
- * @phase test
- * @requiresProject true
  */
+@Mojo( name = "smoke", requiresProject= true, defaultPhase=LifecyclePhase.TEST)
 public class SmokeMojo extends AbstractPackageable {
 
 	/**
@@ -45,29 +48,34 @@ public class SmokeMojo extends AbstractPackageable {
 	 * 
 	 * @parameter expression="${wix.skipTests}" default-value="false"
 	 */
+	@Parameter( property="wix.skipTests", defaultValue="false" )
 	protected boolean skipTests;
 	
 	/**
 	 * Where to store the results as an xml report.
-	 * 
-	 * @parameter expression="${wix.reportDirectory}" default-value="${projec.basedir}/surefire-reports"
+	 * TODO: gather ICE issues into XML report...
 	 */
+	@Parameter( property="wix.reportDirectory", defaultValue="${project.build.directory}/wix-reports" )
 	protected File reportDirectory;
 
 	/**
 	 * Where to store the validation log file.
-	 * 
-	 * @parameter expression="${wix.validationLogFile}" default-value="${projec.basedir}/wix-log/validation.txt"
 	 */
-//	protected File validationLogFile;
+	@Parameter( property="wix.validationLogFile", defaultValue="${project.build.directory}/wix-log/validation.txt" )
+	protected File validationLogFile;
 
 	/**
 	 * Run smoke on installers created for all cultures. When false only runs against the base culture.
-	 * 
-	 * @parameter expression="${wix.validateAllCultures}" default-value="false"
 	 */
+	@Parameter( property="wix.validateAllCultures", defaultValue="false" )
 	protected boolean validateAllCultures;
 
+	/** 
+	 * Set this to "true" to ignore a failure during testing. Its use is NOT RECOMMENDED, but quite convenient on occasion.
+	 */
+	@Parameter( property="wix.test.failure.ignore", defaultValue="false" )
+	protected boolean testFailureIgnore; 
+	
 	public void multiSmoke(File smokeTool) throws MojoExecutionException, MojoFailureException 
 	{
 		defaultLocale();
@@ -110,48 +118,66 @@ public class SmokeMojo extends AbstractPackageable {
 				getLog().debug(cl.toString());
 			}
 
-// TODO:  write out log file
-//			if (!validationLogFile.exists()) {
-//				validationLogFile.createNewFile();
-//			}
-//			FileWriter fw = new FileWriter(validationLogFile.getAbsoluteFile());
-//			BufferedWriter bw = new BufferedWriter(fw);
+			if (!validationLogFile.exists()) {
+				validationLogFile.getParentFile().mkdirs();
+				validationLogFile.createNewFile();
+			}
+			FileWriter fw = new FileWriter(validationLogFile.getAbsoluteFile());
+			final BufferedWriter bw = new BufferedWriter(fw);
 
 			// TODO: maybe should report or do something with return value.
 			int returnValue = CommandLineUtils.executeCommandLine(cl, new StreamConsumer() {
 
 				public void consumeLine(final String line) {
-					if (line.contains(" : error ")) {
-						getLog().error(line);
-					} else if (line.contains(" : warning ")) { // TODO: option to write warning to log only as often many warning.
-						getLog().warn(line);
-					} else if (line.contains("usage: ")) {
-						getLog().warn(line);
-					} else if (verbose) {
-						getLog().info(line);
-					} else {
-						getLog().debug(line);
+					if (verbose){
+						if (line.contains(" : error ")) {
+							getLog().error(line);
+						} else if (line.contains(" : warning ")) { // TODO: option to write warning to log only as often many warning.
+							getLog().warn(line);
+						} else if (line.contains("usage: ")) {
+							getLog().warn(line);
+						} else if (verbose) {
+							getLog().info(line);
+						} else {
+							getLog().debug(line);
+						}
 					}
-//					bw.write(line);
+					try {
+						bw.write(line);
+						bw.newLine();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 
 			}, new StreamConsumer() {
 
 				public void consumeLine(final String line) {
 					getLog().error(line);
+
+					try {
+						bw.write(line);
+						bw.newLine();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 
 			});
 
-//			bw.close();
-
+			bw.close();
+			if (!verbose){
+				getLog().info("Smoke log " + validationLogFile.getAbsoluteFile());
+			}
 			if (returnValue != 0) {
 				throw new MojoExecutionException("Problem executing smoke, return code " + returnValue);
 			}
 		} catch (CommandLineException e) {
-			// throw new MojoExecutionException( "Error running mapping-tools.",
-			// e );
 			throw new MojoExecutionException("Problem executing smoke", e);
+		} catch (IOException e) {
+			throw new MojoExecutionException("Problem recording smoke execution", e);
 		}
 	}
 
@@ -184,7 +210,21 @@ public class SmokeMojo extends AbstractPackageable {
 		if (!smokeTool.exists())
 			throw new MojoExecutionException("Smoke tool doesn't exist " + smokeTool.getAbsolutePath());
 
-		multiSmoke(smokeTool);
+		try{
+			multiSmoke(smokeTool);
+		}
+		catch( MojoExecutionException ex ){
+			if( testFailureIgnore )
+				getLog().warn(ex.getMessage());
+			else
+				throw ex;
+		}
+		catch( MojoFailureException ex ){
+			if( testFailureIgnore )
+				getLog().warn(ex.getMessage());
+			else
+				throw ex;
+		}
 	}
 
 	/**

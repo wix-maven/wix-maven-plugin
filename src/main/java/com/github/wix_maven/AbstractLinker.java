@@ -31,6 +31,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.cli.CommandLineException;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.codehaus.plexus.util.cli.Commandline;
@@ -47,42 +48,36 @@ public abstract class AbstractLinker extends AbstractPackageable {
 
 	/**
 	 * Properties catch all in case we missed some configuration. Passed directly to light or lit
-	 * 
-	 * @parameter
 	 */
+	@Parameter
 	private Properties linkProperties;
 
 	/**
 	 * The set of files/patterns to include. <br>
 	 * If not set Defaults to "**\/arch\/*.wixlib", "**\/arch\/*.wixobj"
-	 * 
-	 * @parameter
 	 */
+	@Parameter
 	private Set<String> intIncludes = new HashSet<String>();
+	
 	/**
 	 * A list of exclusion filters. See intIncludes.
-	 * 
-	 * @parameter
 	 */
+	@Parameter
 	private Set<String> intExcludes = new HashSet<String>();
 
 	/**
 	 * The directory to scan for localisation (.wxl) files.
 	 * For Light the sub culture is added as a -b path
 	 * For Light and Lit added as a -b source path
-	 * 
-	 * @parameter default-value="${project.basedir}/src/main/wix-locale"
-	 * @required
 	 */
+	@Parameter(property = "wix.wxlInputDirectory", defaultValue = "${project.basedir}/src/main/wix-locale", required=true)
 	protected File wxlInputDirectory;
 
 	/**
 	 * The directory to scan for wix files.
 	 * For each build type there is at least one wxs file required
-	 * 
-	 * @parameter default-value="${project.basedir}/src/main/wix-resource"
-	 * @required
 	 */
+	@Parameter(property = "wix.resourceDirectory", defaultValue = "${project.basedir}/src/main/wix-resource", required=true)
 	protected File resourceDirectory;
 	
 	/**
@@ -91,15 +86,14 @@ public abstract class AbstractLinker extends AbstractPackageable {
 	 * Starting from wxlInputDirectory 
 	 * - For light it is applied to the culture specific folder inside, 
 	 * - For lit it applies to all cultures. 
-	 * 
-	 * @parameter
 	 */
+	@Parameter
 	private Set<String> wxlIncludes = new HashSet<String>();
+	
 	/**
 	 * A list of exclusion filters. See wxlIncludes
-	 * 
-	 * @parameter
 	 */
+	@Parameter
 	private Set<String> wxlExcludes = new HashSet<String>();
 
 	/**
@@ -108,9 +102,8 @@ public abstract class AbstractLinker extends AbstractPackageable {
 	 *  <li>wxsInputDirectory 
 	 *  <li>narUnpackDirectory
 	 *  <li>resourceDirectory
-	 * 
-	 * @parameter 
 	 */
+	@Parameter
 	protected Set<String> fileSourceRoots = new HashSet<String>();
 	
 	/**

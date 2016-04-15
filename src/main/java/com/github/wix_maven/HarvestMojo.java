@@ -27,6 +27,9 @@ import java.util.Set;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.cli.CommandLineException;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
@@ -37,12 +40,9 @@ import org.codehaus.plexus.util.cli.StreamConsumer;
  * Generates WiX authoring from various input formats.
  * 
  * Every time heat is run it regenerates the output file and any changes are lost.
- * heat.exe [-?] harvestType <harvester arguments> -out sourceFile.wxs
- * 
- * @goal harvest
- * @phase generate-sources
- * @requiresProject true
+ * heat.exe [-?] harvestType &lt;harvester arguments&gt; -out sourceFile.wxs
  */
+@Mojo( name = "harvest", defaultPhase=LifecyclePhase.GENERATE_SOURCES )
 public class HarvestMojo extends AbstractPackageable {
 // Heat seems a bit dirty, requires the following to be installed side by side with Heat.exe
 // 
@@ -84,6 +84,7 @@ public class HarvestMojo extends AbstractPackageable {
 	 *   <tr><td>reg</td><td>Harvest registy information from a reg file.</td></tr>
 	 * </table>
 	 */
+	@Parameter
 	String havestType;
 	public final String HT_DIR="dir";
 	public final String HT_FILE="file";
@@ -191,8 +192,8 @@ public class HarvestMojo extends AbstractPackageable {
 	}
 
 	/**
-	 * 
-	 * @return
+	 * Translate packaging type into output filename extension
+	 * @return output filename extension
 	 */
 	private String outputExtension() {
 		return getPackaging();

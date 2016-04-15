@@ -1,5 +1,7 @@
 package com.github.wix_maven;
 
+import org.apache.maven.plugins.annotations.Parameter;
+
 /*
  * #%L
  * WiX Toolset (Windows Installer XML) Maven Plugin
@@ -27,32 +29,26 @@ package com.github.wix_maven;
 public class ArtifactItem {
     /**
      * Group Id of Artifact
-     *
-     * @parameter
-     * @required
      */
+	@Parameter(required=true)
     private String groupId;
 
     /**
      * Name of Artifact
-     *
-     * @parameter
-     * @required
      */
+	@Parameter(required=true)
     private String artifactId;
 
     /**
      * Version of Artifact
-     *
-     * @parameter
      */
+	@Parameter
     private String version = null;
 
     /**
      * Type of Artifact (wixpdb, msi)
-     *
-     * @parameter default-value="wixpdb"
      */
+    @Parameter(defaultValue="wixpdb")
     private String type="wixpdb";
 
     
@@ -77,9 +73,9 @@ public class ArtifactItem {
      * @param artifactId
      *            The artifactId to set.
      */
-    public void setArtifactId( String artifact )
+    public void setArtifactId( String artifactId )
     {
-        this.artifactId = filterEmptyString( artifact );
+        this.artifactId = filterEmptyString( artifactId );
     }
 
     /**

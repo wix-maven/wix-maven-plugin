@@ -21,6 +21,10 @@ package com.github.wix_maven;
  */
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.codehaus.plexus.compiler.util.scan.*;
 import org.codehaus.plexus.compiler.util.scan.mapping.*;
 import org.codehaus.plexus.util.cli.Commandline;
@@ -33,12 +37,8 @@ import java.util.Set;
 
 /**
  * Goal which executes WiX lit to create a .wixlib file.
- * 
- * @goal lit
- * @phase package
- * @requiresProject true
- * @requiresDependencyResolution compile
  */
+@Mojo( name = "lit", requiresProject= true, defaultPhase=LifecyclePhase.COMPILE, requiresDependencyResolution=ResolutionScope.COMPILE )
 public class LitMojo extends AbstractLinker {
 
 	/**
@@ -46,9 +46,11 @@ public class LitMojo extends AbstractLinker {
 	 * 
 	 * @parameter expression="${wix.bindFiles.lib}" default-value="true"
 	 */
+	@Parameter(property = "wix.bindFiles.lib", defaultValue = "true")
 	private boolean bindFiles;
 
 	@Override
+	@SuppressWarnings("unchecked")
 	protected void multilink(File toolDirectory) throws MojoExecutionException {
 
 		File linkTool = new File(toolDirectory, "/bin/lit.exe");

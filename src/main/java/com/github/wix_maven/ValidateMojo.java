@@ -21,14 +21,14 @@ package com.github.wix_maven;
  */
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.project.MavenProjectHelper;
 
 /**
  * Goal to validate the configuration
- * 
- * @goal validate
- * @phase validate
  */
+@Mojo( name = "validate", defaultPhase=LifecyclePhase.VALIDATE )
 public class ValidateMojo extends AbstractPackageable {
 
 	/**

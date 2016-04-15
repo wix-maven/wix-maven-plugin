@@ -26,16 +26,16 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.util.cli.Commandline;
 
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+
 /**
  * Attach the (signed) bundle engine back to the bundle.
  * TODO: might be more appropriate to use custom phase.
  *  insignia -ab engine.exe bundle.exe -o bundle.exe
  *  ... sign bundle.exe
- *  			
- * @goal attach-bundle
- * @phase prepare-package
- * @requiresProject true
  */
+@Mojo( name = "attach-bundle", requiresProject= true, defaultPhase=LifecyclePhase.PREPARE_PACKAGE )
 public class AttachBundleEngineMojo extends AbstractInsigniaMojo {
 
 	public void execute() throws MojoExecutionException, MojoFailureException {

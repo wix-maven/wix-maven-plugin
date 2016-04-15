@@ -23,6 +23,9 @@ package com.github.wix_maven;
 import java.io.File;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.cli.Commandline;
 
 /**
@@ -30,25 +33,20 @@ import org.codehaus.plexus.util.cli.Commandline;
  * ie. insignia -im setup.msi
  *  
  *  TODO: support writing the inscribed msi to a different location/name
- *  
- * @goal inscribe
- * @phase prepare-package
- * @requiresProject true
  */
+@Mojo( name = "inscribe", requiresProject= true, defaultPhase=LifecyclePhase.PREPARE_PACKAGE )
 public class InscribeMojo extends AbstractInsigniaMojo {
 
 	/**
-	 * Indicate if the msi/msp cabs will be signed and so should be inscribed with signatures. 
-	 * 
-	 * @parameter expression="${wix.inscribePackage}" default-value="false"
+	 * Indicate if the msi/msp cabs will be signed and so should be inscribed with signatures.
 	 */
+	@Parameter(property = "wix.inscribePackage", defaultValue = "false")
 	protected boolean inscribePackage;
 	
 	/**
-	 * TODO: Indicate if the msi/msp should be inscribed with signatures from cabs in the cab cache 
-	 * 
-	 * @parameter expression="${wix.inscribeUsingCabCache}" default-value="false"
+	 * TODO: Indicate if the msi/msp should be inscribed with signatures from cabs in the cab cache
 	 */
+	//@Parameter(property = "wix.inscribeUsingCabCache", defaultValue = "false")
 	// protected boolean inscribeUsingCabCache;
 	
 	public void execute() throws MojoExecutionException, MojoFailureException {

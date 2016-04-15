@@ -23,6 +23,7 @@ package com.github.wix_maven;
 import java.io.File;
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.cli.CommandLineException;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.codehaus.plexus.util.cli.Commandline;
@@ -36,29 +37,24 @@ import org.codehaus.plexus.util.cli.StreamConsumer;
 public abstract class AbstractInsigniaMojo extends AbstractPackageable {
 
 	/**
-	 * Indicate if the bundleEngine should be detached for signing, and re attached. 
-	 * 
-	 * @parameter expression="${wix.signBundleEngine}" default-value="false"
+	 * Indicate if the bundleEngine should be detached for signing, and re attached.
 	 */
+	@Parameter(property = "wix.signBundleEngine", defaultValue = "false")
 	protected boolean signBundleEngine;
 
 	/**
 	 * TODO: make this a pattern so no need for seperate filename
 	 * The file path for detach/attach of the bundle engine. 
 	 * - $(arch) ${culture}
-	 * 
-	 * @parameter expression="${wix.bundleEnginePath}" default-value="${project.build.directory}/wix-bundleEngines"
-	 * @required
 	 */
+	@Parameter(property = "wix.bundleEnginePath", defaultValue = "${project.build.directory}/wix-bundleEngines", required=true)
 	protected File bundleEnginePath;
 
 	/**
 	 * TODO: merge with above once it is a pattern so no need for seperate filename
-	 * The file name for detach/attach of the bundle engine. 
-	 * 
-	 * @parameter expression="${wix.bundleEngineName}" default-value="engine.exe"
-	 * @required
+	 * The file name for detach/attach of the bundle engine.
 	 */
+	@Parameter(property = "wix.bundleEngineName", defaultValue = "engine.exe", required=true)
 	protected String bundleEngineName;
 
 	/**

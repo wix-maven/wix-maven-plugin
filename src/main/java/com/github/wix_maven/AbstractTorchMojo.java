@@ -22,6 +22,7 @@ package com.github.wix_maven;
 
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.cli.CommandLineException;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.codehaus.plexus.util.cli.Commandline;
@@ -36,9 +37,8 @@ public abstract class AbstractTorchMojo extends AbstractPackageable {
 
 	/**
 	 * Preserve unmodified content in the output.
-	 * 
-	 * @parameter default-value="true"
 	 */
+	@Parameter(property = "nar.preserveUnmodified", defaultValue = "true")
 	private boolean preserveUnmodified;
 
 	protected void addTorchOptions(Commandline cl) {

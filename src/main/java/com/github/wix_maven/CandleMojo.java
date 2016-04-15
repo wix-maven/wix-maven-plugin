@@ -21,6 +21,10 @@ package com.github.wix_maven;
  */
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.codehaus.plexus.compiler.util.scan.*;
 import org.codehaus.plexus.compiler.util.scan.mapping.*;
 import org.codehaus.plexus.util.cli.CommandLineException;
@@ -47,68 +51,57 @@ import java.util.Set;
  * <li> -dFoo.TargetExt=.wixlib 
  * <li> -dFoo.TargetFileName=bar.type 
  * <li> -dFoo.TargetName=bar
- * 
- * @goal candle
- * @phase package
- * @requiresProject true
- * @requiresDependencyResolution compile
  */
+@Mojo( name = "candle", requiresProject= true, defaultPhase=LifecyclePhase.COMPILE, requiresDependencyResolution=ResolutionScope.COMPILE )
 public class CandleMojo extends AbstractCompilerMojo {
 	/**
 	 * Definitions (pre) Compilation (-d option)
-	 * 
-	 * @parameter
 	 */
+	@Parameter
 	private Set<String> definitions = new HashSet<String>();
 	private Set<String> definitionsArch = new HashSet<String>();
 
 	/**
 	 * Include paths (-I option)
-	 * 
-	 * @parameter
 	 */
+	@Parameter
 	private String[] includePaths;
 
 	/**
 	 * The granularity in milliseconds of the last modification date for testing whether a source needs re-compilation
-	 * 
-	 * @parameter default-value="1000"
-	 * @required
 	 */
+	@Parameter( property = "wix.staleMillis", defaultValue = "1000", required=true )
 	protected int staleMillis;
+	
 	/**
 	 * Set this value if you wish to have a single timestamp file to track changes rather than cxx,hxx comparison The time-stamp file for the
 	 * processed xsd files.
-	 * 
-	 * @parameter
 	 */
+	@Parameter( property = "wix.timestampFile")
 	protected String timestampFile = null;
 
 	/**
 	 * The directory to store the time-stamp file for the processed aid files. Defaults to outputDirectory. Only used with xsdTimestampFile being set.
-	 * 
-	 * @parameter default-value="${project.build.directory}/mapping/cpp"
 	 */
+	@Parameter( property = "wix.timestampDirectory", defaultValue = "${project.build.directory}/mapping/cpp" )
 	protected File timestampDirectory;
 
 	/**
 	 * The set of files/patterns to include Defaults to "**\/*.wxs"
-	 * 
-	 * @parameter
 	 */
+	@Parameter
 	private Set<String> includes = new HashSet<String>();
+	
 	/**
 	 * A list of exclusion filters.
-	 * 
-	 * @parameter
 	 */
+	@Parameter
 	private Set<String> excludes = new HashSet<String>();
 
 	/**
 	 * Properties catch all in case we missed some configuration. Passed directly to candle
-	 * 
-	 * @parameter
 	 */
+	@Parameter
 	private Properties candleProperties;
 
 	public final Set<String> getIncludes() {
@@ -244,6 +237,7 @@ public class CandleMojo extends AbstractCompilerMojo {
 		definitions.add(def);
 	}
 
+	@SuppressWarnings("unchecked")
 	public void execute() throws MojoExecutionException {
 
 		if ( skip )

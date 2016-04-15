@@ -21,6 +21,8 @@ package com.github.wix_maven;
  */
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
 
 /**
  * TODO: support for tools - 
@@ -30,16 +32,12 @@ import org.apache.maven.plugin.MojoExecutionException;
  * 
  * Lux/Nit to perform unit testing of Custom actions
  * 
- * heat - wxs generation from inputs - say NAR files?
  * melt/dark - wxs generation from inputs - msi/msm
  */
 /**
  * Goal to initialize the workspace with wix toolset.
- * 
- * @goal toolset
- * 
- * @phase initialize
  */
+@Mojo( name = "toolset", defaultPhase=LifecyclePhase.INITIALIZE )
 public class ToolsetMojo extends AbstractWixMojo {
 
 	public void execute() throws MojoExecutionException {

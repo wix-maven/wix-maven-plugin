@@ -22,8 +22,13 @@
               </File>
             </Component>
 
-            <Component Id='HelperLibrary' Guid='00000001-6BE3-460D-A14F-75658D16550B'>
-              <File Id='HelperDLL' Name='Helper.dll' DiskId='1' Source='Helper.dll' KeyPath='yes' />
+            <Component Id='HelperLibrary_EN' Guid='00000001-6BE3-460D-A14F-75658D16550B'>
+              <Condition>ProductLanguage="1033"</Condition>
+              <File Id='HelperDLL_EN' Name='Helper.dll' DiskId='1' Source='Helper.dll' KeyPath='yes' />
+            </Component>
+            <Component Id='HelperLibrary_DE' Guid='00000001-6BE3-460D-A14F-75658D16550C'>
+              <Condition>ProductLanguage="1031"</Condition>
+              <File Id='HelperDLL_DE' Name='Helper.dll' DiskId='1' Source='Helper.dll' KeyPath='yes' />
             </Component>
 
             <Component Id='Manual' Guid='00000001-574D-4A9A-A266-5B5EC2C022A4'>
@@ -48,9 +53,14 @@
       <Directory Id="DesktopFolder" Name="Desktop" />
     </Directory>
 
+    <ComponentGroup Id='HelperLibrary' >
+      <ComponentRef Id='HelperLibrary_EN' />
+      <ComponentRef Id='HelperLibrary_DE' />
+    </ComponentGroup>
+    
     <Feature Id='Complete' Level='1'>
       <ComponentRef Id='MainExecutable' />
-      <ComponentRef Id='HelperLibrary' />
+      <ComponentGroupRef Id='HelperLibrary' />
       <ComponentRef Id='Manual' />
       <ComponentRef Id='ProgramMenuDir' />
     </Feature>

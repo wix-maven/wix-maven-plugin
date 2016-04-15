@@ -40,6 +40,10 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.codehaus.plexus.util.cli.Commandline;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -52,46 +56,34 @@ import org.w3c.dom.Text;
  * Dependent NAR project 'Foo' with possible nar output redefined as 'bar' <br>
  * <li>-dFoo.TargetDir=Foo-version\ <li>-dFoo.TargetExt=.wixlib <li>
  * -dFoo.TargetFileName=bar.type <li>-dFoo.TargetName=bar
- * 
- * @goal wixproj
- * @phase validate
- * @requiresProject true
- * @requiresDependencyResolution compile
  */
+@Mojo(name = "wixproj", defaultPhase = LifecyclePhase.VALIDATE, requiresDependencyResolution = ResolutionScope.COMPILE)
 public class WixprojMojo extends AbstractCompilerMojo {
 
 	/**
 	 * The directory to store the time-stamp file for the processed aid files.
 	 * Defaults to outputDirectory. Only used with xsdTimestampFile being set.
-	 * 
-	 * @parameter expression="${wix.updateVSProj}" default-value="true"
 	 */
+	@Parameter(property = "wix.updateVSProj", defaultValue = "true")
 	protected boolean updateVSProj = true;
 
 	/**
 	 * Target directory for Nar file unpacking.
-	 * 
-	 * @parameter expression="${nar.unpackDirectory}"
-	 *            default-value="${project.build.directory}/nar"
-	 * @readonly
 	 */
+	@Parameter(property = "nar.unpackDirectory", defaultValue = "${project.build.directory}/nar")
 	protected File narUnpackDirectory;
 
 	/**
 	 * The file to store vsproj settings for maven dependencies.
-	 * 
-	 * @parameter default-value="${project.basedir}/MavenDependency.targets"
 	 */
-	protected File vsproj;
+	@Parameter(property = "wix.vsprojTarget", defaultValue = "${project.basedir}/MavenDependency.targets")
+	protected File vsprojTarget;
 
 	/**
 	 * Do the binds need to be named for matching during patching.
-	 * 
-	 * @parameter expression="${wix.useNamedBindPath}" default-value="false"
 	 */
+	@Parameter(property = "wix.useNamedBindPath", defaultValue = "false")
 	protected boolean useNamedBindPath = false;
-	
-	private OutputStream vcprojtext;
 
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		if (!updateVSProj) {
@@ -113,10 +105,10 @@ public class WixprojMojo extends AbstractCompilerMojo {
 		addDefinitionX64("IsWin64=yes");
 		addDefinitionX64("narDir.dll=amd64-Windows-msvc-shared/lib/amd64-Windows-msvc/shared");
 		addDefinitionX64("narDir.exe=amd64-Windows-msvc-executable/bin/amd64-Windows-msvc");
-		
+
 		stopVSProjUpdater();
 
-		getLog().info("Update VS target file " + vsproj);
+		getLog().info("Update VS target file " + vsprojTarget);
 	}
 
 	Document dom = null;
@@ -130,14 +122,14 @@ public class WixprojMojo extends AbstractCompilerMojo {
 
 	private void startVSProjUpdater() throws MojoExecutionException {
 
-		if (!vsproj.getParentFile().exists()) {
-			vsproj.getParentFile().mkdirs();
+		if (!vsprojTarget.getParentFile().exists()) {
+			vsprojTarget.getParentFile().mkdirs();
 		}
 		try {
-			if (!vsproj.exists()) {
-				vsproj.createNewFile();
+			if (!vsprojTarget.exists()) {
+				vsprojTarget.createNewFile();
 			}
-			
+
 			// instance of a DocumentBuilderFactory
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
@@ -150,9 +142,11 @@ public class WixprojMojo extends AbstractCompilerMojo {
 			// create the root element
 			// xmlns="http://schemas.microsoft.com/developer/msbuild/2003"
 			Element rootEle = dom.createElement("Project");
-			rootEle.setAttribute( "xmlns", "http://schemas.microsoft.com/developer/msbuild/2003");
+			rootEle.setAttribute("xmlns",
+					"http://schemas.microsoft.com/developer/msbuild/2003");
 			dom.appendChild(rootEle);
-			rootEle.appendChild(dom.createComment("This is a generated file from wix-maven-plugin to provide maven dependency values\n  To update this file, from the project root run\n      mvn net.sf.wix:wix-maven-plugin:wixproj "));
+			rootEle.appendChild(dom
+					.createComment("This is a generated file from wix-maven-plugin to provide maven dependency values\n  To update this file, from the project root run\n      mvn net.sf.wix:wix-maven-plugin:wixproj "));
 			ele = dom.createElement("PropertyGroup");
 			rootEle.appendChild(ele);
 			rootEle = ele;
@@ -161,17 +155,19 @@ public class WixprojMojo extends AbstractCompilerMojo {
 			ele.setAttribute("Condition", " '$(MavenRepoPath)' == '' ");
 			ele.appendChild(dom.createTextNode(localRepository.getBasedir()));
 			rootEle.appendChild(ele);
-			
+
 			ele = dom.createElement("narUnpackDirectory");
-			ele.setAttribute("Condition"," '$(narUnpackDirectory)' == '' ");
-			ele.appendChild(dom.createTextNode(narUnpackDirectory.getAbsolutePath() ));
+			ele.setAttribute("Condition", " '$(narUnpackDirectory)' == '' ");
+			ele.appendChild(dom.createTextNode(narUnpackDirectory
+					.getAbsolutePath()));
 			rootEle.appendChild(ele);
-			
+
 			ele = dom.createElement("wixUnpackDirectory");
-			ele.setAttribute("Condition"," '$(wixUnpackDirectory)' == '' ");
-			ele.appendChild(dom.createTextNode(unpackDirectory.getAbsolutePath() ));
+			ele.setAttribute("Condition", " '$(wixUnpackDirectory)' == '' ");
+			ele.appendChild(dom.createTextNode(unpackDirectory
+					.getAbsolutePath()));
 			rootEle.appendChild(ele);
-			
+
 			ele = dom.createElement("mavenExtensions");
 			mvnExt = dom.createTextNode("\n");
 			ele.appendChild(mvnExt);
@@ -184,23 +180,28 @@ public class WixprojMojo extends AbstractCompilerMojo {
 
 			ele = dom.createElement("mavenCompileDependencies");
 			ele.setAttribute("Condition", " '$(Platform)' == 'x86' ");
-			mvnCompileDepX86 = dom.createTextNode("$(mavenCompileDependencies)\n");
+			mvnCompileDepX86 = dom
+					.createTextNode("$(mavenCompileDependencies)\n");
 			ele.appendChild(mvnCompileDepX86);
 			rootEle.appendChild(ele);
 
 			ele = dom.createElement("mavenCompileDependencies");
 			ele.setAttribute("Condition", " '$(Platform)' == 'x64' ");
-			mvnCompileDepX64 = dom.createTextNode("$(mavenCompileDependencies)\n");
+			mvnCompileDepX64 = dom
+					.createTextNode("$(mavenCompileDependencies)\n");
 			ele.appendChild(mvnCompileDepX64);
 			rootEle.appendChild(ele);
 
 			ele = dom.createElement("mavenLinkerDependencies");
-			if( useNamedBindPath ){
-				mvnLinkDep = dom.createTextNode("\n  -b narUnpackDir=$(narUnpackDirectory)\\\n");
+			if (useNamedBindPath) {
+				mvnLinkDep = dom
+						.createTextNode("\n  -b narUnpackDir=$(narUnpackDirectory)\\\n");
 				mvnLinkDep.appendData("  -b mavenRepoDir=$(MavenRepoPath)\\\n");
-				mvnLinkDep.appendData("  -b wixUnpackDirectory=$(wixUnpackDirectory)\\\n");
+				mvnLinkDep
+						.appendData("  -b wixUnpackDirectory=$(wixUnpackDirectory)\\\n");
 			} else {
-				mvnLinkDep = dom.createTextNode("\n  -b $(narUnpackDirectory)\\\n");
+				mvnLinkDep = dom
+						.createTextNode("\n  -b $(narUnpackDirectory)\\\n");
 				mvnLinkDep.appendData("  -b $(MavenRepoPath)\\\n");
 				mvnLinkDep.appendData("  -b $(wixUnpackDirectory)\\\n");
 			}
@@ -209,16 +210,18 @@ public class WixprojMojo extends AbstractCompilerMojo {
 
 			ele = dom.createElement("mavenLinkerWixlibDependencies");
 			ele.setAttribute("Condition", " '$(Platform)' == 'x86' ");
-			mvnLinkDepX86 = dom.createTextNode("$(mavenLinkerWixlibDependencies)\n");
+			mvnLinkDepX86 = dom
+					.createTextNode("$(mavenLinkerWixlibDependencies)\n");
 			ele.appendChild(mvnLinkDepX86);
 			rootEle.appendChild(ele);
 
 			ele = dom.createElement("mavenLinkerWixlibDependencies");
 			ele.setAttribute("Condition", " '$(Platform)' == 'x64' ");
-			mvnLinkDepX64 = dom.createTextNode("$(mavenLinkerWixlibDependencies)\n");
+			mvnLinkDepX64 = dom
+					.createTextNode("$(mavenLinkerWixlibDependencies)\n");
 			ele.appendChild(mvnLinkDepX64);
 			rootEle.appendChild(ele);
-			
+
 			// ele = dom.createElement("");
 
 		} catch (ParserConfigurationException e) {
@@ -230,19 +233,19 @@ public class WixprojMojo extends AbstractCompilerMojo {
 
 	@Override
 	protected void addDefinition(String def) {
-		addDefinitionBase( mvnCompileDep, def );
+		addDefinitionBase(mvnCompileDep, def);
 	}
 
 	protected void addDefinitionBase(Text set, String def) {
 		set.appendData("  -d" + def + "\n");
 	}
-	
+
 	protected void addDefinitionX86(String def) {
-		addDefinitionBase( mvnCompileDepX86, def );
+		addDefinitionBase(mvnCompileDepX86, def);
 	}
 
 	protected void addDefinitionX64(String def) {
-		addDefinitionBase( mvnCompileDepX64, def );
+		addDefinitionBase(mvnCompileDepX64, def);
 	}
 
 	@Override
@@ -250,44 +253,61 @@ public class WixprojMojo extends AbstractCompilerMojo {
 		mvnExt.appendData("  -ext " + extFile + "\n");
 	}
 
-	protected void addLib(Artifact wixRes, Text linkDep, String arch ) throws MojoExecutionException{
-		if(verbose)
-			getLog().debug("Checking for  " +  wixRes.getArtifactId() + " wixlib " + arch );
-		if( getPlatforms().contains(arch)){
-			Set<Artifact> depArtifacts = getRelatedArtifacts(wixRes, arch, "en-US");
+	protected void addLib(Artifact wixRes, Text linkDep, String arch)
+			throws MojoExecutionException {
+		if (verbose)
+			getLog().debug(
+					"Checking for  " + wixRes.getArtifactId() + " wixlib "
+							+ arch);
+		if (getPlatforms().contains(arch)) {
+			Set<Artifact> depArtifacts = getRelatedArtifacts(wixRes, arch,
+					"en-US");
 			for (Iterator<Artifact> j = depArtifacts.iterator(); j.hasNext();) {
 				Artifact lib = j.next();
-				getLog().debug("Adding " +  wixRes.getArtifactId() + " wixlib " + arch );
-				// doesn't use /b option to path, but niceer to have $(MavenRepoPath) than hard coded root
-				linkDep.appendData( lib.getFile().getAbsolutePath().replace(localRepository.getBasedir()+"\\", "$(MavenRepoPath)\\") + "\n");
+				getLog().debug(
+						"Adding " + wixRes.getArtifactId() + " wixlib " + arch);
+				// doesn't use /b option to path, but niceer to have
+				// $(MavenRepoPath) than hard coded root
+				linkDep.appendData(lib
+						.getFile()
+						.getAbsolutePath()
+						.replace(localRepository.getBasedir() + "\\",
+								"$(MavenRepoPath)\\")
+						+ "\n");
 			}
-		}	
-	}
-	
-	@Override
-	protected void addResource(File resUnpackDirectory, Artifact wixRes ) throws MojoExecutionException {
-		File neutralFolder = new File(resUnpackDirectory, "wix-locale");
-		if( neutralFolder.exists() ){
-			getLog().debug("Adding " +  wixRes.getArtifactId() + " neutral resource folder");
-			addLinkPath( defineWixUnpackFile( neutralFolder ), wixRes.getArtifactId() + "neutral" );
-			File enFolder = new File(neutralFolder, "en-US");
-			if( enFolder.exists() ){
-				getLog().debug("Adding " +  wixRes.getArtifactId() + " neutral en-US folder");
-				addLinkPath( defineWixUnpackFile( enFolder ), wixRes.getArtifactId() + "loc" );
-			}
-		}
-		
-		if( PACK_LIB.equalsIgnoreCase(wixRes.getType()) ){
-			addLib( wixRes, mvnLinkDepX86, "x86" );
-			addLib( wixRes, mvnLinkDepX64, "x64" );
-			//addLib( wixRes, mvnLinkDepX64, "intell" );
 		}
 	}
 
-	protected void addLinkPath( String libFolder, String namedBindPath ) {		
+	@Override
+	protected void addResource(File resUnpackDirectory, Artifact wixRes)
+			throws MojoExecutionException {
+		File neutralFolder = new File(resUnpackDirectory, "wix-locale");
+		if (neutralFolder.exists()) {
+			getLog().debug(
+					"Adding " + wixRes.getArtifactId()
+							+ " neutral resource folder");
+			addLinkPath(defineWixUnpackFile(neutralFolder),
+					wixRes.getArtifactId() + "neutral");
+			File enFolder = new File(neutralFolder, "en-US");
+			if (enFolder.exists()) {
+				getLog().debug(
+						"Adding " + wixRes.getArtifactId()
+								+ " neutral en-US folder");
+				addLinkPath(defineWixUnpackFile(enFolder),
+						wixRes.getArtifactId() + "loc");
+			}
+		}
+
+		if (PACK_LIB.equalsIgnoreCase(wixRes.getType())) {
+			addLib(wixRes, mvnLinkDepX86, "x86");
+			addLib(wixRes, mvnLinkDepX64, "x64");
+			// addLib( wixRes, mvnLinkDepX64, "intell" );
+		}
+	}
+
+	protected void addLinkPath(String libFolder, String namedBindPath) {
 		mvnLinkDep.appendData("  -b "
-				+ (useNamedBindPath ? namedBindPath + "=" : "")
-				+ libFolder
+				+ (useNamedBindPath ? namedBindPath + "=" : "") + libFolder
 				+ "\\\n");
 	}
 
@@ -304,7 +324,7 @@ public class WixprojMojo extends AbstractCompilerMojo {
 
 				// send DOM to file
 				tr.transform(new DOMSource(dom), new StreamResult(
-						new FileOutputStream(vsproj)));
+						new FileOutputStream(vsprojTarget)));
 
 			} catch (TransformerException te) {
 				System.out.println(te.getMessage());

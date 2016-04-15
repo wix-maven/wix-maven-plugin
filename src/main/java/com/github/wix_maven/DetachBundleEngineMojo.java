@@ -24,6 +24,8 @@ import java.io.File;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
 import org.codehaus.plexus.util.cli.Commandline;
 
 /**
@@ -31,11 +33,8 @@ import org.codehaus.plexus.util.cli.Commandline;
  * TODO: might be more appropriate to use custom phase.
  * insignia -ib bundle.exe -o engine.exe
  * ... sign engine.exe
- *  
- * @goal detach-bundle
- * @phase process-classes
- * @requiresProject true
  */
+@Mojo( name = "detach-bundle", requiresProject= true, defaultPhase=LifecyclePhase.PROCESS_CLASSES )
 public class DetachBundleEngineMojo extends AbstractInsigniaMojo {
 
 	public void execute() throws MojoExecutionException, MojoFailureException {

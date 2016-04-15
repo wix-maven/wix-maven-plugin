@@ -39,6 +39,8 @@ import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.artifact.filter.collection.ArtifactFilterException;
 import org.apache.maven.shared.artifact.filter.collection.ClassifierFilter;
@@ -54,9 +56,8 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 
 	/**
 	 * Skip running of all wix plugin goals altogether.
-	 * 
-	 * @parameter expression="${wix.skip}" default-value="false"
 	 */
+	@Parameter(property = "wix.skip", defaultValue = "false")
 	protected boolean skip;
 
 	/**
@@ -66,19 +67,15 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 	 *  <li> wixlib - Wix library
 	 *  <li> msp - Windows patch
 	 *  <li> bundle - wix bootstrapper
-	 * 
-	 * @parameter default-value="${project.packaging}"
-	 * @required
 	 */
+	@Parameter(property = "wix.packaging", defaultValue = "${project.packaging}", required=true)
 	protected String packaging;
 	
 	/**
 	 * The directory to scan for wix files.
 	 * For each build type there is at least one wxs file required
-	 * 
-	 * @parameter default-value="${project.basedir}/src/main/wix"
-	 * @required
 	 */
+	@Parameter(property = "wix.wxsInputDirectory", defaultValue = "${project.basedir}/src/main/wix", required=true)
 	protected File wxsInputDirectory;
 
 	/**
@@ -87,9 +84,8 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 	 * <li>unit - Run validation as unit test, suppressing validation during linking (light/lit).
 	 * <li>both - Run validation during linking from light/lit and also as unit test.
 	 * <li>suppress - Suppressing validation during linking (light/lit)
-	 * 
-	 * @parameter expression="${wix.validate}" default-value="unit"
 	 */
+	@Parameter(property = "wix.validate", defaultValue = "unit")
 	protected String validate;
 	static final String VALIDATE_LINK = "linking";
 	static final String VALIDATE_UNIT = "unit";
@@ -98,16 +94,14 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 
 	/**
 	 * Reference paths to WiX extensions to use default list containing the wixlib path only.
-	 * 
-	 * @parameter
 	 */
+	//@parameter
 	// protected String[] referencePaths;
 
 	/**
 	 * Show additional info such as the wix toolset logo
-	 * 
-	 * @parameter expression="${wix.verbose}" default-value="false"
 	 */
+	@Parameter(property = "wix.verbose", defaultValue = "false")
 	protected boolean verbose;
 
 	/**
@@ -116,176 +110,126 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 	 * If list is empty default-value="x86" <br> 
 	 * Will set: 
 	 * candle -dPlatform= -arch
-	 * 
-	 * @parameter 
 	 */
+	@Parameter
 	private Set<String> platforms;
 
 	/**
 	 * Intermediate directory - will have ${arch} appended
-	 * 
-	 * @parameter expression="${wix.intDirectory}" default-value="${project.build.directory}/wixobj/Release"
-	 * @required
 	 */
+	@Parameter(property = "wix.intDirectory", defaultValue = "${project.build.directory}/wixobj/Release", required=true)
 	protected File intDirectory;
 
 	/**
 	 * Where to unpack the wix tools
 	 * TODO: might need to do something about including tools version in path, or manage the unpacking more cleanly
-	 * 
-	 * @parameter expression="${wix.toolsPath}" default-value="${project.build.directory}/wix-tools"
-	 * @required
 	 */
+	@Parameter(property = "wix.toolsPath", defaultValue = "${project.build.directory}/wix-tools", required=true)
 	protected File toolDirectory;
 
 	/**
 	 * When to unpack the wix tools. 
 	 * Default is to unpack the tools every time and overwrite, set to false to only overwrite if the tools are newer.
 	 * This is provided to allow newer WIX test binaries to be dropped in, rather than having to install/deploy the wix-tools.
-	 * 
-	 * @parameter expression="${wix.toolDirectoryOverwrite}" default-value="true"
-	 * @required
 	 */
+	@Parameter(property = "wix.toolDirectoryOverwrite", defaultValue = "true", required=true)
 	protected boolean toolDirectoryOverwrite = true;
 
 	/**
 	 * Intermediate directory - will have ${arch} appended
-	 * 
-	 * @parameter expression="${wix.unpackPath}" default-value="${project.build.directory}/unpack"
-	 * @required
 	 */
+	@Parameter(property = "wix.unpackDirectory", defaultValue = "${project.build.directory}/unpack", required=true)
 	protected File unpackDirectory;
 
 	/**
-	 * A relative base path to shorten commandline references to files in the project.
+	 * A relative base path to shorten command line references to files in the project.
 	 * Default is the project base directory, if alternate locations are given for wxs, wxl files it may be appropriate to change this.
-	 * 
-	 * @parameter expression="${wix.relativeBase}" default-value="${project.basedir}"
 	 */
+	@Parameter(property = "wix.relativeBase", defaultValue = "${project.basedir}")
 	protected File relativeBase;
 	
 	/**
 	 * Leave the xsd-tools behind after compilation for extended use outside this goal.
-	 * 
-	 * @parameter expression="${wix.extendedUse}" default-value="false"
 	 */
+	@Parameter(property = "wix.extendedUse", defaultValue = "false")
 	protected boolean extendedUse;
 
 	/**
 	 * Artifact id of the toolset jar to unpack.
-	 * 
-	 * @parameter default-value="wix-toolset"
-	 * @required
 	 */
+	@Parameter(property = "wix.toolsPluginArtifactId", defaultValue = "wix-toolset")
 	protected String toolsPluginArtifactId;
 
 	/**
 	 * Group id of the toolset jar to unpack.
-	 * 
-	 * @parameter default-value="org.wixtoolset.maven"
-	 * @required
-	 * */
+	 */
+	@Parameter(property = "wix.toolsPluginGroupId", defaultValue = "org.wixtoolset.maven")
 	private String toolsPluginGroupId;
 
 	/**
 	 * Artifact id of the toolset jar to unpack.
-	 * 
-	 * @parameter default-value="wix-bootstrap"
-	 * @required
 	 */
+	@Parameter(property = "wix.bootstrapPluginArtifactId", defaultValue = "wix-bootstrap")
 	private String bootstrapPluginArtifactId;
 	
 	/**
 	 * Group id of the toolset jar to unpack.
-	 * 
-	 * @parameter default-value="org.wixtoolset.maven"
-	 * @required
-	 * */
+	 */
+	@Parameter(property = "wix.bootstrapPluginGroupId", defaultValue = "org.wixtoolset.maven")
 	private String bootstrapPluginGroupId;
 
 	/**
 	 * Base Name of the generated wix objects.
-	 * 
-	 * @parameter expression="${wix.finalName}" default-value="${project.build.finalName}"
-	 * @required
 	 */
-	//@Parameter(alias = "wixName", property = "wix.finalName", defaultValue = "${project.build.finalName}")
+	@Parameter(property = "wix.finalName", defaultValue = "${project.build.finalName}")
 	private String finalName;
 	
 	/**
-	 * @parameter default-value="${plugin.artifacts}"
-	 * @required
-	 * @readonly
-	 * */
+	 * The artifact dependencies for the wix-manven-plugin
+	 */
+	@Parameter(defaultValue = "${plugin.artifacts}",readonly=true,required=true)
 	private List pluginArtifacts;
 
 	/**
 	 * The Zip archiver.
-	 * 
-	 * @component role="org.codehaus.plexus.archiver.UnArchiver" roleHint="zip"
-	 * @readonly
-	 * @required
 	 */
+	@Component( role=org.codehaus.plexus.archiver.UnArchiver.class, hint="zip")
 	protected ZipUnArchiver zipUnArchiver;
 
 	/**
 	 * To search for artifacts within the reactor and ensure consistent behaviour between Maven 2 and Maven 3.
-	 * 
-	 * @parameter expression = "${reactorProjects}"
-	 * @readonly = true
-	 * @required = true
 	 */
+	@Parameter(defaultValue = "${reactorProjects}",readonly=true,required=true)
 	protected List<MavenProject> reactorProjects;
 
 	/**
 	 * Used to look up Artifacts in the remote repository.
-	 * 
-	 * @component role="org.apache.maven.artifact.factory.ArtifactFactory"
-	 * @required
-	 * @readonly
 	 */
+	@Component
 	protected ArtifactFactory factory;
 
 	/**
 	 * Used to look up Artifacts in the remote repository.
-	 * 
-	 * @component role="org.apache.maven.artifact.resolver.ArtifactResolver"
-	 * @required
-	 * @readonly
 	 */
+	@Component
 	protected ArtifactResolver resolver;
 
 	/**
-	 * @parameter expression="${localRepository}"
-	 * @required
-	 * @readonly
+	 * The local Repository
 	 */
+	@Parameter(defaultValue = "${localRepository}",readonly=true,required=true)
 	protected ArtifactRepository localRepository;
 
 	/**
-	 * Remote repositories which will be searched for nar attachments.
-	 * 
-	 * @parameter expression="${project.remoteArtifactRepositories}"
-	 * @required
-	 * @readonly
+	 * Remote repositories which will be searched for attachments.
 	 */
+	@Parameter(defaultValue = "${project.remoteArtifactRepositories}",readonly=true,required=true)
 	protected List remoteArtifactRepositories;
 
 	/**
-	 * Artifact collector, needed to resolve dependencies.
-	 * 
-	 * @component role="org.apache.maven.artifact.resolver.ArtifactCollector"
-	 * @required
-	 * @readonly
+	 * The Project
 	 */
-	// @Component( role = ArtifactCollector.class )
-	//protected ArtifactCollector artifactCollector;
-
-	/**
-	 * @parameter default-value="${project}"
-	 * @required
-	 * @readonly
-	 * */
+	@Parameter(defaultValue = "${project}",readonly=true,required=true)
 	protected MavenProject project;
 
 	public final String PACK_LIB = "wixlib";
@@ -405,14 +349,6 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 		}
 	
 		try {
-			// mdep-50 - rolledback for now because it's breaking some functionality.
-			/*
-			 * List listeners = new ArrayList(); Set theSet = new HashSet(); theSet.add( artifact ); ArtifactResolutionResult artifactResolutionResult
-			 * = artifactCollector.collect( theSet, project .getArtifact(), managedVersions, this.local, project.getRemoteArtifactRepositories(),
-			 * artifactMetadataSource, null, listeners ); Iterator iter = artifactResolutionResult.getArtifactResolutionNodes().iterator(); while (
-			 * iter.hasNext() ) { ResolutionNode node = (ResolutionNode) iter.next(); artifact = node.getArtifact(); }
-			 */
-	
 			resolver.resolve(artifact, remoteArtifactRepositories, localRepository);
 			artifactSet.add(artifact);
 		} catch (ArtifactResolutionException e) {
@@ -429,6 +365,7 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 	 *            The artifact we are looking for.
 	 * @return The resolved artifact that is the same as the one we were looking for or <code>null</code> if one could not be found.
 	 */
+	@SuppressWarnings("unchecked")
 	private Artifact getArtifactFomReactor(Artifact artifact) {
 		// check project dependencies first off
 		for (Artifact a : (Set<Artifact>) project.getArtifacts()) {
@@ -498,6 +435,7 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 		return outFile;
 	}
 
+	@SuppressWarnings("unchecked")
 	protected Set<Artifact> getExtDependencySets() throws MojoExecutionException {
 		// add filters in well known order, least specific to most specific
 		FilterArtifacts filter = new FilterArtifacts();
@@ -525,7 +463,6 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 		// filter.addFilter( new ClassifierFilter( clasfilter, "" ) );
 
 		// start with all artifacts.
-		@SuppressWarnings("unchecked")
 		Set<Artifact> artifacts = project.getArtifacts();
 
 		// perform filtering
@@ -545,13 +482,13 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 		//cl.addArguments(new String[] { "-sw" });
 	}
 
+	@SuppressWarnings("unchecked")
 	protected Set<Artifact> getJARDependencySets() throws MojoExecutionException {
 		FilterArtifacts filter = new FilterArtifacts();
 //		filter.addFilter(new ProjectTransitivityFilter(project.getDependencyArtifacts(), true));
 		filter.addFilter(new TypeFilter("jar", ""));
 
 		// start with all artifacts.
-		@SuppressWarnings("unchecked")
 		Set<Artifact> artifacts = project.getArtifacts();
 
 		// perform filtering
@@ -564,6 +501,7 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 		return artifacts;
 	}
 
+	@SuppressWarnings("unchecked")
 	protected Set<Artifact> getNPANDAYDependencySets()
 			throws MojoExecutionException {
 		FilterArtifacts filter = new FilterArtifacts();
@@ -574,7 +512,6 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 				""));
 
 		// start with all artifacts.
-		@SuppressWarnings("unchecked")
 		Set<Artifact> artifacts = project.getArtifacts();
 
 		// perform filtering
@@ -587,11 +524,12 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 		return artifacts;
 	}
 
+	@SuppressWarnings("unchecked")
 	protected Set<Artifact> getWixDependencySets() throws MojoExecutionException {
 		FilterArtifacts filter = new FilterArtifacts();
 		filter.addFilter(new ProjectTransitivityFilter(project.getDependencyArtifacts(), true));
 		filter.addFilter(new TypeFilter("wixlib,msm,msp,msi,bundle", null));
-		filter.addFilter(new ClassifierFilter( "x86,x64,intel", null){
+		filter.addFilter(new ClassifierFilter( "x86,x64,intel,intel64,ia64", null){
 		    /*
 		     * (non-Javadoc)
 		     * 
@@ -605,7 +543,6 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 		} );
 		
 		// start with all artifacts.
-		@SuppressWarnings("unchecked")
 		Set<Artifact> artifacts = project.getArtifacts();
 	
 		// perform filtering

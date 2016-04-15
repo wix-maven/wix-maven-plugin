@@ -24,35 +24,31 @@ import java.io.File;
 import java.io.IOException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.codehaus.plexus.util.FileUtils;
 
 /**
- * Jars up the NAR files.
- * 
- * @goal package
- * @phase package
- * @requiresProject
+ * Jars up the files associated with the msi/installbundle such as cabs.
  */
+@Mojo( name = "package", requiresProject= true, defaultPhase=LifecyclePhase.PACKAGE)
 public class PackageMojo extends AbstractPackageable {
 
 	/**
 	 * To look up Archiver/UnArchiver implementations
-	 * 
-	 * @component role="org.codehaus.plexus.archiver.manager.ArchiverManager"
-	 * @required
-	 * @readonly
 	 */
+	//( role=org.codehaus.plexus.archiver.manager.ArchiverManager.class )
+	@Component
 	private ArchiverManager archiverManager;
 
 	/**
 	 * Used for attaching the artifact in the project
-	 * 
-	 * @component
-	 * @required
-	 * @readonly
 	 */
+	//( role=org.apache.maven.project.MavenProjectHelper.class )
+	@Component
 	private MavenProjectHelper projectHelper;
 
 	// TODO: work out what to package

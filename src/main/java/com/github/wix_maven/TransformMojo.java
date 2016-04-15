@@ -25,6 +25,8 @@ import java.util.Set;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
 import org.codehaus.plexus.util.cli.Commandline;
 
 /**
@@ -35,11 +37,8 @@ import org.codehaus.plexus.util.cli.Commandline;
  */
 /**
  * Goal which executes WiX torch to create diff files - mst, cab
- * 
- * @goal transform
- * @phase package
- * @requiresProject true
  */
+@Mojo( name = "transform", requiresProject= true, defaultPhase=LifecyclePhase.COMPILE )
 public class TransformMojo extends AbstractTorchMojo {
 
 	public TransformMojo() {

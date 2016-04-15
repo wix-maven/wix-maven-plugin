@@ -82,7 +82,7 @@ If you have used the intDirectory parameter for the candle goal, you may need to
           <includes>
             <include>**/IT*.wxs</include>
           </includes>
-		  <excludes>
+          <excludes>
             <exclude>**/IT1*.wxs</exclude>
           </excludes>
         </configuration>

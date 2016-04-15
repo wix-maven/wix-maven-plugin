@@ -38,7 +38,7 @@ public abstract class AbstractCompilerMojo extends AbstractWixMojo {
 	protected abstract void addDefinition(String def);
 	protected void addResource(File resUnpackDirectory, Artifact wixRes ) throws MojoExecutionException{}
 
-
+	@SuppressWarnings("unchecked")
 	protected Set<Artifact> getNARDependencySets() throws MojoExecutionException {
 		FilterArtifacts filter = new FilterArtifacts();
 // Cannot do this filter in maven3 as it blocks classifiers - works in maven 2. 
@@ -46,7 +46,6 @@ public abstract class AbstractCompilerMojo extends AbstractWixMojo {
 		filter.addFilter(new TypeFilter("nar", ""));
 
 		// start with all artifacts.
-		@SuppressWarnings("unchecked")
 		Set<Artifact> artifacts = project.getArtifacts();
 
 		// perform filtering

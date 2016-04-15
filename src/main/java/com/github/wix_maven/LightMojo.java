@@ -22,6 +22,10 @@ package com.github.wix_maven;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.codehaus.plexus.compiler.util.scan.*;
 import org.codehaus.plexus.compiler.util.scan.mapping.*;
 import org.codehaus.plexus.components.io.fileselectors.IncludeExcludeFileSelector;
@@ -40,33 +44,20 @@ import java.util.Set;
  * The following project dependency inclusion patterns apply<br>
  * Dependent Wixlib project 'Foo' with possible output redefined as 'bar' adds to commandline <br>
  * ${narunpack}\Foo-version\Bar.wixlib
- * 
- * @goal light
- * @phase package
- * @requiresProject true
- * @requiresDependencyResolution compile
  */
+@Mojo( name = "light", requiresProject= true, defaultPhase=LifecyclePhase.COMPILE, requiresDependencyResolution=ResolutionScope.COMPILE )
 public class LightMojo extends AbstractLinker {
 
 	/**
 	 * Re use cabinet files across multiple linkages. (-reusecab)
-	 * 
-	 * @parameter expression="${wix.reuseCab}" default-value="false"
 	 */
+	@Parameter(property = "wix.reuseCab", defaultValue = "false")
 	private boolean reuseCabs;
 
 	/**
-	 * Location of the WiX localization files.
-	 * 
-	 * @parameter expression="${localizationFiles}"
-	 */
-	// private File[] localizationFiles;
-
-	/**
 	 * Bind files, only useful wixout format
-	 * 
-	 * @parameter expression="${wix.bindFiles.msi}" default-value="false"
 	 */
+	@Parameter(property = "wix.bindFiles.msi", defaultValue = "false")
 	private boolean bindFiles;
 
 	private void addLocaleOptions(Commandline cl, String culture) {
@@ -102,6 +93,7 @@ public class LightMojo extends AbstractLinker {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	protected void multilink(File toolDirectory) throws MojoExecutionException {
 
 		File linkTool = new File(toolDirectory, "/bin/light.exe");
@@ -133,7 +125,6 @@ public class LightMojo extends AbstractLinker {
 					SourceInclusionScanner scanner = new SimpleSourceInclusionScanner(getIncludes(), getExcludes());
 					scanner.addSourceMapping(new SingleTargetSourceMapping(".wixobj", archOutputFile.getName()));
 					scanner.addSourceMapping(new SingleTargetSourceMapping(".wixlib", archOutputFile.getName()));
-					@SuppressWarnings("unchecked")
 					Set<File> objects = scanner.getIncludedSources(getArchIntDirectory(arch), archOutputFile);
 					// **/{arch}/*.wixlib
 					// **/{arch}/*.wixobj
