@@ -137,6 +137,8 @@ public class PatchMojo extends AbstractTorchMojo {
 
 			for (Enumeration<Object> keys = patchProperties.keys(); keys.hasMoreElements();) {
 				String key = (String) keys.nextElement();
+				if (key.startsWith("x--"))
+					key = key.substring(2);
 				result.add(key);
 				String value = patchProperties.getProperty(key);
 				if (null != value) {

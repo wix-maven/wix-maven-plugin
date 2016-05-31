@@ -121,6 +121,8 @@ public class CandleMojo extends AbstractCompilerMojo {
 
 			for (Enumeration<Object> keys = candleProperties.keys(); keys.hasMoreElements();) {
 				String key = (String) keys.nextElement();
+				if (key.startsWith("x--"))
+					key = key.substring(2);
 				result.add(key);
 				String value = candleProperties.getProperty(key);
 				if (null != value) {

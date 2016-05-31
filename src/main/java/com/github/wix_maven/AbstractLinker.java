@@ -174,6 +174,8 @@ public abstract class AbstractLinker extends AbstractPackageable {
 
 			for (Enumeration<Object> keys = linkProperties.keys(); keys.hasMoreElements();) {
 				String key = (String) keys.nextElement();
+				if (key.startsWith("x--"))
+					key = key.substring(2);
 				result.add(key);
 				String value = linkProperties.getProperty(key);
 				if (null != value) {
