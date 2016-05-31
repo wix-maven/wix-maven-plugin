@@ -169,8 +169,13 @@ public abstract class AbstractCompilerMojo extends AbstractWixMojo {
 			for(Artifact npanday : npandayArtifacts){
 // TODO: There are various different types for npanday, this list might need to expand to support multiple
 				if( !( npanday.getType().endsWith("-config") || npanday.getType().endsWith(".config")) ){
-					getLog().debug( String.format("NPANDAY added dependency %1$s", npanday.getArtifactId() ) );
-					addDefinition(String.format("%1$s.%2$s.TargetNPANDAY=%3$s", npanday.getGroupId(), npanday.getArtifactId(), defineRepoFile( npanday.getFile() ) ));
+					if( npanday.hasClassifier() ){
+						getLog().debug( String.format("NPANDAY added dependency %1$s with classifier %2$s", npanday.getArtifactId(), npanday.getClassifier() ) );
+						addDefinition(String.format("%1$s.%2$s.%4$s.TargetNPANDAY=%3$s", npanday.getGroupId(), npanday.getArtifactId(), defineRepoFile( npanday.getFile() ), npanday.getClassifier() ));
+					} else {
+						getLog().debug( String.format("NPANDAY added dependency %1$s", npanday.getArtifactId() ) );
+						addDefinition(String.format("%1$s.%2$s.TargetNPANDAY=%3$s", npanday.getGroupId(), npanday.getArtifactId(), defineRepoFile( npanday.getFile() ) ));
+					}
 				} else { 
 					getLog().debug( String.format("NPANDAY added config dependency %1$s", npanday.getArtifactId() ) );
 					addDefinition(String.format("%1$s.%2$s.TargetNPANDAYConfig=%3$s", npanday.getGroupId(), npanday.getArtifactId(), defineRepoFile( npanday.getFile() ) ));
