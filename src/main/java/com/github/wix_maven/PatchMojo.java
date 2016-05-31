@@ -88,6 +88,12 @@ public class PatchMojo extends AbstractTorchMojo {
 	 */
 	@Parameter( property="wix.baseline", required=true )
 	protected String baseline;
+
+	/**
+	 * Re use cabinet files across multiple linkages. (-reusecab)
+	 */
+	@Parameter(property = "wix.reuseCab", defaultValue = "false")
+	private boolean reuseCabs;
 	
 	/**
 	 * Properties catch all in case we missed some configuration. Passed directly to pyro
@@ -115,6 +121,16 @@ public class PatchMojo extends AbstractTorchMojo {
 			cl.addArguments(new String[] { "-xo" });
 	}
 
+	private void addReuseCabOptions(Commandline cl, String arch) {
+		// TODO: culture might be a list of primary and fallback cultures
+		if (reuseCabs) {
+			File resolvedCabCacheDirectory = new File(cabCacheDirectory, arch); // TODO: provide pattern replace
+			cl.addArguments(new String[] { "-reusecab", "-cc", resolvedCabCacheDirectory.getAbsolutePath() + "\\" });
+			if (!resolvedCabCacheDirectory.exists())
+				resolvedCabCacheDirectory.mkdirs();
+		}
+	}
+	
 	protected void addOtherOptions(Commandline cl) {
 		if (patchProperties != null && !patchProperties.isEmpty()) {
 			ArrayList<String> result = new ArrayList<String>();
@@ -196,13 +212,14 @@ public class PatchMojo extends AbstractTorchMojo {
 	 * @param archOutputFile
 	 * @throws MojoExecutionException
 	 */
-	protected void pyro(File pyroTool, Artifact baseInputArtifact, Artifact latestInputArtifact, File patchInputFile, File transformInputFile, File archOutputFile) throws MojoExecutionException {
+	protected void pyro(File pyroTool, Artifact baseInputArtifact, Artifact latestInputArtifact, String arch, File patchInputFile, File transformInputFile, File archOutputFile) throws MojoExecutionException {
 		getLog().info(" -- Pyro : " + archOutputFile.getPath());
 		Commandline cl = new Commandline();
 
 		cl.setExecutable(pyroTool.getAbsolutePath());
 		// cl.setWorkingDirectory(wxsInputDirectory);
 		addToolsetGeneralOptions(cl);
+		addReuseCabOptions(cl, arch);
 		addOtherOptions(cl);
 	
 		if( "wixpdb".equals( baseInputArtifact.getType() ) ) { // already checked that artifact types match
@@ -379,7 +396,7 @@ public class PatchMojo extends AbstractTorchMojo {
 
 				File archPatchFile = getOutput(arch, culture, "wixmsp"); // output from earlier light
 				File archOutputFile = getOutput(arch, culture, getPackageOutputExtension());
-				pyro(pyroTool, baseInputArtifact, latestInputArtifact, archPatchFile, archIntermediateFile, archOutputFile);
+				pyro(pyroTool, baseInputArtifact, latestInputArtifact, arch, archPatchFile, archIntermediateFile, archOutputFile);
 				
 // for Uber patch				
 //				archIntermediateFiles.put(culture, archIntermediateFile);
