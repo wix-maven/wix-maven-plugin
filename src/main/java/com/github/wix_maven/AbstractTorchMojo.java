@@ -20,7 +20,6 @@ package com.github.wix_maven;
  * #L%
  */
 
-
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.cli.CommandLineException;
@@ -52,14 +51,15 @@ public abstract class AbstractTorchMojo extends AbstractPackageable {
 
 	/**
 	 * Prepare and execute torch command line tool
-	 *  
+	 * 
 	 * @param torchTool
 	 * @param baseInputFile
 	 * @param archInputFile
 	 * @param archOutputFile
 	 * @throws MojoExecutionException
 	 */
-	protected void torch(File torchTool, File baseInputFile, File archInputFile, File archOutputFile) throws MojoExecutionException {
+	protected void torch(File torchTool, File baseInputFile, File archInputFile, File archOutputFile)
+			throws MojoExecutionException {
 		getLog().info(" -- Transform : " + archOutputFile.getPath());
 		Commandline cl = new Commandline();
 
@@ -70,7 +70,8 @@ public abstract class AbstractTorchMojo extends AbstractPackageable {
 		addTorchOptions(cl);
 		addValidationOptions(cl);
 		addWixExtensions(cl);
-		cl.addArguments(new String[] { baseInputFile.getAbsolutePath(), archInputFile.getAbsolutePath(), "-out", archOutputFile.getAbsolutePath() });
+		cl.addArguments(new String[] { baseInputFile.getAbsolutePath(), archInputFile.getAbsolutePath(), "-out",
+				archOutputFile.getAbsolutePath() });
 		// addOtherOptions(cl);
 
 		torch(cl);
@@ -78,6 +79,7 @@ public abstract class AbstractTorchMojo extends AbstractPackageable {
 
 	/**
 	 * Execute the given command line parsing output for torch comments
+	 * 
 	 * @param cl
 	 * @throws MojoExecutionException
 	 */

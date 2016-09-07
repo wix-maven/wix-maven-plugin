@@ -22,12 +22,6 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.sonatype.oss</groupId>
-    <artifactId>oss-parent</artifactId>
-    <version>7</version>
-  </parent>
-
   <groupId>com.github.wix-maven</groupId>
   <artifactId>wix-maven-plugin</artifactId>
   <version>0.1.0-SNAPSHOT</version>
@@ -53,7 +47,7 @@ Provides lifecycles for
   <developers>
     <developer>
       <id>GdOmjan</id>
-      <email>gdomjan@netiq.com</email>
+      <email>Greg.Domjan@microfocus.com</email>
       <name>Greg Domjan</name>
       <organization>NetIQ</organization>
       <roles>
@@ -83,8 +77,8 @@ Provides lifecycles for
 
   <properties>
     <github.global.server>github</github.global.server>
-    <mavenVersion>2.0.9</mavenVersion>
-    <wixtools.version>3.7-SNAPSHOT</wixtools.version>
+    <mavenVersion>2.2.1</mavenVersion>
+    <wixtools.version>3.9.2</wixtools.version>
     <wixtools.groupId>org.wixtoolset.maven</wixtools.groupId>
   </properties>
   
@@ -178,6 +172,17 @@ Provides lifecycles for
         <configuration>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.sonatype.plugins</groupId>
+        <artifactId>nexus-staging-maven-plugin</artifactId>
+        <version>1.6.7</version>
+        <extensions>true</extensions>
+        <configuration>
+          <serverId>ossrh</serverId>
+          <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+          <autoReleaseAfterClose>true</autoReleaseAfterClose>
+        </configuration>
+      </plugin>
       
     </plugins>
   </build>
@@ -197,6 +202,12 @@ Provides lifecycles for
     </plugins>
   </reporting>
 
+  <distributionManagement>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
 <!-- 
   <distributionManagement>
     <site>
@@ -230,9 +241,9 @@ Provides lifecycles for
                 <goal>install</goal>
               </goals>
               <extraArtifacts>
-                <extraArtifact>org.wixtoolset.maven:wix-toolset:3.7-SNAPSHOT:wixext:WixUIExtension</extraArtifact>
-                <extraArtifact>org.wixtoolset.maven:wix-toolset:3.7-SNAPSHOT:wixext:WixUtilExtension</extraArtifact>
-                <extraArtifact>org.wixtoolset.maven:wix-toolset:3.7-SNAPSHOT:wixext:WixBalExtension</extraArtifact>
+                <extraArtifact>org.wixtoolset.maven:wix-toolset:${wixtools.version}:wixext:WixUIExtension</extraArtifact>
+                <extraArtifact>org.wixtoolset.maven:wix-toolset:${wixtools.version}:wixext:WixUtilExtension</extraArtifact>
+                <extraArtifact>org.wixtoolset.maven:wix-toolset:${wixtools.version}:wixext:WixBalExtension</extraArtifact>
               </extraArtifacts>
             </configuration>
             <executions>
