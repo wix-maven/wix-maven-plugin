@@ -1,6 +1,8 @@
 wix-maven-plugin
 ================
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.wix-maven/wix-maven-plugin/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.wix-maven/wix-maven-plugin)
+
 A maven plugin to provide lifecycle of a Windows Installer build using WiX.
 A work in progress, Sorry no doc yet.
 Attempts some dependencies references for wix build types and also NAR.
