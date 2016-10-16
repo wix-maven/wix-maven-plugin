@@ -21,6 +21,7 @@ package com.github.wix_maven;
  */
 
 import java.io.File;
+import java.io.FileFilter;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
@@ -91,7 +92,35 @@ public abstract class AbstractCompilerMojo extends AbstractWixMojo {
 		}
 	}
 
+	protected void addHarvestDefines() throws MojoExecutionException {
+		// TODO: transitive only through direct attached jars...
+		Set<Artifact> jarArtifacts = getJARDependencySets();
+		if(!harvestInputDirectory.exists())
+			return;
+		getLog().info("Adding Harvest input locations from " + harvestInputDirectory.getPath());
 
+		FileFilter directoryFilter = new FileFilter() {
+			public boolean accept(File file) {
+				return file.isDirectory();
+			}
+		};
+		for (File folders : harvestInputDirectory.listFiles(directoryFilter)) {
+			if( HarvestMojo.HT_DIR.equals(folders.getName()) ) {
+				for (File subfolder: folders.listFiles(directoryFilter) ){
+					addHarvestDefine(HarvestMojo.HT_DIR,subfolder);
+				}
+			} else if( HarvestMojo.HT_FILE.equals(folders.getName()) ) {
+//				for (File subfolder: folders.listFiles(fileFilter) ){
+//					multiHeat(heatTool, HT_FILE, subfolder);
+//				}
+			}
+		}
+	}
+
+	protected void addHarvestDefine( String prefix, File folderOrFile ){ 
+		addDefinition(String.format("%1$s-%2$s=%3$s", prefix, folderOrFile.getName(), folderOrFile.getAbsolutePath() )); // possibly want this relative from some base /b
+	}
+	
 	protected void addJARDefines() throws MojoExecutionException {
 		// TODO: transitive only through direct attached jars...
 		Set<Artifact> jarArtifacts = getJARDependencySets();

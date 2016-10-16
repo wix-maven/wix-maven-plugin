@@ -79,6 +79,12 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 	protected File wxsInputDirectory;
 
 	/**
+	 * Generated sources directory 
+	 */
+	@Parameter(property = "wix.wxsGeneratedDirectory", defaultValue = "${project.build.directory}/generated-sources/wixharvest", required=true)
+	protected File wxsGeneratedDirectory;
+	
+	/**
 	 * Should validation be run, and when.
 	 * <li>linking - Run validation during linking from light/lit. 
 	 * <li>unit - Run validation as unit test, suppressing validation during linking (light/lit).
@@ -114,6 +120,12 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 	@Parameter
 	private Set<String> platforms;
 
+	/**
+	 * Harvest input sources directory 
+	 */
+	@Parameter(property = "wix.harvestInputDirectory", defaultValue = "${project.build.directory}/heat", required=true)
+	protected File harvestInputDirectory;
+	
 	/**
 	 * Intermediate directory - will have ${arch} appended
 	 */
@@ -165,18 +177,42 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 	 */
 	@Parameter(property = "wix.toolsPluginGroupId", defaultValue = "org.wixtoolset.maven")
 	private String toolsPluginGroupId;
+	
+	/**
+	 * Classifier of the toolset jar to unpack.
+	 */
+	@Parameter(property = "wix.toolsPluginClassifier", defaultValue = "")
+	private String toolsPluginClassifier;
+	
+	/**
+	 * File Type of the toolset jar to unpack.
+	 */
+	@Parameter(property = "wix.toolsPluginType", defaultValue = "jar")
+	private String toolsPluginType;
 
 	/**
-	 * Artifact id of the toolset jar to unpack.
+	 * Artifact id of the bootstrap archive to unpack.
 	 */
 	@Parameter(property = "wix.bootstrapPluginArtifactId", defaultValue = "wix-bootstrap")
 	private String bootstrapPluginArtifactId;
 	
 	/**
-	 * Group id of the toolset jar to unpack.
+	 * Group id of the bootstrap archive to unpack.
 	 */
 	@Parameter(property = "wix.bootstrapPluginGroupId", defaultValue = "org.wixtoolset.maven")
 	private String bootstrapPluginGroupId;
+
+	/**
+	 * Classifier of the bootstrap archive to unpack.
+	 */
+	@Parameter(property = "wix.bootstrapPluginClassifier", defaultValue = "")
+	private String bootstrapPluginClassifier;
+	
+	/**
+	 * File Type of the bootstrap archive to unpack.
+	 */
+	@Parameter(property = "wix.bootstrapPluginType", defaultValue = "jar")
+	private String bootstrapPluginType;
 
 	/**
 	 * Base Name of the generated wix objects.
@@ -261,9 +297,9 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 	protected Artifact[] findToolsArtifacts() throws MojoExecutionException{
 		
 		ArrayList<Artifact> tools = new ArrayList<Artifact>(2);
-		tools.add(findToolsArtifact(toolsPluginGroupId, toolsPluginArtifactId));
+		tools.add(findToolsArtifact(toolsPluginGroupId, toolsPluginArtifactId, toolsPluginClassifier, toolsPluginType));
 		if( PACK_BUNDLE.equalsIgnoreCase( packaging ) )
-			tools.add(findToolsArtifact(bootstrapPluginGroupId, bootstrapPluginArtifactId));
+			tools.add(findToolsArtifact(bootstrapPluginGroupId, bootstrapPluginArtifactId, bootstrapPluginClassifier, bootstrapPluginType));
 
 		// TODO: Still deciding if this content should be optional
 		// if( visualStudioUse )
@@ -273,14 +309,15 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 	}
 	
 	// TODO: should be a better pattern for lookup of the tools attached to this pluggin
-	protected Artifact findToolsArtifact(String pluginGroupId, String pluginArtifactId) throws MojoExecutionException {
+	protected Artifact findToolsArtifact(String pluginGroupId, String pluginArtifactId, String pluginClassifier, String pluginType) throws MojoExecutionException {
 		// return (Artifact) mavenPlugin.getArtifactMap().get(ArtifactUtils.versionlessKey(mavenPlugin.getGroupId(), toolsId));
 		if (null != pluginArtifacts) {
 			for (Iterator artifactIterator = pluginArtifacts.iterator(); artifactIterator.hasNext();) {
 				Artifact artifact = (Artifact) artifactIterator.next();
 				if (artifact.getGroupId().equals(pluginGroupId) 
 						&& artifact.getArtifactId().equals(pluginArtifactId)
-						// && artifact.getClassifier().equals( env.arch )
+						&& (StringUtils.isEmpty(artifact.getClassifier()) ? StringUtils.isEmpty(pluginClassifier) : artifact.getClassifier().equals(pluginClassifier))
+						&& (StringUtils.isEmpty(artifact.getType()) ? StringUtils.isEmpty(pluginType) : artifact.getType().equals(pluginType))
 						) { 
 					return artifact;
 				}

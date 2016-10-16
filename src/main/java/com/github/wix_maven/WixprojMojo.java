@@ -97,6 +97,7 @@ public class WixprojMojo extends AbstractCompilerMojo {
 		addNARDefines();
 		addJARDefines();
 		addNPANDAYDefines();
+		addHarvestDefines();
 		addWixExtensions(null);
 
 		addDefinitionX86("IsWin64=no");

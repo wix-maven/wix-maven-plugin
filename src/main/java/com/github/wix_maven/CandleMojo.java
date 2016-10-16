@@ -74,14 +74,16 @@ public class CandleMojo extends AbstractCompilerMojo {
 	protected int staleMillis;
 	
 	/**
-	 * Set this value if you wish to have a single timestamp file to track changes rather than cxx,hxx comparison The time-stamp file for the
-	 * processed xsd files.
+	 * Set this value if you wish to have a single timestamp file to track changes rather than cxx,hxx comparison.<BR> 
+	 * The time-stamp file for the processed xsd files.
 	 */
 	@Parameter( property = "wix.timestampFile")
 	protected String timestampFile = null;
 
 	/**
-	 * The directory to store the time-stamp file for the processed aid files. Defaults to outputDirectory. Only used with xsdTimestampFile being set.
+	 * The directory to store the time-stamp file for the processed aid files. <BR>
+	 * Defaults to outputDirectory. <BR>
+	 * Only used with xsdTimestampFile being set.
 	 */
 	@Parameter( property = "wix.timestampDirectory", defaultValue = "${project.build.directory}/mapping/cpp" )
 	protected File timestampDirectory;
@@ -256,6 +258,7 @@ public class CandleMojo extends AbstractCompilerMojo {
 		addNARDefines();
 		addJARDefines();
 		addNPANDAYDefines();
+		addHarvestDefines();
 
 		for (String arch : getPlatforms() ) {
 
@@ -286,7 +289,9 @@ public class CandleMojo extends AbstractCompilerMojo {
 					timestampDirectory.mkdirs();
 
 				Set<File> wixSources = scanner.getIncludedSources(wxsInputDirectory, timestampDirectory);
-
+				if(wxsGeneratedDirectory.exists())
+					wixSources.addAll(scanner.getIncludedSources(wxsGeneratedDirectory, timestampDirectory));
+				
 				if (wixSources.isEmpty()) {
 					getLog().info("All objects appear up to date");
 				} else {
