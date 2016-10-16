@@ -32,6 +32,8 @@
 		</dependency>
 	</dependencies>
 	<build>
+    <!--MSI requires you to change the product code if you change the name of the .msi. - don't include the version!!-->
+    <finalName>sample</finalName>
 		<plugins>
 			<plugin>
 				<groupId>@project.groupId@</groupId>
@@ -41,6 +43,7 @@
 					<verbose>true</verbose>
 					<platforms>
 						<arch>x86</arch>
+						<arch>x64</arch>
 					</platforms>
 					<culturesMap>${installer.cultures}</culturesMap>
 				</configuration>

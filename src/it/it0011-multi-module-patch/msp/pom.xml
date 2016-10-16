@@ -42,6 +42,7 @@
 					<verbose>true</verbose>
 					<platforms>
 						<arch>x86</arch>
+						<arch>x64</arch>
 					</platforms>
 					<baseline>Sample</baseline>
 					<baseArtifactItem>

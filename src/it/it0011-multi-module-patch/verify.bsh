@@ -23,13 +23,13 @@ try
 
 
 /* msi - version 2 in patch same upgrade code */
-    File file = new File( basedir, "msi/target/Release/x86/en-US/msi-0.0.2-SNAPSHOT.msi" );
+    File file = new File( basedir, "msi/target/Release/x86/en-US/sample.msi" );
     if ( !file.isFile() )
     {
         System.err.println( "Could not find installation 86 package: " + file );
         return false;
     }
-    File file = new File( basedir, "msi/target/Release/x86/de-DE/msi-0.0.2-SNAPSHOT.msi" );
+    File file = new File( basedir, "msi/target/Release/x86/de-DE/sample.msi" );
     if ( !file.isFile() )
     {
         System.err.println( "Could not find installation package: " + file );

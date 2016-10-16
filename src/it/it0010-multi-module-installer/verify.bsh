@@ -35,13 +35,13 @@ try
     }
 
 /* msi  - version 1 */
-    File file = new File( basedir, "msi/target/Release/x86/msi-0.0.1-SNAPSHOT.msi" );
+    File file = new File( basedir, "msi/target/Release/x86/sample.msi" );
     if ( file.isFile() )
     {
         System.err.println( "Found installation package without culture: " + file );
         return false;
     }
-    File file = new File( basedir, "msi/target/Release/en-US/msi-0.0.1-SNAPSHOT.msi" );
+    File file = new File( basedir, "msi/target/Release/en-US/sample.msi" );
     if ( file.isFile() )
     {
         System.err.println( "Found installation package without arch: " + file );
@@ -49,25 +49,25 @@ try
     }
 
 
-    File file = new File( basedir, "msi/target/Release/x86/en-US/msi-0.0.1-SNAPSHOT.msi" );
+    File file = new File( basedir, "msi/target/Release/x86/en-US/sample.msi" );
     if ( !file.isFile() )
     {
         System.err.println( "Could not find installation 86 package: " + file );
         return false;
     }
-    File file = new File( basedir, "msi/target/Release/x64/en-US/msi-0.0.1-SNAPSHOT.msi" );
+    File file = new File( basedir, "msi/target/Release/x64/en-US/sample.msi" );
     if ( !file.isFile() )
     {
         System.err.println( "Could not find installation 64 package: " + file );
         return false;
     }
-    File file = new File( basedir, "msi/target/Release/x86/de-DE/msi-0.0.1-SNAPSHOT.msi" );
+    File file = new File( basedir, "msi/target/Release/x86/de-DE/sample.msi" );
     if ( !file.isFile() )
     {
         System.err.println( "Could not find installation 86 package: " + file );
         return false;
     }
-    File file = new File( basedir, "msi/target/Release/x64/de-DE/msi-0.0.1-SNAPSHOT.msi" );
+    File file = new File( basedir, "msi/target/Release/x64/de-DE/sample.msi" );
     if ( !file.isFile() )
     {
         System.err.println( "Could not find installation 64 package: " + file );

@@ -6,12 +6,18 @@
 	<?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
 	<?endif ?>
 
-  <Product Name='Foobar' Id='!(loc.ProdCode)' UpgradeCode='00000001-7349-453F-94F6-BCB5110BA4FD'
+  <?if $(var.Platform)="x64"?>
+  <?define ProdCode=!(loc.ProdCode32) ?>
+  <?else?>
+  <?define ProdCode=!(loc.ProdCode64) ?>
+  <?endif?>
+  
+  <Product Name='Foobar' Id='$(var.ProdCode)' UpgradeCode='00000001-7349-453F-94F6-BCB5110BA4FD'
     Language='!(loc.LANG)' Codepage='1252' Version='1.0.0' Manufacturer='Acme Ltd.'>
 
     <Package Id='*' Keywords='Installer' Description="Acme's Foobar 1.0 Installer"
       Comments='Foobar is a registered trademark of Acme Ltd.' Manufacturer='Acme Ltd.'
-      InstallerVersion='300' Languages='!(loc.PackageLANG)' Compressed='yes' SummaryCodepage='1252' />
+      InstallerVersion='300' Languages='!(loc.PackageLANG)' Compressed='yes' SummaryCodepage='1252' InstallScope="perMachine"/>
 
     <Upgrade Id='00000001-7349-453F-94F6-BCB5110BA4FD'>
       <UpgradeVersion OnlyDetect='yes' Property='NEWERFOUND' Minimum='1.0.0' IncludeMinimum='no' />

@@ -3,17 +3,17 @@
      xmlns:bal="http://schemas.microsoft.com/wix/BalExtension"
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension" >
 
-  <?define mavenVersion=8.0.0.1 ?>
-  <?define BaselineVersion=8.0.0.0 ?>
+  <?define mavenVersion=8.0.2.0 ?>
   <?define mavenOrganisation=SomeOrganistation ?>
   <?define mavenCopyright=©2012 ?>
+  <?define msiPackageName=Sample.msi ?>
 
   <?define AddRemoveProgramURLINFOABOUT=http://wix.sourceforge.net/about ?>
   <?define AddRemoveProgramURLUPDATEINFO=http://wix.sourceforge.net/update ?>
   <?define AddRemoveProgramHELPLINK=http://wix.sourceforge.net/help ?>
   <?define AddRemoveProgramHELPTELEPHONE=http://wix.sourceforge.net/phone ?>
 
-  <Bundle Name="WixExamples-HF1" UpgradeCode="01789C7D-AA0E-4A10-B775-308929302131"
+  <Bundle Name="WixExamples" UpgradeCode="00000001-7349-453F-94F6-BCB5110BA000"
           Version="$(var.mavenVersion)" 
           Manufacturer="$(var.mavenOrganisation)"
           Copyright="$(var.mavenCopyright)" 
@@ -21,7 +21,6 @@
           HelpUrl="$(var.AddRemoveProgramHELPLINK)" 
           UpdateUrl="$(var.AddRemoveProgramURLUPDATEINFO)"
           HelpTelephone="$(var.AddRemoveProgramHELPTELEPHONE)"
-          ParentName="WixExamples"
           >
     <!-- TODO:
           ParentName="" 
@@ -50,8 +49,8 @@
             />
     </BootstrapperApplicationRef>
 
-    <RelatedBundle Id="BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB" Action="Patch" />
-
+	<RelatedBundle Id="DDDDDDDD-DDDD-DDDD-DDDD-DDDDDDDDDDDD" Action="Detect" />
+	
     <Variable Name="ADDLOCAL" bal:Overridable="yes"/>
 		<Chain>
 			<!-- TODO: Define the list of chained packages. -->
@@ -62,30 +61,32 @@
       <!-- Keep these in sync with the payloads in the BootstrapperApplicationRef above -->
       <?define ic_de = "UserLanguageID = 1031 OR UserLanguageID = 2055 OR UserLanguageID = 3079 OR UserLanguageID = 4103 OR UserUILanguage = 5127"?>
 
-      <MspPackage Id="EN_64" Compressed="yes" SourceFile="$(var.com.github.wix-maven.it.msp.TargetPath-x64-en-US)" Vital="yes" InstallCondition="VersionNT64 " > <!-- AND NOT ($(var.ic_de)) -->
+      <!-- As the default package, the InstallCondition for en.msi must complement the InstallConditions for the other mst packages. -->
+      <MsiPackage Id="EN_64" Compressed="yes" Name="$(var.msiPackageName)" SourceFile="$(var.com.github.wix-maven.it.msi.TargetPath-x64-en-US)" Vital="yes" InstallCondition="VersionNT64 AND NOT ($(var.ic_de))" DisplayInternalUI="yes" >
+<!-- 
+        <PayloadGroupRef Id="Cabinets64"/>
+        <MsiProperty Name="ADDLOCAL" Value="[ADDLOCAL]"/>
+         -->
+      </MsiPackage>
+      <MsiPackage Id="EN_32" Compressed="yes" Name="$(var.msiPackageName)" SourceFile="$(var.com.github.wix-maven.it.msi.TargetPath-x86-en-US)" Vital="yes" InstallCondition="NOT VersionNT64 AND NOT ($(var.ic_de))" DisplayInternalUI="yes">
 <!-- 
         <PayloadGroupRef Id="Cabinets32"/>
         <MsiProperty Name="ADDLOCAL" Value="[ADDLOCAL]"/>
          -->
-      </MspPackage>
-      <MspPackage Id="EN_32" Compressed="yes" SourceFile="$(var.com.github.wix-maven.it.msp.TargetPath-x86-en-US)" Vital="yes" InstallCondition="NOT VersionNT64 " > <!-- AND NOT ($(var.ic_de)) -->
+      </MsiPackage>
+
+      <MsiPackage Id="DE_64" Compressed="yes" Name="$(var.msiPackageName)" SourceFile="$(var.com.github.wix-maven.it.msi.TargetPath-x64-de-DE)" Vital="yes" InstallCondition="VersionNT64 AND ($(var.ic_de))" DisplayInternalUI="yes">
+<!-- 
+        <PayloadGroupRef Id="Cabinets64"/>
+        <MsiProperty Name="ADDLOCAL" Value="[ADDLOCAL]"/>
+         -->
+      </MsiPackage>
+      <MsiPackage Id="DE_32" Compressed="yes" Name="$(var.msiPackageName)" SourceFile="$(var.com.github.wix-maven.it.msi.TargetPath-x86-de-DE)" Vital="yes" InstallCondition="NOT VersionNT64 AND ($(var.ic_de))" DisplayInternalUI="yes">
 <!-- 
         <PayloadGroupRef Id="Cabinets32"/>
         <MsiProperty Name="ADDLOCAL" Value="[ADDLOCAL]"/>
          -->
-      </MspPackage>
-      <MspPackage Id="DE_64" Compressed="yes" SourceFile="$(var.com.github.wix-maven.it.msp.TargetPath-x64-de-DE)" Vital="yes" InstallCondition="VersionNT64 " > <!-- AND ($(var.ic_de))-->
-<!-- 
-        <PayloadGroupRef Id="Cabinets32"/>
-        <MsiProperty Name="ADDLOCAL" Value="[ADDLOCAL]"/>
-         -->
-      </MspPackage>
-      <MspPackage Id="DE_32" Compressed="yes" SourceFile="$(var.com.github.wix-maven.it.msp.TargetPath-x86-de-DE)" Vital="yes" InstallCondition="NOT VersionNT64 " > <!-- AND ($(var.ic_de))-->
-<!-- 
-        <PayloadGroupRef Id="Cabinets32"/>
-        <MsiProperty Name="ADDLOCAL" Value="[ADDLOCAL]"/>
-         -->
-      </MspPackage>
+      </MsiPackage>
 
 		</Chain>
 	</Bundle>

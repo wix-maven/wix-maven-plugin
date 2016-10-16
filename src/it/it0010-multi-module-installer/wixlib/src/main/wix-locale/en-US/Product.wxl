@@ -3,7 +3,8 @@
 
 	<String Id='LANG' Overridable="yes">1033</String>
 	<String Id='PackageLANG' Overridable="yes">1033,1031</String>
-	<String Id='ProdCode' Overridable="yes">{96B01033-D2E2-41B9-AF5A-46598ACBEB89}</String>
+	<String Id='ProdCode32' Overridable="yes">{96B01033-32E2-41B9-AF5A-46598ACBEB89}</String>
+	<String Id='ProdCode64' Overridable="yes">{96B01033-64E2-41B9-AF5A-46598ACBEB89}</String>
 	<String Id='Codepage' Overridable="yes">1252</String>
 	<String Id='Culture' Overridable="yes">en-US</String>
 

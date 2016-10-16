@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Patch
+		AllowRemoval="no"
+		Manufacturer="Acme Ltd."
+		MoreInfoURL="http://wix.tramontana.co.hu/tutorial/upgrades-and-modularization/patchwork"
+		DisplayName="Sample HotFix"
+		Description="Sample HotFix"
+		Classification="Hotfix">
+
+<!-- 		Description="Sample HotFix - $(var.HFID)"  -->
+		<Media Id='2' Cabinet='localised'>
+			<PatchBaseline Id='Sample'>
+			</PatchBaseline>
+		</Media>
+
+		<PatchFamily
+			Id='SamplePatchFamily'
+			Version='1.0.0.0'
+			Supersede='yes'>
+		</PatchFamily>
+	</Patch>
+</Wix>

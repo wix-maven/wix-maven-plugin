@@ -9,73 +9,47 @@
     <relativePath>../../it-parent/pom.xml</relativePath>
   </parent>
 
-  <artifactId>mspBundle</artifactId>
+  <artifactId>msiBundle</artifactId>
   <packaging>bundle</packaging>
-  <version>0.0.2-SNAPSHOT</version>
-  <name>IT0011/mspBundle - test bundle lifecycle</name>
+  <version>0.0.3-SNAPSHOT</version>
+  <name>IT0012/msiBundle - test bundle lifecycle</name>
   <description>Based on tutorial at http://www.tramontana.co.hu/wix/</description>
 
   <properties>
     <wix.locales></wix.locales>
-    <projectBase.version>0.0.1-SNAPSHOT</projectBase.version>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>msp</artifactId>
+      <artifactId>msi</artifactId>
       <version>${project.version}</version>
       <classifier>x86-en-US</classifier>
-      <type>msp</type>
+      <type>msi</type>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>msp</artifactId>
+      <artifactId>msi</artifactId>
       <version>${project.version}</version>
       <classifier>x64-en-US</classifier>
-      <type>msp</type>
+      <type>msi</type>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>msp</artifactId>
+      <artifactId>msi</artifactId>
       <version>${project.version}</version>
       <classifier>x86-de-DE</classifier>
-      <type>msp</type>
+      <type>msi</type>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>msp</artifactId>
+      <artifactId>msi</artifactId>
       <version>${project.version}</version>
       <classifier>x64-de-DE</classifier>
-      <type>msp</type>
-      <scope>provided</scope>
-    </dependency>
-		<!-- 
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>msp</artifactId>
-			<version>${project.version}</version>
-			<classifier>x64-en-US</classifier>
-			<type>msp</type>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>msp</artifactId>
-			<version>${project.version}</version>
-			<classifier>x64-de-DE</classifier>
-			<type>msp</type>
-			<scope>provided</scope>
-		</dependency>
-		 -->
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>wixlib</artifactId>
-      <version>${projectBase.version}</version>
-      <type>wixlib</type>
+      <type>msi</type>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -84,6 +58,7 @@
       <version>${wixtools.version}</version>
       <type>wixext</type>
       <classifier>WixBalExtension</classifier>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
   <build>

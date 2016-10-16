@@ -11,28 +11,28 @@
 		<relativePath>../../it-parent/pom.xml</relativePath>
 	</parent>
 
-	<artifactId>msi</artifactId>
-	<packaging>msi</packaging>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>IT0010/msi - test msi lifecycle</name>
+	<artifactId>msp</artifactId>
+	<packaging>msp</packaging>
+	<version>0.0.3-SNAPSHOT</version>
+	<name>IT0012/msp - test msp lifecycle</name>
 	<description>Based on tutorial at http://www.tramontana.co.hu/wix/</description>
 
 	<properties>
-		<wix.locales>1033:en-US,1031:de-DE;en-US</wix.locales>
+		<wix.locales>1033:en-US,1031:de-DE</wix.locales>
+		<projectBase.version>0.0.1-SNAPSHOT</projectBase.version>
 	</properties>
 	
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>wixlib</artifactId>
+			<artifactId>msi</artifactId>
 			<version>${project.version}</version>
-			<type>wixlib</type>
+			<type>msi</type>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
+
 	<build>
-    <!--MSI requires you to change the product code if you change the name of the .msi. - don't include the version!!-->
-    <finalName>sample</finalName>
 		<plugins>
 			<plugin>
 				<groupId>@project.groupId@</groupId>
@@ -44,12 +44,17 @@
 						<arch>x86</arch>
 						<arch>x64</arch>
 					</platforms>
-					<!-- 
-					<localeList>
-						<_1033>en-US</_1033>
-						<_1031>de-DE</_1031> 
-					</localeList>
-					 -->
+					<baseline>Sample</baseline>
+					<baseArtifactItem>
+						<groupId>${project.groupId}</groupId>
+						<artifactId>msi</artifactId>
+						<version>${projectBase.version}</version>
+					</baseArtifactItem>
+					<patchedArtifactItem>
+						<groupId>${project.groupId}</groupId>
+						<artifactId>msi</artifactId>
+						<version>${project.version}</version>
+					</patchedArtifactItem>
 				</configuration>
 			</plugin>
 		</plugins>

@@ -3,7 +3,7 @@
      xmlns:bal="http://schemas.microsoft.com/wix/BalExtension"
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension" >
 
-  <?define mavenVersion=8.0.0.1 ?>
+  <?define mavenVersion=8.0.0.2 ?>
   <?define BaselineVersion=8.0.0.0 ?>
   <?define mavenOrganisation=SomeOrganistation ?>
   <?define mavenCopyright=©2012 ?>
@@ -51,6 +51,16 @@
     </BootstrapperApplicationRef>
 
     <RelatedBundle Id="BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB" Action="Patch" />
+<!--
+  <bal:Condition
+   Message="The Bootstrapper has to be installed in version $(var.BaselineVersion)">  
+      WixBundleInstalled OR      
+      ((SampleMsiInstalledState = 5) AND (SampleMsiInstalledVersion &gt;= v$(var.BaselineVersion)))
+</bal:Condition>
+<util:ProductSearch Guid="00000001-7349-453F-94F6-BCB5110BA000" Result="version" Variable="SampleMsiInstalledVersion" />
+<util:ProductSearch Guid="00000001-7349-453F-94F6-BCB5110BA000" Result="state" Variable="SampleMsiInstalledState" />
+-->
+
 
     <Variable Name="ADDLOCAL" bal:Overridable="yes"/>
 		<Chain>

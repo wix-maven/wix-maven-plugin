@@ -11,8 +11,8 @@
 
   <artifactId>mspBundle</artifactId>
   <packaging>bundle</packaging>
-  <version>0.0.2-SNAPSHOT</version>
-  <name>IT0011/mspBundle - test bundle lifecycle</name>
+  <version>0.0.3-SNAPSHOT</version>
+  <name>IT0012/mspBundle - test bundle lifecycle</name>
   <description>Based on tutorial at http://www.tramontana.co.hu/wix/</description>
 
   <properties>
@@ -71,13 +71,6 @@
 			<scope>provided</scope>
 		</dependency>
 		 -->
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>wixlib</artifactId>
-      <version>${projectBase.version}</version>
-      <type>wixlib</type>
-      <scope>provided</scope>
-    </dependency>
     <dependency>
       <groupId>${wixtools.groupId}</groupId>
       <artifactId>wix-toolset</artifactId>
