@@ -1,0 +1,76 @@
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.github.wix-maven.it</groupId>
+		<artifactId>it-parent</artifactId>
+		<version>1.0-SNAPSHOT</version>
+		<relativePath>../it-parent/pom.xml</relativePath>
+	</parent>
+
+	<artifactId>it0020</artifactId>
+	<packaging>jar</packaging>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>IT0020 - msi - heat, candle and light</name>
+	<description>Integration test to execute generate code, candle on a sample .wxs and generated files.
+Based on tutorial at http://www.tramontana.co.hu/wix/</description>
+
+	<dependencies>
+		<dependency>
+			<groupId>${wixtools.groupId}</groupId>
+			<artifactId>wix-toolset</artifactId>
+			<version>${wixtools.version}</version>
+			<type>wixext</type>
+			<classifier>WixIISExtension</classifier>
+		</dependency>
+		<dependency>
+			<groupId>${wixtools.groupId}</groupId>
+			<artifactId>wix-toolset</artifactId>
+			<version>${wixtools.version}</version>
+			<type>wixext</type>
+			<classifier>WixUtilExtension</classifier>
+		</dependency>
+		<dependency>
+			<groupId>${wixtools.groupId}</groupId>
+			<artifactId>wix-toolset</artifactId>
+			<version>${wixtools.version}</version>
+			<type>wixext</type>
+			<classifier>WixVSExtension</classifier>
+		</dependency>
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>@project.groupId@</groupId>
+				<artifactId>@project.artifactId@</artifactId>
+            <configuration>
+              <verbose>true</verbose>
+              <packaging>msi</packaging>
+              <platforms>
+                <arch>x86</arch>
+                <arch>x64</arch>
+              </platforms>
+              <harvestInputDirectory>src/main/heat</harvestInputDirectory>
+              <harvestDirectoryRef>INSTALLDIR</harvestDirectoryRef>
+              <suppress><s>frag</s></suppress>
+            </configuration>
+				<executions>
+					<execution>
+						<id>default</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>toolset</goal>
+                            <goal>harvest</goal>
+							<goal>candle</goal>
+							<goal>light</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
