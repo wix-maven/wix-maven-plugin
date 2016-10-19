@@ -9,355 +9,373 @@
 
 	http://www.apache.org/licenses/LICENSE-2.0
 
-	Unless required by applicable law or agreed to in writing,
-	software distributed under the License is distributed on an
-	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-	KIND, either express or implied. See the License for the
-	specific language governing permissions and limitations
-	under the License.
+        Unless required by applicable law or agreed to in writing,
+        software distributed under the License is distributed on an
+        "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+        KIND, either express or implied. See the License for the
+        specific language governing permissions and limitations
+        under the License.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.github.wix-maven</groupId>
-  <artifactId>wix-maven-plugin</artifactId>
-  <version>0.2.0-SNAPSHOT</version>
-  <packaging>maven-plugin</packaging>
-  <name>WiX Maven Plugin</name>
-  <description>A maven plugin to provide lifecycle of a Windows Installer build using WiX Toolset (Windows Installer XML Toolset) .
-Provides lifecycles for 
- * msi
- * msp
- * wixlib
- * bundle
-</description>
-  <inceptionYear>2013</inceptionYear>
-  <url>http://wix-maven.github.io/wix-maven-plugin</url>
+    <groupId>com.github.wix-maven</groupId>
+    <artifactId>wix-maven-plugin</artifactId>
+    <version>0.2.0-SNAPSHOT</version>
+    <packaging>maven-plugin</packaging>
+    <name>WiX Maven Plugin</name>
+    <description>A maven plugin to provide lifecycle of a Windows Installer build using WiX Toolset (Windows Installer XML Toolset) .
+        Provides lifecycles for 
+        * msi
+        * msp
+        * wixlib
+        * bundle
+    </description>
+    <inceptionYear>2013</inceptionYear>
+    <url>http://wix-maven.github.io/wix-maven-plugin</url>
 
-  <prerequisites><maven>${mavenVersion}</maven></prerequisites>
+    <prerequisites>
+        <maven>${mavenVersion}</maven>
+    </prerequisites>
   
-  <organization>
-    <name>com.github.wix-maven</name>
-    <url>http://github.com/wix-maven</url>
-  </organization>
+    <organization>
+        <name>com.github.wix-maven</name>
+        <url>http://github.com/wix-maven</url>
+    </organization>
   
-  <developers>
-    <developer>
-      <id>GdOmjan</id>
-      <email>Greg.Domjan@microfocus.com</email>
-      <name>Greg Domjan</name>
-      <organization>NetIQ</organization>
-      <roles>
-        <role>developer</role>
-      </roles>
-    </developer>
-  </developers>
+    <developers>
+        <developer>
+            <id>GdOmjan</id>
+            <email>Greg.Domjan@microfocus.com</email>
+            <name>Greg Domjan</name>
+            <organization>NetIQ</organization>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+    </developers>
   
-  <licenses>
-    <license>
-      <name>The Apache Software License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
   
-  <scm>
-    <connection>scm:git:https://github.com:wix-maven/wix-maven-plugin.git</connection>
-    <developerConnection>scm:git:https://github@github.com:wix-maven/wix-maven-plugin.git</developerConnection>
-    <url>http://github.com/wix-maven/wix-maven-plugin</url>
-    <tag>wix-maven-plugin-0.1.0</tag>
-  </scm>
+    <scm>
+        <connection>scm:git:https://github.com:wix-maven/wix-maven-plugin.git</connection>
+        <developerConnection>scm:git:https://github@github.com:wix-maven/wix-maven-plugin.git</developerConnection>
+        <url>http://github.com/wix-maven/wix-maven-plugin</url>
+        <tag>wix-maven-plugin-0.1.0</tag>
+    </scm>
 
-  <issueManagement>
-    <system>Github</system>
-    <url>https://github.com/GregDomjan/wix-maven-plugin/issues</url>
-  </issueManagement>
+    <issueManagement>
+        <system>Github</system>
+        <url>https://github.com/GregDomjan/wix-maven-plugin/issues</url>
+    </issueManagement>
 
-  <properties>
-    <github.global.server>github</github.global.server>
-    <mavenVersion>2.2.1</mavenVersion>
-    <wixtools.version>3.9.2</wixtools.version>
-    <wixtools.groupId>org.wixtoolset.maven</wixtools.groupId>
-  </properties>
+    <properties>
+        <github.global.server>github</github.global.server>
+        <mavenVersion>2.2.1</mavenVersion>
+        <wixtools.version>3.9.2</wixtools.version>
+        <wixtools.groupId>org.wixtoolset.maven</wixtools.groupId>
+    </properties>
   
-  <dependencies>
-    <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-plugin-api</artifactId>
-      <version>${mavenVersion}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.plugin-tools</groupId>
-      <artifactId>maven-plugin-annotations</artifactId>
-      <version>3.4</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-artifact</artifactId>
-      <version>${mavenVersion}</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-project</artifactId>
-      <version>${mavenVersion}</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-archiver</artifactId>
-      <version>2.5</version>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.plexus</groupId>
-      <artifactId>plexus-compiler-api</artifactId>
-      <version>1.8</version>
-      <optional>false</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.plexus</groupId>
-      <artifactId>plexus-utils</artifactId>
-      <version>3.0.17</version>
-    </dependency>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-plugin-api</artifactId>
+            <version>${mavenVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.plugin-tools</groupId>
+            <artifactId>maven-plugin-annotations</artifactId>
+            <version>3.4</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-artifact</artifactId>
+            <version>${mavenVersion}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-project</artifactId>
+            <version>${mavenVersion}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-archiver</artifactId>
+            <version>2.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-compiler-api</artifactId>
+            <version>1.8</version>
+            <optional>false</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-utils</artifactId>
+            <version>3.0.17</version>
+        </dependency>
 
-    <!-- Shared -->
-    <dependency>
-      <groupId>org.apache.maven.shared</groupId>
-      <artifactId>maven-common-artifact-filters</artifactId>
-      <version>1.4</version>
-    </dependency>
+        <!-- Shared -->
+        <dependency>
+            <groupId>org.apache.maven.shared</groupId>
+            <artifactId>maven-common-artifact-filters</artifactId>
+            <version>1.4</version>
+        </dependency>
 
-    <dependency>
-      <groupId>${wixtools.groupId}</groupId>
-      <artifactId>wix-toolset</artifactId>
-      <version>${wixtools.version}</version>
-      <scope>runtime</scope>
-    </dependency>
+        <dependency>
+            <groupId>${wixtools.groupId}</groupId>
+            <artifactId>wix-toolset</artifactId>
+            <version>${wixtools.version}</version>
+            <scope>runtime</scope>
+        </dependency>
 
-  </dependencies>
+    </dependencies>
 
-  <build>
-    <pluginManagement>
-      <plugins>
-      <!-- to pass options to release build, such as signing    mvn release:perform -Drelease.arguments=-Dgpg.passphrase=PASSPHRASE -->
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-release-plugin</artifactId>
-          <version>2.3</version>
-          <configuration>
-            <mavenExecutorId>forked-path</mavenExecutorId>
-            <useReleaseProfile>false</useReleaseProfile>
-            <arguments>-Psonatype-oss-release ${release.arguments}</arguments>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-    <plugins>
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.1</version>
-        <configuration>
-          <source>1.5</source>
-          <target>1.5</target>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-site-plugin</artifactId>
-        <version>3.3</version>
-        <configuration>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.sonatype.plugins</groupId>
-        <artifactId>nexus-staging-maven-plugin</artifactId>
-        <version>1.6.7</version>
-        <extensions>true</extensions>
-        <configuration>
-          <serverId>ossrh</serverId>
-          <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-          <autoReleaseAfterClose>true</autoReleaseAfterClose>
-        </configuration>
-      </plugin>
-      
-    </plugins>
-  </build>
-
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-plugin-plugin</artifactId>
-        <version>3.3</version>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.7</version>
-      </plugin>
-    </plugins>
-  </reporting>
-
-  <distributionManagement>
-    <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
-  </distributionManagement>
-<!-- 
-  <distributionManagement>
-    <site>
-      <id>github-pages-site</id>
-      <name>Deployment through GitHub's site deployment plugin</name>
-      <url>site/${project.version}</url>
-    </site>
-  </distributionManagement>
- -->
- 
-  <profiles>
-    <profile>
-      <id>run-its</id>
-      <build>
+    <build>
+        <pluginManagement>
+            <plugins>
+                <!-- to pass options to release build, such as signing    mvn release:perform -Drelease.arguments=-Dgpg.passphrase=PASSPHRASE -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>2.3</version>
+                    <configuration>
+                        <mavenExecutorId>forked-path</mavenExecutorId>
+                        <useReleaseProfile>false</useReleaseProfile>
+                        <arguments>-Psonatype-oss-release ${release.arguments}</arguments>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
-          <plugin>
-            <artifactId>maven-invoker-plugin</artifactId>
-            <version>1.6</version>
-            <configuration>
-              <projectsDirectory>src/it</projectsDirectory>
-              <cloneProjectsTo>target/it</cloneProjectsTo>
-              <pomIncludes>
-                <pomInclude>*/pom.xml</pomInclude>
-              </pomIncludes>
-              <settingsFile>src/it/settings.xml</settingsFile>
-              <localRepositoryPath>${project.build.directory}/local repo</localRepositoryPath> <!-- test paths with spaces -->
-              <postBuildHookScript>verify.bsh</postBuildHookScript>
-              <debug>true</debug>
-              <goals>
-                <goal>clean</goal>
-                <goal>install</goal>
-              </goals>
-              <extraArtifacts>
-                <extraArtifact>org.wixtoolset.maven:wix-toolset:${wixtools.version}:wixext:WixUIExtension</extraArtifact>
-                <extraArtifact>org.wixtoolset.maven:wix-toolset:${wixtools.version}:wixext:WixUtilExtension</extraArtifact>
-                <extraArtifact>org.wixtoolset.maven:wix-toolset:${wixtools.version}:wixext:WixBalExtension</extraArtifact>
-              </extraArtifacts>
-            </configuration>
-            <executions>
-              <execution>
-                <id>integration-test</id>
-                <goals>
-                  <goal>install</goal>
-                  <goal>run</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
-      <id>sonatype-oss-release</id>
-      <activation>
-        <property>
-          <name>performRelease</name>
-          <value>true</value>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <version>1.1</version>
-            <executions>
-              <execution>
-                <id>sign-artifacts</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-source-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>attach-sources</id>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>attach-javadocs</id>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
-      <id>maven-3</id>
-      <activation>
-        <file>
-          <exists>${basedir}</exists><!-- This employs that the basedir expression is only recognized by Maven 3.x (see MNG-2363) -->
-        </file>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-site-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>attach-descriptor</id>
-                <goals>
-                  <goal>attach-descriptor</goal>
-                </goals>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
                 <configuration>
-                  <!-- deploying using github site -->
-                  <skipDeploy>true</skipDeploy>
+                    <source>1.5</source>
+                    <target>1.5</target>
                 </configuration>
-              </execution>
-            </executions>
-          </plugin>
-      <!-- https://github.com/github/maven-plugins -->
-          <plugin> <!-- Requires maven 3 -->
-            <groupId>com.github.github</groupId>
-            <artifactId>site-maven-plugin</artifactId>
-            <version>0.12</version>
-            <dependencies>
-                <dependency>
-                    <groupId>org.eclipse.mylyn.github</groupId>
-                    <artifactId>org.eclipse.egit.github.core</artifactId>
-                    <version>2.1.5</version>
-                </dependency>
-            </dependencies>
-            <configuration>
-              <message>Creating site for ${project.version}</message>
-            </configuration>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>site</goal>
-                </goals>
-                <phase>site</phase>
-              </execution>
-            </executions>
-          </plugin>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.3</version>
+                <configuration>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.7</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.googlecode.maven-java-formatter-plugin</groupId>
+                <artifactId>maven-java-formatter-plugin</artifactId>
+                <version>0.4</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>format</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <lineEnding>LF</lineEnding>
+                    <encoding>UTF-8</encoding>
+                    <configFile>${basedir}/src/main/resources/eclipse-java-google-style.xml</configFile>
+                </configuration>
+            </plugin>
         </plugins>
-      </build>
-    </profile>
-  </profiles>
+    </build>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-plugin-plugin</artifactId>
+                <version>3.3</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.7</version>
+            </plugin>
+        </plugins>
+    </reporting>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+    <!-- 
+     <distributionManagement>
+       <site>
+         <id>github-pages-site</id>
+         <name>Deployment through GitHub's site deployment plugin</name>
+         <url>site/${project.version}</url>
+       </site>
+     </distributionManagement>
+    -->
+ 
+    <profiles>
+        <profile>
+            <id>run-its</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-invoker-plugin</artifactId>
+                        <version>1.6</version>
+                        <configuration>
+                            <projectsDirectory>src/it</projectsDirectory>
+                            <cloneProjectsTo>target/it</cloneProjectsTo>
+                            <pomIncludes>
+                                <pomInclude>*/pom.xml</pomInclude>
+                            </pomIncludes>
+                            <settingsFile>src/it/settings.xml</settingsFile>
+                            <localRepositoryPath>${project.build.directory}/local repo</localRepositoryPath> <!-- test paths with spaces -->
+                            <postBuildHookScript>verify.bsh</postBuildHookScript>
+                            <debug>true</debug>
+                            <goals>
+                                <goal>clean</goal>
+                                <goal>install</goal>
+                            </goals>
+                            <extraArtifacts>
+                                <extraArtifact>org.wixtoolset.maven:wix-toolset:${wixtools.version}:wixext:WixUIExtension</extraArtifact>
+                                <extraArtifact>org.wixtoolset.maven:wix-toolset:${wixtools.version}:wixext:WixUtilExtension</extraArtifact>
+                                <extraArtifact>org.wixtoolset.maven:wix-toolset:${wixtools.version}:wixext:WixBalExtension</extraArtifact>
+                            </extraArtifacts>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>integration-test</id>
+                                <goals>
+                                    <goal>install</goal>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>sonatype-oss-release</id>
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.1</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>maven-3</id>
+            <activation>
+                <file>
+                    <exists>${basedir}</exists><!-- This employs that the basedir expression is only recognized by Maven 3.x (see MNG-2363) -->
+                </file>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-site-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-descriptor</id>
+                                <goals>
+                                    <goal>attach-descriptor</goal>
+                                </goals>
+                                <configuration>
+                                    <!-- deploying using github site -->
+                                    <skipDeploy>true</skipDeploy>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- https://github.com/github/maven-plugins -->
+                    <plugin> <!-- Requires maven 3 -->
+                        <groupId>com.github.github</groupId>
+                        <artifactId>site-maven-plugin</artifactId>
+                        <version>0.12</version>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.eclipse.mylyn.github</groupId>
+                                <artifactId>org.eclipse.egit.github.core</artifactId>
+                                <version>2.1.5</version>
+                            </dependency>
+                        </dependencies>
+                        <configuration>
+                            <message>Creating site for ${project.version}</message>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>site</goal>
+                                </goals>
+                                <phase>site</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
