@@ -181,7 +181,23 @@ Provides lifecycles for
           <autoReleaseAfterClose>true</autoReleaseAfterClose>
         </configuration>
       </plugin>
-      
+      <plugin>
+        <groupId>com.googlecode.maven-java-formatter-plugin</groupId>
+        <artifactId>maven-java-formatter-plugin</artifactId>
+        <version>0.4</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>format</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <lineEnding>LF</lineEnding>
+          <encoding>UTF-8</encoding>
+          <configFile>${basedir}/src/main/resources/eclipse-java-google-style.xml</configFile>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
