@@ -343,6 +343,7 @@ public class HarvestMojo extends AbstractPackageable {
 		if(! harvestInputDirectory.exists()) {
 			if( verbose )
 				getLog().info( "Skipping executing heat\nInput doesn't exist " + harvestInputDirectory.getAbsolutePath() );
+			return;
 		}
 
 		File heatTool = new File(toolDirectory, "bin/heat.exe");
