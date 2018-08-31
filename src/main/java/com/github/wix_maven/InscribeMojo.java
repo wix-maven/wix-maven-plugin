@@ -1,23 +1,16 @@
 package com.github.wix_maven;
 
 /*
- * #%L
- * WiX Toolset (Windows Installer XML) Maven Plugin
- * %%
- * Copyright (C) 2013 - 2014 GregDomjan NetIQ
- * %%
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * #%L WiX Toolset (Windows Installer XML) Maven Plugin %% Copyright (C) 2013 - 2014 GregDomjan
+ * NetIQ %% Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
+ * file except in compliance with the License. You may obtain a copy of the License at
  * 
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * #L%
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License. #L%
  */
 
 import java.io.File;
@@ -29,56 +22,55 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.cli.Commandline;
 
 /**
- * Using insignia tool to inscribe each msi with signature details of external cabs
- * ie. insignia -im setup.msi
- *  
- *  TODO: support writing the inscribed msi to a different location/name
+ * Using insignia tool to inscribe each msi with signature details of external cabs ie. insignia -im
+ * setup.msi
+ * 
+ * TODO: support writing the inscribed msi to a different location/name
  */
-@Mojo( name = "inscribe", requiresProject= true, defaultPhase=LifecyclePhase.PREPARE_PACKAGE )
+@Mojo(name = "inscribe", requiresProject = true, defaultPhase = LifecyclePhase.PREPARE_PACKAGE)
 public class InscribeMojo extends AbstractInsigniaMojo {
 
-	/**
-	 * Indicate if the msi/msp cabs will be signed and so should be inscribed with signatures.
-	 */
-	@Parameter(property = "wix.inscribePackage", defaultValue = "false")
-	protected boolean inscribePackage;
-	
-	/**
-	 * TODO: Indicate if the msi/msp should be inscribed with signatures from cabs in the cab cache
-	 */
-	//@Parameter(property = "wix.inscribeUsingCabCache", defaultValue = "false")
-	// protected boolean inscribeUsingCabCache;
-	
-	public void execute() throws MojoExecutionException, MojoFailureException {
-		if( !inscribePackage )
-		{
-			return;
-		}
-		
-		if ( skip )
-		{
-			getLog().info( getClass().getName() + " skipped" );
-			return;
-		}
+  /**
+   * Indicate if the msi/msp cabs will be signed and so should be inscribed with signatures.
+   */
+  @Parameter(property = "wix.inscribePackage", defaultValue = "false")
+  protected boolean inscribePackage;
 
-		File torchTool = validateTool();
+  /**
+   * TODO: Indicate if the msi/msp should be inscribed with signatures from cabs in the cab cache
+   */
+  // @Parameter(property = "wix.inscribeUsingCabCache", defaultValue = "false")
+  // protected boolean inscribeUsingCabCache;
 
-		// TODO: add auto ident cultures?
+  public void execute() throws MojoExecutionException, MojoFailureException {
+    if (!inscribePackage) {
+      return;
+    }
 
-		for (String arch : getPlatforms()) {
-			for (String culture : culturespecs()) {
+    if (skip) {
+      getLog().info(getClass().getName() + " skipped");
+      return;
+    }
 
-				File archOutputFile = getOutput(arch, culture, getPackageOutputExtension());
+    File torchTool = validateTool();
 
-				getLog().info(" -- Inscribing : " + archOutputFile.getPath());
+    // TODO: add auto ident cultures?
 
-				// first... if desired, re copy cabs from cache as there is no option to use them instead of the co-located cabs  
-				Commandline cl = insignia(torchTool);
-				cl.addArguments(new String[] { "-im", archOutputFile.getAbsolutePath() });
+    for (String arch : getPlatforms()) {
+      for (String culture : culturespecs()) {
 
-				insignia(cl);
-			}
-		}
-	}
+        File archOutputFile = getOutput(arch, culture, getPackageOutputExtension());
+
+        getLog().info(" -- Inscribing : " + archOutputFile.getPath());
+
+        // first... if desired, re copy cabs from cache as there is no option to use them instead of
+        // the co-located cabs
+        Commandline cl = insignia(torchTool);
+        cl.addArguments(new String[] {"-im", archOutputFile.getAbsolutePath()});
+
+        insignia(cl);
+      }
+    }
+  }
 
 }
