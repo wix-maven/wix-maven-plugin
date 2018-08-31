@@ -56,6 +56,13 @@ public class PackageMojo extends AbstractPackageable {
 	// TODO: work out how we should package - many different parts now, should the be allowed separately 
 	public final void execute() throws MojoExecutionException, MojoFailureException {
 
+		if ( skip )
+		{
+			if( verbose )
+				getLog().info( getClass().getName() + " skipped" );
+			return;
+		}
+
 		defaultLocale();
 
 		String[] cabs = getExternalCabs( );
