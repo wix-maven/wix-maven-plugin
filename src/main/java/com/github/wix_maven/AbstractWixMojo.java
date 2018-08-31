@@ -22,12 +22,7 @@ package com.github.wix_maven;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
@@ -111,6 +106,56 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 	protected boolean verbose;
 
 	/**
+	 * Suppress [-s]
+	 * <ul>
+	 * <li>com    suppress COM elements</li>
+	 * <li>frag   suppress fragments</li>
+	 * <li>rd     suppress harvesting the root directory as an element</li>
+	 * <li>reg    suppress registry harvesting</li>
+	 * <li>uid    suppress unique identifiers for files, components, & directories</li>
+	 * <li>vb6    suppress VB6 COM elements</li>
+	 * <li>w&lt;N&gt;   suppress all warnings or a specific message ID (example: w1011 w1012)</li>
+	 * </ul>
+	 */
+	@Parameter
+	protected Set<String> suppress;
+
+	/**
+	 * Treat specific warning messages as errors [-w]
+	 * <ul>
+	 * <li>x&lt;N&gt;   suppress a specific message ID (example: x1011 x1012)</li>
+	 * </ul>
+	 */
+	@Parameter
+	protected Set<String> warn;
+
+	/**
+	 * A locale is a language id + a culture specification each culture specification can contain a semicolon (;) separated list of cultures, this is an
+	 * ordered list to fall back.
+	 * ie.
+	 * &lt;localeList&gt;
+	 * &lt;1033&gt;en-US&lt;/1033&gt;
+	 * &lt;1031&lt;de-DE;en-US&lt;/1031&gt;
+	 * &lt;/localeList&lt;
+	 *
+	 * Will add to light -cultures:culturespec<br>
+	 * Will add to link each culture to the path as part of -b options - maybe should also add langid to path as -b option <br>
+	 * Will use language id for re-packing mst
+	 *
+	 * bug: maven gives us a map of it's choice, rather than setting an item at a time, thus losing the prefered ordered set.
+	 */
+	@Parameter
+	protected Map<String, String> localeList = new LinkedHashMap<String, String>();
+	/**
+	 * Similar to localeList, allow setting from properties as a single string value.<br>
+	 * a csv of locale, where a locale is a langId:culturespec, and a culturespec is a semicolon seperate list of cultures.
+	 * ie. 1033:en-US,1031:de-DE;en-US
+	 */
+	@Parameter(property = "wix.locales", defaultValue = "neutral")
+	private String locales = null;
+	// Note: Plexus has bug where a property doesn't allow using an empty/null string - to provide an expression of wix.locales, we have to provide a non null/empty default-value in case wix.locales is null/empty.
+
+	/**
 	 * The Platforms (Archictecture) for the msi. <br> 
 	 * Some choices are: x86, intel, x64, intel64, or ia64 <br> 
 	 * If list is empty default-value="x86" <br> 
@@ -125,12 +170,22 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 	 */
 	@Parameter(property = "wix.harvestInputDirectory", defaultValue = "${project.build.directory}/heat", required=true)
 	protected File harvestInputDirectory;
-	
+
 	/**
-	 * Intermediate directory - will have ${arch} appended
+	 * Intermediate directory
+	 * - will have ${arch} appended
+	 * - may have ${locale} appended, when using compilePerLocale
 	 */
 	@Parameter(property = "wix.intDirectory", defaultValue = "${project.build.directory}/wixobj/Release", required=true)
 	protected File intDirectory;
+
+	/**
+	 * Wix generates Id's during compilation, in some cases it is necessary to get unique id's for each locale.
+	 * Useful for Patch MSP, may be useful for MSI.
+	 * Ignored for Wixlib.
+	 */
+	@Parameter(property = "wix.compilePerLocale", defaultValue = "false")
+	protected boolean compilePerLocale;
 
 	/**
 	 * Where to unpack the wix tools
@@ -145,10 +200,10 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 	 * This is provided to allow newer WIX test binaries to be dropped in, rather than having to install/deploy the wix-tools.
 	 */
 	@Parameter(property = "wix.toolDirectoryOverwrite", defaultValue = "true", required=true)
-	protected boolean toolDirectoryOverwrite = true;
+	protected boolean toolDirectoryOverwrite;
 
 	/**
-	 * Intermediate directory - will have ${arch} appended
+	 * Unpack directory for dependent wix objects
 	 */
 	@Parameter(property = "wix.unpackDirectory", defaultValue = "${project.build.directory}/unpack", required=true)
 	protected File unpackDirectory;
@@ -159,12 +214,6 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 	 */
 	@Parameter(property = "wix.relativeBase", defaultValue = "${project.basedir}")
 	protected File relativeBase;
-	
-	/**
-	 * Leave the xsd-tools behind after compilation for extended use outside this goal.
-	 */
-	@Parameter(property = "wix.extendedUse", defaultValue = "false")
-	protected boolean extendedUse;
 
 	/**
 	 * Artifact id of the toolset jar to unpack.
@@ -290,10 +339,10 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 		this.platforms = platforms;
 	}
 
-	protected File getArchIntDirectory( String arch ){
-		return new File( intDirectory, arch );
+	protected File getArchIntDirectory( String arch, String culture ){
+		return getOutputPath(intDirectory, arch, compilePerLocale ? culture : null);
 	}
-	
+
 	protected Artifact[] findToolsArtifacts() throws MojoExecutionException{
 		
 		ArrayList<Artifact> tools = new ArrayList<Artifact>(2);
@@ -328,27 +377,32 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 	}
 
 	protected void unpackFileBasedResources() throws MojoExecutionException {
-		getLog().debug("unpacking binaries");
+		if (toolDirectoryOverwrite) {
+			getLog().debug("unpacking binaries");
 
-		Artifact[] tools = findToolsArtifacts();
-		final String subfolder = "bin";
-		File pluginJar;
-		for (Artifact artifact : tools) {
+			Artifact[] tools = findToolsArtifacts();
+			final String subfolder = "bin";
+			File pluginJar;
+			for (Artifact artifact : tools) {
 
-			getLog().debug(String.format("Using %1$s %2$s", toolsPluginArtifactId, artifact));
+				getLog().debug(String.format("Using %1$s %2$s", toolsPluginArtifactId, artifact));
 
-			pluginJar = artifact.getFile();
+				pluginJar = artifact.getFile();
 
-			getLog().debug(String.format("Using tools jar %1$s", pluginJar));
+				getLog().debug(String.format("Using tools jar %1$s", pluginJar));
 
-			zipUnArchiver.setSourceFile(pluginJar);
-			
-			getLog().info(String.format("Extracting %3$s %1$s to %2$s", pluginJar, toolDirectory, subfolder));
-			zipUnArchiver.extract(subfolder, toolDirectory);	
-		}
+				zipUnArchiver.setSourceFile(pluginJar);
 
-		if (!toolDirectory.exists()){
-			throw new MojoExecutionException("Error extracting resources from mapping-tools.");
+				getLog().info(String.format("Extracting %3$s %1$s to %2$s", pluginJar, toolDirectory, subfolder));
+				zipUnArchiver.extract(subfolder, toolDirectory);
+			}
+			if (!toolDirectory.exists()){
+				throw new MojoExecutionException("Error extracting resources from mapping-tools.");
+			}
+		} else {
+			if (!toolDirectory.exists()){
+				throw new MojoExecutionException(String.format("Tool directory %1$s was not provided, and overwrite is blocked.", toolDirectory.getAbsolutePath()));
+			}
 		}
 	}
 
@@ -515,8 +569,17 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 	protected void addToolsetGeneralOptions(Commandline cl) {
 		if (!verbose)
 			cl.addArguments(new String[] { "-nologo" });
-		// TODO: work on suppressing warnings config, different list of suppressions for each tool
-		//cl.addArguments(new String[] { "-sw" });
+
+		if(suppress != null) {
+			for (String sup : suppress) {
+				cl.addArguments(new String[]{"-s" + sup});
+			}
+		}
+		if(warn != null) {
+			for (String sup : warn) {
+				cl.addArguments(new String[]{"-w" + sup});
+			}
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -833,5 +896,36 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 		} catch (IOException ex) {
 		}
 		return targetFile.toString();
+	}
+
+	public String getLocales() {
+		return locales;
+	}
+
+	public void setLocales(String locales_) {
+		if (locales_ != null && !locales_.isEmpty() && !"neutral".equalsIgnoreCase(locales_) ) {
+			locales = locales_;
+//			getLog().debug("Setting locales from string " + locales);
+			for (String locale : locales.split(",")) {
+				String[] splitLocale = locale.split(":", 2);
+				if (splitLocale.length == 2) {
+					String langId = splitLocale[0].trim();
+					String cultureSpec = splitLocale[1].trim();
+					if (langId.isEmpty()) {
+						getLog().warn("Locale not in correct format - required language Id " + locale);
+					} else if (cultureSpec.isEmpty()) {
+						getLog().warn("Locale not in correct format - required culturespec " + locale);
+					} else {
+						localeList.put(langId, cultureSpec);
+					}
+				} else
+					getLog().warn("Locale not in correct format" + locale);
+			}
+		}
+	}
+
+	protected Set<String> culturespecs( ) {
+		// the culture spec needs to be unique starting from the first primary culture - can turn the collection into a set without loss.
+		return new LinkedHashSet<String>( localeList.values() );
 	}
 }

@@ -44,52 +44,6 @@ import org.codehaus.plexus.util.cli.StreamConsumer;
  * Generates WiX authoring from various input formats.
  * 
  * Every time heat is run it regenerates the output file and any changes are lost.
- * heat.exe [-?] harvestType &lt;harvester arguments&gt; -out sourceFile.wxs
- * 
- * Options:
-   -ag      autogenerate component guids at compile time
-   -cg <ComponentGroupName>  component group name (cannot contain spaces e.g -cg MyComponentGroup)
-   -configuration  configuration to set when harvesting the project
-   -directoryid  overridden directory id for generated directory elements
-   -dr <DirectoryName>  directory reference to root directories (cannot contain spaces e.g. -dr MyAppDirRef)
-   -ext     <extension>  extension assembly or "class, assembly"
-   -g1      generated guids are not in brackets
-   -generate
-            specify what elements to generate, one of:
-                components, container, payloadgroup, layout, packagegroup
-                (default is components)
-   -gg      generate guids now
-   -indent <N>  indentation multiple (overrides default of 4)
-   -ke      keep empty directories
-   -nologo  skip printing heat logo information
-   -out     specify output file (default: write to current directory)
-   -platform  platform to set when harvesting the project
-   -pog
-            specify output group of VS project, one of:
-                Binaries,Symbols,Documents,Satellites,Sources,Content
-              This option may be repeated for multiple output groups.
-   -projectname  overridden project name to use in variables
-   -scom    suppress COM elements
-   -sfrag   suppress fragments
-   -srd     suppress harvesting the root directory as an element
-   -sreg    suppress registry harvesting
-   -suid    suppress unique identifiers for files, components, & directories
-   -svb6    suppress VB6 COM elements
-   -sw<N>   suppress all warnings or a specific message ID
-            (example: -sw1011 -sw1012)
-   -swall   suppress all warnings (deprecated)
-   -t       transform harvested output with XSL file
-   -template  use template, one of: fragment,module,product
-   -v       verbose output
-   -var <VariableName>  substitute File/@Source="SourceDir" with a preprocessor or a wix variable
-(e.g. -var var.MySource will become File/@Source="$(var.MySource)\myfile.txt" and
--var wix.MySource will become File/@Source="!(wix.MySource)\myfile.txt"
-   -wixvar  generate binder variables instead of preprocessor variables
-   -wx[N]   treat all warnings or a specific message ID as an error
-            (example: -wx1011 -wx1012)
-   -wxall   treat all warnings as errors (deprecated)
-
-For more information see: http://wixtoolset.org/
  */
 @Mojo( name = "harvest", defaultPhase=LifecyclePhase.GENERATE_SOURCES, requiresDependencyResolution=ResolutionScope.COMPILE )
 public class HarvestMojo extends AbstractPackageable {
@@ -119,7 +73,19 @@ public class HarvestMojo extends AbstractPackageable {
 //		<scope>provided</scope>
 //		<type>wixext</type>
 //	</dependency>
-	
+
+// TODO:
+// -configuration  configuration to set when harvesting the project
+//
+// -ext     <extension>  extension assembly or "class, assembly"
+// -indent <N>  indentation multiple (overrides default of 4)
+// -pog
+//	specify output group of VS project, one of:
+//	Binaries,Symbols,Documents,Satellites,Sources,Content
+//	This option may be repeated for multiple output groups.
+// -projectname  overridden project name to use in variables
+// -t       transform harvested output with XSL file
+
 	/**
 	 * Heat supports the harvesting types:
 	 * 
@@ -149,13 +115,13 @@ public class HarvestMojo extends AbstractPackageable {
 	String harvestComponentGroupName;
 
 	/**
-	 * Overridden directory id for generated directory elements.
+	 * Overridden directory id for generated directory elements [-directoryid].
 	 **/
 	@Parameter (defaultValue="")
 	String harvestDirectoryid;
 	
 	/**
-	 * Directory reference to root directories (cannot contains spaces e.g. MyAppDirRef).
+	 * Directory reference to root directories [-dr] (cannot contains spaces e.g. MyAppDirRef).
 	 **/
 	@Parameter (defaultValue="")
 	String harvestDirectoryRef;
@@ -168,47 +134,51 @@ public class HarvestMojo extends AbstractPackageable {
 	String harvestSourceVar;
 	
 	/**
-	 * Specify what elements to generate, one of: 
+	 * Specify what elements to generate [-generate], one of:
+	 * <ul>
 	 * <li>components, 
 	 * <li>container, 
 	 * <li>payloadgroup, 
 	 * <li>layout
+	 * </ul>
 	 **/
 	@Parameter (defaultValue="components")
 	String harvestGenerate;
 	
 	/**
-	 * Generate Component GUID now during heat (true) or later during link (false) 
+	 * Generate Component GUID now during heat (true) [-gg] or later during link (false) [autogenerate -ag]
 	 */
 	@Parameter (defaultValue="false")
 	protected boolean generateComponentGUIDs;
 
 	/**
-	 * Generate component guids curly braces. 
+	 * Generate component guids curly braces.
+	 * Setting to false [-g1].
 	 */
 	@Parameter (defaultValue="true")
 	protected boolean generateGUIDBrackets;
 
 	/**
-	 * Generate binder variables (true) instead of preprocessor variables (false). 
+	 * Generate binder variables (true) instead of preprocessor variables (false). [-wixvar]
 	 */
 	@Parameter (defaultValue="false")
 	protected boolean generateBinderVariables;
 
 	/**
-	 * Keep empty directories. 
+	 * Keep empty directories.
+	 * Setting to true [-ke]
 	 */
 	@Parameter (defaultValue="false")
 	protected boolean harvestKeepEmpty;
-	
+
+
 	/**
-	 * Generate binder variables (true) instead of preprocessor variables (false). 
-	 */
-	@Parameter
-	protected Set<String> suppress;
-	
-	/**
-	 * Use template, one of: fragment, module, product.
+	 * Use template, [-template] one of:
+	 * <ul>
+	 * <li>fragment
+	 * <li>module
+	 * <li>product
+	 * </ul>
 	 */
 	@Parameter(defaultValue="fragment")
 	protected String harvestTemplate;
@@ -217,15 +187,19 @@ public class HarvestMojo extends AbstractPackageable {
 //	public final String HT_PRODUCT="product";
 
 	/**
-	 * Use template, one of: fragment, module, product.
+	 * Substitute default SourceDir File/@Source="SourceDir\myfile.txt" with a preprocessor or a wix variable that is named [-var]
+	 * eg.
+	 * var.MySource will become File/@Source="$(var.MySource)\myfile.txt" and
+	 * wix.MySource will become File/@Source="!(wix.MySource)\myfile.txt"
 	 */
 	@Parameter(defaultValue="")
 	protected String harvestVariableName;
 
-	// -generate Specify what elements to generate, one of: components, container, payloadgroup, layout (default is components)
-// heat dir target/appassembler/lib -gg -ke -cg Lib -sfrag -dr LibDir -srd -out target/wix/Lib.wxs
-// heat dir ${build.dir}/msi/files -o ${build.dir}/msi/build/payload.wxs  
-	
+	/**
+	 * Component group name [-cg](cannot contain spaces e.g -cg MyComponentGroup)
+	 */
+	@Parameter(defaultValue="")
+	protected String harvestGroupName;
 
 	protected void addToolsetOptions(Commandline cl) {
 		if (generateComponentGUIDs)
@@ -233,11 +207,16 @@ public class HarvestMojo extends AbstractPackageable {
 		else
 			cl.addArguments(new String[] { "-ag" });
 
-		if (generateGUIDBrackets)
+		if (!generateGUIDBrackets)
 			cl.addArguments(new String[] { "-g1" });
 
 		if (harvestKeepEmpty)
 			cl.addArguments(new String[] { "-ke" });
+
+		if( StringUtils.isNotEmpty(harvestVariableName) )
+			cl.addArguments(new String[] { "-var", harvestVariableName });
+		if( StringUtils.isNotEmpty(harvestGroupName) )
+			cl.addArguments(new String[] { "-cg", harvestGroupName });
 
 		// warning HEAT1108 : The command line switch 'template:' is deprecated. Please use 'template' instead
 		// many examples show "-template:fragment"  however it's standardised since ?? to "-template" "fragment"
@@ -248,15 +227,11 @@ public class HarvestMojo extends AbstractPackageable {
 			cl.addArguments(new String[] { "-dr", harvestDirectoryRef });
 		if( StringUtils.isNotEmpty(harvestDirectoryid) )
 			cl.addArguments(new String[] { "-directoryid", harvestDirectoryid });
-		
-		for (String sup : suppress) {
-			cl.addArguments(new String[] { "-s"+sup });
-		}
-		
+
 		if( generateBinderVariables )
 			cl.addArguments(new String[] { "-wixvar" });
 	}
-	
+
 	public void multiHeat(File heatTool, String harvestType, File harvest) throws MojoExecutionException, MojoFailureException {
 
 		getLog().info("Harvesting " + harvestType + " input " + harvest.getPath());
@@ -274,6 +249,8 @@ public class HarvestMojo extends AbstractPackageable {
 				cl.setWorkingDirectory(relativeBase);
 				
 				cl.addArguments(new String[] { harvestType, harvest.getAbsolutePath() });
+
+				//arch / -platform  platform to set when harvesting the project
 
 				addToolsetGeneralOptions(cl);
 				addToolsetOptions(cl);

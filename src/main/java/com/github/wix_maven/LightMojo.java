@@ -125,7 +125,7 @@ public class LightMojo extends AbstractLinker {
 					SourceInclusionScanner scanner = new SimpleSourceInclusionScanner(getIncludes(), getExcludes());
 					scanner.addSourceMapping(new SingleTargetSourceMapping(".wixobj", archOutputFile.getName()));
 					scanner.addSourceMapping(new SingleTargetSourceMapping(".wixlib", archOutputFile.getName()));
-					Set<File> objects = scanner.getIncludedSources(getArchIntDirectory(arch), archOutputFile);
+					Set<File> objects = scanner.getIncludedSources(getArchIntDirectory(arch,culture), archOutputFile);
 					// **/{arch}/*.wixlib
 					// **/{arch}/*.wixobj
 

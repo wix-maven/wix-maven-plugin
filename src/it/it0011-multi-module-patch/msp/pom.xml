@@ -55,6 +55,7 @@
 						<artifactId>msi</artifactId>
 						<version>${project.version}</version>
 					</patchedArtifactItem>
+					<compilePerLocale>true</compilePerLocale>
 				</configuration>
 			</plugin>
 		</plugins>

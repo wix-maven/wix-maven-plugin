@@ -26,6 +26,9 @@ Based on tutorial at http://www.tramontana.co.hu/wix/</description>
 				<extensions>true</extensions>
 				<configuration>
 					<verbose>true</verbose>
+					<suppress>
+						<suppress>w1076</suppress>
+					</suppress>
 				</configuration>
 			</plugin>
 		</plugins>

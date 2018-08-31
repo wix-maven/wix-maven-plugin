@@ -101,57 +101,10 @@ public abstract class AbstractPackageable extends AbstractWixMojo {
 	protected String externalCabs = "";
 
 	/**
-	 * A locale is a language id + a culture specification each culture specification can contain a semicolon (;) separated list of cultures, this is an
-	 * ordered list to fall back. ie. &gt;cultures&lt;&gt;1033&lt;en-US&gt;/1033&lt;&gt;1031&lt;de-DE;en-US&gt;/1031&lt;&gt;/cultures&lt;
-	 * 
-	 * Will add to light -cultures:culturespec<br>
-	 * Will add to link each culture to the path as part of -b options - maybe should also add langid to path as -b option <br>
-	 * Will use language id for re-packing mst
-	 */
-	@Parameter
-	protected Map<String, String> localeList = new LinkedHashMap<String, String>();
-// bug: maven gives us a map of it's choice, rather than setting an item at a time, thus losing the prefered ordered set.
-	
-	/**
-	 * Similar to localeList, allow setting from properties as a single string value.<br>
-	 * a csv of locale, where a locale is a langId:culturespec, and a culturespec is a semicolon seperate list of cultures. 
-	 * ie. 1033:en-US,1031:de-DE;en-US
-	 */
-	@Parameter(property = "wix.locales", defaultValue = "neutral")
-	private String locales = null;
-	// Note: Plexus has bug where a property doesn't allow using an empty/null string - to provide an expression of wix.locales, we have to provide a non null/empty default-value in case wix.locales is null/empty. 
-
-	/**
 	 * Target directory for Nar file unpacking. 
 	 */
 	@Parameter(property = "wix.narUnpackDirectory", defaultValue = "${project.build.directory}/nar")
 	protected File narUnpackDirectory;
-	
-	public String getLocales() {
-		return locales;
-	}
-
-	public void setLocales(String locales_) {
-		if (locales_ != null && !locales_.isEmpty() && !"neutral".equalsIgnoreCase(locales_) ) {
-			locales = locales_;
-//			getLog().debug("Setting locales from string " + locales);
-			for (String locale : locales.split(",")) {
-				String[] splitLocale = locale.split(":", 2);
-				if (splitLocale.length == 2) {
-					String langId = splitLocale[0].trim();
-					String cultureSpec = splitLocale[1].trim();
-					if (langId.isEmpty()) {
-						getLog().warn("Locale not in correct format - required language Id " + locale);
-					} else if (cultureSpec.isEmpty()) {
-						getLog().warn("Locale not in correct format - required culturespec " + locale);
-					} else {
-						localeList.put(langId, cultureSpec);
-					}
-				} else
-					getLog().warn("Locale not in correct format" + locale);
-			}
-		}
-	}
 
 	public AbstractPackageable() {
 		super();
@@ -190,11 +143,6 @@ public abstract class AbstractPackageable extends AbstractWixMojo {
 		return subcultures;
 	}
 
-	protected Set<String> culturespecs( ) {
-		// the culture spec needs to be unique starting from the first primary culture - can turn the collection into a set without loss.
-		return new LinkedHashSet<String>( localeList.values() );
-	}
-
 	protected Set<String> languages( ) {
 		// xml cannot start with number, the keys are ment to be langid numbers, remove a leading _ that makes the key xml friendly.
 		HashSet<String> langs = new LinkedHashSet<String>();
@@ -218,9 +166,5 @@ public abstract class AbstractPackageable extends AbstractWixMojo {
 
 	protected String getPackaging() {
 		return packaging;
-	}
-
-	protected void setPackaging(String packaging) {
-		this.packaging = packaging;
 	}
 }

@@ -136,7 +136,7 @@ public class CandleMojo extends AbstractCompilerMojo {
 		}
 	}
 
-	private void addOptions(Commandline cl, String arch) {
+	private void addOptions(Commandline cl, String arch, String culture) {
 		// note: cl tool will add quotes if necessary - adding \" in an arg will break it.
 		
 		if (definitionsArch != null) {
@@ -152,7 +152,7 @@ public class CandleMojo extends AbstractCompilerMojo {
 
 		// TODO: shorten commandline, use relative paths where possible
 		cl.addArguments(new String[] { "-dConfiguration=Release" });
-		String intOutDir = getArchIntDirectory(arch).getAbsolutePath() + "\\";
+		String intOutDir = getArchIntDirectory(arch,culture).getAbsolutePath() + "\\";
 		cl.addArguments(new String[] { "-out", intOutDir, "-dOutDir=" + intDirectory.getAbsolutePath() + "\\" });  // VS OutDir doesn't include arch
 		cl.addArguments(new String[] { "-arch", arch, "-dPlatform=" + arch });
 		cl.addArguments(new String[] { "-dProjectDir=" + project.getBasedir().getAbsolutePath() + "\\" });
@@ -184,7 +184,7 @@ public class CandleMojo extends AbstractCompilerMojo {
 		}
 	}
 	
-	protected void compile(Set<String> files, File toolDirectory, String arch) throws MojoExecutionException {
+	protected void compile(Set<String> files, File toolDirectory, String arch, String culture) throws MojoExecutionException {
 
 		Commandline cl = new Commandline();
 
@@ -193,7 +193,7 @@ public class CandleMojo extends AbstractCompilerMojo {
 		addToolsetGeneralOptions(cl);
 
 		addWixExtensions(cl);
-		addOptions(cl, arch);
+		addOptions(cl, arch, culture);
 		addOtherOptions(cl);
 
 		cl.addArguments(files.toArray(new String[0]));
@@ -261,70 +261,81 @@ public class CandleMojo extends AbstractCompilerMojo {
 		addHarvestDefines();
 
 		for (String arch : getPlatforms() ) {
+			if( !compilePerLocale || PACK_LIB.equalsIgnoreCase(packaging) ) {
+				multiCompile(arch, null);
+			} else {
+				for (String culture : culturespecs()) {
 
-			getArchIntDirectory(arch).mkdirs();
-
-			definitionsArch.clear();
-			addNARArchDefines(arch);
-			// and intel... and... 
-			try {
-
-				// TODO: there is a limitation here - if you change config options in pom, then we don't check to see if the file is older than the new config...
-				SourceInclusionScanner scanner = new StaleSourceScanner(staleMillis, getIncludes(), getExcludes());
-				if (timestampFile != null && timestampDirectory != null) {
-					getLog().debug("Using timestamp file tracking for sources");
-					// if( !xsdTimestampDirectory.exists() ||
-					// xsdTimestampFile.isEmpty() ) tracking isn't going to work,
-					// always rebuild - warning?
-
-					scanner.addSourceMapping(new SingleTargetSourceMapping(".wxs", timestampFile));
-				} else {
-					Set<String> fileExts = new HashSet<String>();
-					fileExts.add(".wixobj");
-					timestampDirectory = getArchIntDirectory(arch);
-					scanner.addSourceMapping(new SuffixMapping(".wxs", fileExts));
+					multiCompile(arch, culture);
 				}
-
-				if (!timestampDirectory.exists())
-					timestampDirectory.mkdirs();
-
-				Set<File> wixSources = scanner.getIncludedSources(wxsInputDirectory, timestampDirectory);
-				if(wxsGeneratedDirectory.exists())
-					wixSources.addAll(scanner.getIncludedSources(wxsGeneratedDirectory, timestampDirectory));
-				
-				if (wixSources.isEmpty()) {
-					getLog().info("All objects appear up to date");
-				} else {
-					Set<String> files = new HashSet<String>();
-					for (Iterator<File> i = wixSources.iterator(); i.hasNext();) {
-						files.add(getRelative( i.next() ) );
-					}
-
-					compile(files, toolDirectory, arch);
-
-					if (timestampFile != null && timestampDirectory != null) {
-						File timeStamp = new File(timestampDirectory, timestampFile);
-						if (!timeStamp.exists())
-							try {
-								timeStamp.createNewFile();
-							} catch (IOException e) {
-								getLog().warn("XSD: Unable to touch timestamp file");
-							}
-						else if (!timeStamp.setLastModified(System.currentTimeMillis()))
-							getLog().warn("XSD: Unable to touch timestamp file");
-					}
-				}
-
-				// project.addCompileSourceRoot(
-				// outputDirectory.getAbsolutePath() );
-				// updateProject( );
-			} catch (InclusionScanException e) {
-				throw new MojoExecutionException("XSD: scanning for updated files failed", e);
 			}
 		}
 //		if (!extendedUse)
 //			cleanupFileBasedResources();
 
+	}
+
+	private void multiCompile(String arch, String culture) throws MojoExecutionException {
+		File intDir = getArchIntDirectory(arch, culture);
+		intDir.mkdirs();
+
+		definitionsArch.clear();
+		addNARArchDefines(arch);
+		// and intel... and...
+		try {
+
+			// TODO: there is a limitation here - if you change config options in pom, then we don't check to see if the file is older than the new config...
+			SourceInclusionScanner scanner = new StaleSourceScanner(staleMillis, getIncludes(), getExcludes());
+			if (timestampFile != null && timestampDirectory != null) {
+				getLog().debug("Using timestamp file tracking for sources");
+				// if( !xsdTimestampDirectory.exists() ||
+				// xsdTimestampFile.isEmpty() ) tracking isn't going to work,
+				// always rebuild - warning?
+
+				scanner.addSourceMapping(new SingleTargetSourceMapping(".wxs", timestampFile));
+			} else {
+				Set<String> fileExts = new HashSet<String>();
+				fileExts.add(".wixobj");
+				timestampDirectory = intDir;
+				scanner.addSourceMapping(new SuffixMapping(".wxs", fileExts));
+			}
+
+			if (!timestampDirectory.exists())
+				timestampDirectory.mkdirs();
+
+			Set<File> wixSources = scanner.getIncludedSources(wxsInputDirectory, timestampDirectory);
+			if(wxsGeneratedDirectory.exists())
+				wixSources.addAll(scanner.getIncludedSources(wxsGeneratedDirectory, timestampDirectory));
+
+			if (wixSources.isEmpty()) {
+				getLog().info("All objects appear up to date");
+			} else {
+				Set<String> files = new HashSet<String>();
+				for (Iterator<File> i = wixSources.iterator(); i.hasNext();) {
+					files.add(getRelative( i.next() ) );
+				}
+
+				compile(files, toolDirectory, arch, culture);
+
+				if (timestampFile != null && timestampDirectory != null) {
+					File timeStamp = new File(timestampDirectory, timestampFile);
+					if (!timeStamp.exists())
+						try {
+							timeStamp.createNewFile();
+						} catch (IOException e) {
+							getLog().warn("XSD: Unable to touch timestamp file");
+						}
+					else if (!timeStamp.setLastModified(System.currentTimeMillis()))
+						getLog().warn("XSD: Unable to touch timestamp file");
+				}
+			}
+
+			// project.addCompileSourceRoot(
+			// outputDirectory.getAbsolutePath() );
+			// updateProject( );
+		} catch (InclusionScanException e) {
+			throw new MojoExecutionException("XSD: scanning for updated files failed", e);
+		}
 	}
 
 	private void addNARArchDefines(String arch) {

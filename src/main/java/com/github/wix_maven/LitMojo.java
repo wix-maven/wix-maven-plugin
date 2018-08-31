@@ -65,7 +65,7 @@ public class LitMojo extends AbstractLinker {
 				
 				SourceInclusionScanner scanner = new SimpleSourceInclusionScanner(getIncludes(), getExcludes());
 				scanner.addSourceMapping(new SingleTargetSourceMapping(".wixobj", archOutputFile.getName()));
-				Set<File> objects = scanner.getIncludedSources(getArchIntDirectory(arch), archOutputFile);
+				Set<File> objects = scanner.getIncludedSources(getArchIntDirectory(arch, null), archOutputFile);
 
 				List<File> locales = null;
 				if (wxlInputDirectory.exists()) {
