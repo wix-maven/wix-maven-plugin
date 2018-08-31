@@ -76,7 +76,7 @@ Provides lifecycles for
   <properties>
     <github.global.server>github</github.global.server>
     <mavenVersion>2.2.1</mavenVersion>
-    <wixtools.version>3.9.2</wixtools.version>
+    <wixtools.version>3.11.0</wixtools.version>
     <wixtools.groupId>org.wixtoolset.maven</wixtools.groupId>
   </properties>
   
@@ -158,8 +158,8 @@ Provides lifecycles for
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.1</version>
         <configuration>
-          <source>1.5</source>
-          <target>1.5</target>
+          <source>1.6</source>
+          <target>1.6</target>
         </configuration>
       </plugin>
 
@@ -286,7 +286,7 @@ Provides lifecycles for
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
-            <version>1.1</version>
+            <version>1.6</version>
             <executions>
               <execution>
                 <id>sign-artifacts</id>
