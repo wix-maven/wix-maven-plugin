@@ -291,7 +291,7 @@ public class HarvestMojo extends AbstractPackageable {
   }
 
   private String getHarvestID(String harvestType, File harvest) {
-    return harvestType + "-" + harvest.getName();
+    return harvestType + "_" + harvest.getName();
   }
 
 
