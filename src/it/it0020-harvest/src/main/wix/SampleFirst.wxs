@@ -47,7 +47,7 @@
             
     <Feature Id='Complete' Level='1'>
       <ComponentRef Id='MainExecutable' />
-      <ComponentGroupRef Id='dir-helpers' />
+      <ComponentGroupRef Id='dir_helpers' />
       <ComponentRef Id='Manual' />
       <ComponentRef Id='ProgramMenuDir' />
     </Feature>

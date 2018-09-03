@@ -149,6 +149,11 @@ public class HarvestMojo extends AbstractPackageable {
    **/
   @Parameter(defaultValue = "")
   String harvestSourceVar;
+  /**
+   * Generate harvestSourceVar based on harvest id
+   */
+  @Parameter(defaultValue = "false")
+  protected boolean generateHarvestSourceVarName;
 
   /**
    * Specify what elements to generate [-generate], one of:
@@ -198,24 +203,10 @@ public class HarvestMojo extends AbstractPackageable {
    */
   @Parameter(defaultValue = "fragment")
   protected String harvestTemplate;
+
   // public final String HT_FRAGMENT="fragment";
   // public final String HT_MODULE="module";
   // public final String HT_PRODUCT="product";
-
-  /**
-   * Substitute default SourceDir File/@Source="SourceDir\myfile.txt" with a preprocessor or a wix
-   * variable that is named [-var] eg. var.MySource will become
-   * File/@Source="$(var.MySource)\myfile.txt" and wix.MySource will become
-   * File/@Source="!(wix.MySource)\myfile.txt"
-   */
-  @Parameter(defaultValue = "")
-  protected String harvestVariableName;
-
-  /**
-   * Component group name [-cg](cannot contain spaces e.g -cg MyComponentGroup)
-   */
-  @Parameter(defaultValue = "")
-  protected String harvestGroupName;
 
   protected void addToolsetOptions(Commandline cl) {
     if (generateComponentGUIDs)
@@ -228,11 +219,6 @@ public class HarvestMojo extends AbstractPackageable {
 
     if (harvestKeepEmpty)
       cl.addArguments(new String[] {"-ke"});
-
-    if (StringUtils.isNotEmpty(harvestVariableName))
-      cl.addArguments(new String[] {"-var", harvestVariableName});
-    if (StringUtils.isNotEmpty(harvestGroupName))
-      cl.addArguments(new String[] {"-cg", harvestGroupName});
 
     // warning HEAT1108 : The command line switch 'template:' is deprecated. Please use 'template'
     // instead
@@ -278,10 +264,12 @@ public class HarvestMojo extends AbstractPackageable {
         "-cg",
         StringUtils.isNotEmpty(harvestComponentGroupName) ? harvestComponentGroupName
             : getHarvestID(harvestType, harvest)});
-    cl.addArguments(new String[] {
-        "-var",
-        StringUtils.isNotEmpty(harvestSourceVar) ? harvestSourceVar : "var."
-            + getHarvestID(harvestType, harvest)});
+
+    if (StringUtils.isNotEmpty(harvestSourceVar)) {
+      cl.addArguments(new String[] {"-var", harvestSourceVar});
+    } else if (generateHarvestSourceVarName) {
+      cl.addArguments(new String[] {"-var", "var." + getHarvestID(harvestType, harvest)});
+    }
 
     File target = new File(wxsGeneratedDirectory, getHarvestID(harvestType, harvest) + ".wxs");
     cl.addArguments(new String[] {"-out", target.getAbsolutePath()});
@@ -408,23 +396,16 @@ public class HarvestMojo extends AbstractPackageable {
         }
       };
       getLog().info("Harvesting inputs from " + harvestInputDirectory.getPath());
-      final File[] folders = harvestInputDirectory.listFiles(directoryFilter);
 
-      if (folders != null) {
-        for (File folder : folders) {
-          if (HT_DIR.equals(folder.getName())) {
-            final File[] subfolders = folder.listFiles(directoryFilter);
-            if (subfolders != null) {
-              for (File subfolder : subfolders) {
-                multiHeat(heatTool, HT_DIR, subfolder);
-              }
-            }
-
-          } else if (HT_FILE.equals(folder.getName())) {
-            // for (File subfolder: folders.listFiles(fileFilter) ){
-            // multiHeat(heatTool, HT_FILE, subfolder);
-            // }
+      for (File folders : harvestInputDirectory.listFiles(directoryFilter)) {
+        if (HT_DIR.equals(folders.getName())) {
+          for (File subfolder : folders.listFiles(directoryFilter)) {
+            multiHeat(heatTool, HT_DIR, subfolder);
           }
+        } else if (HT_FILE.equals(folders.getName())) {
+          // for (File subfolder: folders.listFiles(fileFilter) ){
+          // multiHeat(heatTool, HT_FILE, subfolder);
+          // }
         }
       }
     }

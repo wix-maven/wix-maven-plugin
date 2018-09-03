@@ -46,17 +46,20 @@ Based on tutorial at http://www.tramontana.co.hu/wix/</description>
 			<plugin>
 				<groupId>@project.groupId@</groupId>
 				<artifactId>@project.artifactId@</artifactId>
-            <configuration>
-              <verbose>true</verbose>
-              <packaging>msi</packaging>
-              <platforms>
-                <arch>x86</arch>
-                <arch>x64</arch>
-              </platforms>
-              <harvestInputDirectory>src/main/heat</harvestInputDirectory>
-              <harvestDirectoryRef>INSTALLDIR</harvestDirectoryRef>
-              <suppress><s>frag</s></suppress>
-            </configuration>
+				<configuration>
+					<verbose>true</verbose>
+					<packaging>msi</packaging>
+					<platforms>
+						<arch>x86</arch>
+						<arch>x64</arch>
+					</platforms>
+					<harvestInputDirectory>src/main/heat</harvestInputDirectory>
+					<harvestDirectoryRef>INSTALLDIR</harvestDirectoryRef>
+					<generateHarvestSourceVarName>true</generateHarvestSourceVarName>
+					<definitions>
+						<def>dir_helpers=src/main/heat/dir/helpers</def>
+					</definitions>
+				</configuration>
 				<executions>
 					<execution>
 						<id>default</id>
