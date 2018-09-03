@@ -20,12 +20,14 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.codehaus.plexus.compiler.util.scan.*;
 import org.codehaus.plexus.compiler.util.scan.mapping.*;
+import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.cli.CommandLineException;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.codehaus.plexus.util.cli.Commandline;
 import org.codehaus.plexus.util.cli.StreamConsumer;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -46,6 +48,10 @@ import java.util.Set;
 @Mojo(name = "candle", requiresProject = true, defaultPhase = LifecyclePhase.COMPILE,
     requiresDependencyResolution = ResolutionScope.COMPILE)
 public class CandleMojo extends AbstractCompilerMojo {
+  /**
+   * The name of the response file.
+   */
+  public static final String RESPONSE_FILE_NAME = "responseFile.txt";
   /**
    * Definitions (pre) Compilation (-d option)
    */
@@ -90,10 +96,15 @@ public class CandleMojo extends AbstractCompilerMojo {
   private Set<String> includes = new HashSet<String>();
 
   /**
-   * A list of exclusion filters.
+   * A set of exclusion filters.
    */
   @Parameter
   private Set<String> excludes = new HashSet<String>();
+
+  /**
+   * A set of response files with configuration options.
+   */
+  private Set<String> responseFiles = new HashSet<String>();
 
   /**
    * Properties catch all in case we missed some configuration. Passed directly to candle
@@ -139,11 +150,6 @@ public class CandleMojo extends AbstractCompilerMojo {
         cl.addArguments(new String[] {"-d" + def});
       }
     }
-    if (definitions != null) {
-      for (String def : definitions) {
-        cl.addArguments(new String[] {"-d" + def});
-      }
-    }
 
     // TODO: shorten commandline, use relative paths where possible
     cl.addArguments(new String[] {"-dConfiguration=Release"});
@@ -175,14 +181,32 @@ public class CandleMojo extends AbstractCompilerMojo {
     // -dSolutionPath=\assemblies\Assemblies.sln
     // }
 
-    if (includePaths != null) {
-      for (String incPath : includePaths) {
-        cl.addArguments(new String[] {"-I" + incPath});
+    if (responseFiles != null) {
+      for (String file : responseFiles) {
+        cl.addArguments(new String[] {"@" + file});
       }
     }
   }
 
-  protected void compile(Set<String> files, File toolDirectory, String arch, String culture)
+  private static String join(Iterable<? extends CharSequence> elements) {
+    final StringBuilder sb = new StringBuilder();
+    // Each file to new line
+    // All files quoted for handling of spaces
+    if (elements != null && elements.iterator().hasNext()) {
+      Iterator<? extends CharSequence> iter = elements.iterator();
+      sb.append("\n\"");
+      sb.append(iter.next());
+      sb.append("\"");
+      while (iter.hasNext()) {
+        sb.append("\n\"");
+        sb.append(iter.next());
+        sb.append("\"");
+      }
+    }
+    return sb.toString();
+  }
+
+  protected void compile(File responseFile, String arch, String culture)
       throws MojoExecutionException {
 
     Commandline cl = new Commandline();
@@ -194,8 +218,7 @@ public class CandleMojo extends AbstractCompilerMojo {
     addWixExtensions(cl);
     addOptions(cl, arch, culture);
     addOtherOptions(cl);
-
-    cl.addArguments(files.toArray(new String[0]));
+    cl.addArguments(new String[] {"@" + responseFile.getAbsolutePath()});
 
     try {
       if (verbose) {
@@ -242,6 +265,30 @@ public class CandleMojo extends AbstractCompilerMojo {
     definitions.add(def);
   }
 
+  protected void createCommonResponseFile() throws MojoExecutionException {
+    final StringBuilder sb = new StringBuilder();
+
+    if (includePaths != null) {
+      for (String incPath : includePaths) {
+        sb.append("\n\"-I");
+        sb.append(incPath); // quoted for spaces, assuming it won't include " as they are invalid in
+                            // file name
+        sb.append("\"");
+      }
+    }
+    if (definitions != null) {
+      for (String def : definitions) {
+        sb.append("\n\"-d");
+        sb.append(StringUtils.escape(def, new char[] {'\"'}, '\\'));
+        sb.append("\"");
+      }
+    }
+
+    final File file = new File(intDirectory, RESPONSE_FILE_NAME);
+    createResponseFile(file, sb.toString());
+    responseFiles.add(file.getAbsolutePath());
+  }
+
   @SuppressWarnings("unchecked")
   public void execute() throws MojoExecutionException {
 
@@ -260,7 +307,12 @@ public class CandleMojo extends AbstractCompilerMojo {
     addNPANDAYDefines();
     addHarvestDefines();
 
+    createCommonResponseFile();
+
     for (String arch : getPlatforms()) {
+      definitionsArch.clear();
+      addNARArchDefines(arch);
+
       if (!compilePerLocale || PACK_LIB.equalsIgnoreCase(packaging)) {
         multiCompile(arch, null);
       } else {
@@ -270,17 +322,12 @@ public class CandleMojo extends AbstractCompilerMojo {
         }
       }
     }
-    // if (!extendedUse)
-    // cleanupFileBasedResources();
-
   }
 
   private void multiCompile(String arch, String culture) throws MojoExecutionException {
     File intDir = getArchIntDirectory(arch, culture);
     intDir.mkdirs();
 
-    definitionsArch.clear();
-    addNARArchDefines(arch);
     // and intel... and...
     try {
 
@@ -317,7 +364,12 @@ public class CandleMojo extends AbstractCompilerMojo {
           files.add(getRelative(i.next()));
         }
 
-        compile(files, toolDirectory, arch, culture);
+
+        final String argsText = join(files);
+        final File responseFile = new File(intDir, RESPONSE_FILE_NAME);
+        createResponseFile(responseFile, argsText);
+
+        compile(responseFile, arch, culture);
 
         if (timestampFile != null && timestampDirectory != null) {
           File timeStamp = new File(timestampDirectory, timestampFile);
@@ -352,4 +404,30 @@ public class CandleMojo extends AbstractCompilerMojo {
     }
   }
 
+  private void createResponseFile(final File file, final String args) throws MojoExecutionException {
+    FileOutputStream fop = null;
+    try {
+      // if file doesn't exists, then create it
+      if (!file.exists()) {
+        file.getParentFile().mkdirs();
+        file.createNewFile();
+      }
+      fop = new FileOutputStream(file);
+      // get the content in bytes
+      byte[] contentInBytes = args.getBytes();
+      fop.write(contentInBytes);
+      fop.flush();
+      fop.close();
+    } catch (IOException ex) {
+      throw new MojoExecutionException("Failed to create a response file: " + ex.getMessage(), ex);
+    } finally {
+      try {
+        if (fop != null) {
+          fop.close();
+        }
+      } catch (IOException ex) {
+        getLog().debug("Failed to close fop: " + ex.getMessage());
+      }
+    }
+  }
 }

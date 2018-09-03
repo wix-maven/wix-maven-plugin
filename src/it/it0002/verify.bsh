@@ -20,9 +20,9 @@ import java.io.*;
 
 try
 {
-    File file86 = new File( basedir, "target/Release/x86/it0001-0.0.1-SNAPSHOT.msi" );
-    File file64 = new File( basedir, "target/Release/x64/it0001-0.0.1-SNAPSHOT.msi" );
-    if ( !file86.isFile() || !file64.isFile() )
+    File file86 = new File( basedir, "target/wixobj/Release/x86/SampleFirst.wixobj" );
+    File file64 = new File( basedir, "target/wixobj/Release/x64/SampleFirst.wixobj" );
+    if ( file86.isFile() || file64.isFile())
     {
         System.err.println( "Could not find installation package: " + file );
         return false;

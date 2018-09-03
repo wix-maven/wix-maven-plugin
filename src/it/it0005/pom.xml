@@ -15,6 +15,10 @@
   <name>IT0005 - test dependency resolution</name>
   <description>Integration test dependencies</description>
 
+  <organization>
+    <name>Sample Org</name>
+  </organization>
+
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -31,6 +35,11 @@
         <extensions>true</extensions>
         <configuration>
           <verbose>true</verbose>
+          <definitions>
+            <def>mavenVersion=${project.version}</def>
+            <def>mavenOrganisation=${project.organization.name}</def>
+            <def>testquote=string"with"quotes</def>
+          </definitions>
         </configuration>
       </plugin>
     </plugins>
