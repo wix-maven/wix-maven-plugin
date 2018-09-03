@@ -408,16 +408,23 @@ public class HarvestMojo extends AbstractPackageable {
         }
       };
       getLog().info("Harvesting inputs from " + harvestInputDirectory.getPath());
+      final File[] folders = harvestInputDirectory.listFiles(directoryFilter);
 
-      for (File folders : harvestInputDirectory.listFiles(directoryFilter)) {
-        if (HT_DIR.equals(folders.getName())) {
-          for (File subfolder : folders.listFiles(directoryFilter)) {
-            multiHeat(heatTool, HT_DIR, subfolder);
+      if (folders != null) {
+        for (File folder : folders) {
+          if (HT_DIR.equals(folder.getName())) {
+            final File[] subfolders = folder.listFiles(directoryFilter);
+            if (subfolders != null) {
+              for (File subfolder : subfolders) {
+                multiHeat(heatTool, HT_DIR, subfolder);
+              }
+            }
+
+          } else if (HT_FILE.equals(folder.getName())) {
+            // for (File subfolder: folders.listFiles(fileFilter) ){
+            // multiHeat(heatTool, HT_FILE, subfolder);
+            // }
           }
-        } else if (HT_FILE.equals(folders.getName())) {
-          // for (File subfolder: folders.listFiles(fileFilter) ){
-          // multiHeat(heatTool, HT_FILE, subfolder);
-          // }
         }
       }
     }
