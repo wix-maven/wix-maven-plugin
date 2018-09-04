@@ -158,10 +158,10 @@ public class HarvestMojo extends AbstractPackageable {
   /**
    * Specify what elements to generate [-generate], one of:
    * <ul>
-   * <li>components,
-   * <li>container,
-   * <li>payloadgroup,
-   * <li>layout
+   * <li>components,</li>
+   * <li>container,</li>
+   * <li>payloadgroup,</li>
+   * <li>layout</li>
    * </ul>
    **/
   @Parameter(defaultValue = "components")

@@ -37,8 +37,6 @@ public class SmokeMojo extends AbstractPackageable {
 
   /**
    * Skip running of smoke goal.
-   * 
-   * @parameter expression="${wix.skipTests}" default-value="false"
    */
   @Parameter(property = "wix.skipTests", defaultValue = "false")
   protected boolean skipTests;

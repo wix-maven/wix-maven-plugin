@@ -47,8 +47,12 @@ import org.w3c.dom.Text;
  * 
  * The following project dependency inclusion patterns apply<br>
  * Dependent NAR project 'Foo' with possible nar output redefined as 'bar' <br>
- * <li>-dFoo.TargetDir=Foo-version\ <li>-dFoo.TargetExt=.wixlib <li>
- * -dFoo.TargetFileName=bar.type <li>-dFoo.TargetName=bar
+ * <ul>
+ * <li>-dFoo.TargetDir=Foo-version\</li>
+ * <li>-dFoo.TargetExt=.wixlib</li>
+ * <li>-dFoo.TargetFileName=bar.type</li>
+ * <li>-dFoo.TargetName=bar</li>
+ * </ul>
  */
 @Mojo(name = "wixproj", defaultPhase = LifecyclePhase.VALIDATE,
     requiresDependencyResolution = ResolutionScope.COMPILE)

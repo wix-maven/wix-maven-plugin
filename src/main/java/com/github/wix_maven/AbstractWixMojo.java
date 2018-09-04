@@ -49,8 +49,14 @@ public abstract class AbstractWixMojo extends AbstractMojo {
   protected boolean skip;
 
   /**
-   * The output type: <li>msi - Windows installer <li>msm - Merge Module <li>wixlib - Wix library
-   * <li>msp - Windows patch <li>bundle - wix bootstrapper
+   * The output type:
+   * <ul>
+   * <li>msi - Windows installer</li>
+   * <li>msm - Merge Module</li>
+   * <li>wixlib - Wix library</li>
+   * <li>msp - Windows patch</li>
+   * <li>bundle - wix bootstrapper</li>
+   * </ul>
    */
   @Parameter(property = "wix.packaging", defaultValue = "${project.packaging}", required = true)
   protected String packaging;
@@ -71,10 +77,13 @@ public abstract class AbstractWixMojo extends AbstractMojo {
   protected File wxsGeneratedDirectory;
 
   /**
-   * Should validation be run, and when. <li>linking - Run validation during linking from light/lit.
-   * <li>unit - Run validation as unit test, suppressing validation during linking (light/lit). <li>
-   * both - Run validation during linking from light/lit and also as unit test. <li>suppress -
-   * Suppressing validation during linking (light/lit)
+   * Should validation be run, and when.
+   * <ul>
+   * <li>linking - Run validation during linking from light/lit.</li>
+   * <li>unit - Run validation as unit test, suppressing validation during linking (light/lit).</li>
+   * <li>both - Run validation during linking from light/lit and also as unit test.</li>
+   * <li>suppress - Suppressing validation during linking (light/lit)</li>
+   * </ul>
    */
   @Parameter(property = "wix.validate", defaultValue = "unit")
   protected String validate;
@@ -102,7 +111,7 @@ public abstract class AbstractWixMojo extends AbstractMojo {
    * <li>frag suppress fragments</li>
    * <li>rd suppress harvesting the root directory as an element</li>
    * <li>reg suppress registry harvesting</li>
-   * <li>uid suppress unique identifiers for files, components, & directories</li>
+   * <li>uid suppress unique identifiers for files, components and directories</li>
    * <li>vb6 suppress VB6 COM elements</li>
    * <li>w&lt;N&gt; suppress all warnings or a specific message ID (example: w1011 w1012)</li>
    * </ul>
@@ -731,6 +740,8 @@ public abstract class AbstractWixMojo extends AbstractMojo {
    * will be retrieved from the dependency list or from the DependencyManagement section of the pom.
    * 
    * @param artifactItem containing information about artifact from plugin configuration.
+   * @param arch
+   * @param culture
    * @return Artifact object representing the specified file.
    * @throws MojoExecutionException with a message if the version can't be found in
    *         DependencyManagement.

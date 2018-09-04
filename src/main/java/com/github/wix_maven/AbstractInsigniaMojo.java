@@ -24,8 +24,10 @@ import org.codehaus.plexus.util.cli.StreamConsumer;
 
 /**
  * Abstract Goal which executes WiX Insignia for<br>
- * <li>inscribing an MSI with the digital signatures that its external CABs are signed with. <li>
- * detach/reattach burn engine from bundle
+ * <ul>
+ * <li>inscribing an MSI with the digital signatures that its external CABs are signed with.</li>
+ * <li>detach/reattach burn engine from bundle</li>
+ * </ul>
  */
 public abstract class AbstractInsigniaMojo extends AbstractPackageable {
 

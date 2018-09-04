@@ -55,7 +55,7 @@ import org.codehaus.plexus.util.cli.StreamConsumer;
  * pyro.exe Patch.wixmsp -out Patch.msp -t Sample Patch.wixmst
  */
 /**
- * Goal which executes WiX torch & pyro to create msp files.
+ * Goal which executes WiX torch &amp; pyro to create msp files.
  */
 @Mojo(name = "patch", requiresProject = true, defaultPhase = LifecyclePhase.PACKAGE,
     requiresDependencyResolution = ResolutionScope.COMPILE)

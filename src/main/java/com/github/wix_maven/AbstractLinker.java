@@ -89,7 +89,12 @@ public abstract class AbstractLinker extends AbstractPackageable {
 
   /**
    * Specify a base paths to locate all files. (-b option) By default each of the following folders
-   * will be added if it exists <li>wxsInputDirectory <li>narUnpackDirectory <li>resourceDirectory
+   * will be added if it exists
+   * <ul>
+   * <li>wxsInputDirectory</li>
+   * <li>narUnpackDirectory</li>
+   * <li>resourceDirectory</li>
+   * </ul>
    */
   @Parameter
   protected Set<String> fileSourceRoots = new HashSet<String>();
