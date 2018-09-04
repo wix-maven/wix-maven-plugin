@@ -2,6 +2,8 @@ wix-maven-plugin
 ================
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.wix-maven/wix-maven-plugin/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.wix-maven/wix-maven-plugin)
+[![Master Build status](https://ci.appveyor.com/api/projects/status/0f5noojdp0dhh8xu/branch/master?svg=true)](https://ci.appveyor.com/project/GregDomjan/wix-maven-plugin/branch/master)
+[![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/0f5noojdp0dhh8xu?svg=true)](https://ci.appveyor.com/project/GregDomjan/wix-maven-plugin)
 
 A maven plugin to provide lifecycle of a Windows Installer build using WiX.
 A work in progress, Sorry no doc yet.
