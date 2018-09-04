@@ -109,6 +109,11 @@ public class LightMojo extends AbstractLinker {
     for (String arch : getPlatforms()) {
       for (String culture : culturespecs()) {
 
+        final File intermediateFolder = getArchIntDirectory(arch, culture);
+        if (!intermediateFolder.exists())
+          throw new MojoExecutionException("No source for linking? Intermediate dir doesn't exist "
+              + intermediateFolder.getAbsolutePath());
+
         File archOutputFile = getOutput(arch, culture, outputExtension());
 
         getLog().info(" -- Linking : " + archOutputFile.getPath());
@@ -123,8 +128,7 @@ public class LightMojo extends AbstractLinker {
               .getName()));
           scanner.addSourceMapping(new SingleTargetSourceMapping(".wixlib", archOutputFile
               .getName()));
-          Set<File> objects =
-              scanner.getIncludedSources(getArchIntDirectory(arch, culture), archOutputFile);
+          Set<File> objects = scanner.getIncludedSources(intermediateFolder, archOutputFile);
           // **/{arch}/*.wixlib
           // **/{arch}/*.wixobj
 
