@@ -21,7 +21,7 @@
 
   <groupId>com.github.wix-maven</groupId>
   <artifactId>wix-maven-plugin</artifactId>
-  <version>0.2.0</version>
+  <version>0.3.0-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
   <name>WiX Maven Plugin</name>
   <description>A maven plugin to provide lifecycle of a Windows Installer build using WiX Toolset (Windows Installer XML Toolset) .
@@ -65,7 +65,7 @@ Provides lifecycles for
     <connection>scm:git:git@github.com:wix-maven/wix-maven-plugin.git</connection>
     <developerConnection>scm:git:git@github.com:wix-maven/wix-maven-plugin.git</developerConnection>
     <url>https://github.com/wix-maven/wix-maven-plugin</url>
-    <tag>wix-maven-plugin-0.2.0</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <issueManagement>
