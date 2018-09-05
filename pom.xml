@@ -62,10 +62,10 @@ Provides lifecycles for
   </licenses>
   
   <scm>
-    <connection>scm:git:https://github.com:wix-maven/wix-maven-plugin.git</connection>
-    <developerConnection>scm:git:https://github@github.com:wix-maven/wix-maven-plugin.git</developerConnection>
-    <url>http://github.com/wix-maven/wix-maven-plugin</url>
-    <tag>wix-maven-plugin-0.1.0</tag>
+    <connection>scm:git:git@github.com:wix-maven/wix-maven-plugin.git</connection>
+    <developerConnection>scm:git:git@github.com:wix-maven/wix-maven-plugin.git</developerConnection>
+    <url>https://github.com/wix-maven/wix-maven-plugin</url>
+    <tag>HEAD</tag>
   </scm>
 
   <issueManagement>
