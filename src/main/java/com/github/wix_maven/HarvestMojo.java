@@ -192,6 +192,11 @@ public class HarvestMojo extends AbstractPackageable {
   @Parameter(defaultValue = "false")
   protected boolean harvestKeepEmpty;
 
+  /**
+   * Suppress harvesting the root directory as an element. Setting to true [-srd]
+   */
+  @Parameter(defaultValue = "false")
+  protected boolean harvestSuppressRootDirectoryElement;
 
   /**
    * Use template, [-template] one of:
@@ -219,6 +224,9 @@ public class HarvestMojo extends AbstractPackageable {
 
     if (harvestKeepEmpty)
       cl.addArguments(new String[] {"-ke"});
+
+    if (harvestSuppressRootDirectoryElement)
+      cl.addArguments(new String[] {"-srd"});
 
     // warning HEAT1108 : The command line switch 'template:' is deprecated. Please use 'template'
     // instead
