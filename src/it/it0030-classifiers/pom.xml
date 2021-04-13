@@ -1,0 +1,60 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.github.wix-maven.it</groupId>
+    <artifactId>it-parent</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <relativePath>../it-parent/pom.xml</relativePath>
+  </parent>
+
+  <artifactId>it0030</artifactId>
+  <packaging>msi</packaging>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>it0030 - test dependency with classifier</name>
+  <description>Integration test for a module that depends on artifact with multiple classifier</description>
+
+  <organization>
+    <name>Sample Org</name>
+  </organization>
+
+  <dependencies>
+    <!--  javafx-base depends on a platform specific artifact that has the same groupId and artifactId than itself  -->
+    <!--    <dependency>-->
+    <!--      <groupId>org.openjfx</groupId>-->
+    <!--      <artifactId>javafx-base</artifactId>-->
+    <!--      <version>16</version>-->
+    <!--      <classifier>${javafx.platform}</classifier>-->
+    <!--    </dependency>-->
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-base</artifactId>
+      <version>16</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.10</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>@project.groupId@</groupId>
+        <artifactId>@project.artifactId@</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <verbose>true</verbose>
+          <definitions>
+            <def>mavenVersion=${project.version}</def>
+            <def>mavenOrganisation=${project.organization.name}</def>
+            <def>testquote=string"with"quotes</def>
+          </definitions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
