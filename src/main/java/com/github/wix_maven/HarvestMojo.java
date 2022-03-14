@@ -78,7 +78,6 @@ public class HarvestMojo extends AbstractPackageable {
   // Binaries,Symbols,Documents,Satellites,Sources,Content
   // This option may be repeated for multiple output groups.
   // -projectname overridden project name to use in variables
-  // -t transform harvested output with XSL file
 
   /**
    * Heat supports the harvesting types:
@@ -199,6 +198,18 @@ public class HarvestMojo extends AbstractPackageable {
   protected boolean harvestSuppressRootDirectoryElement;
 
   /**
+   * Suppress unique identifiers for files, components, & directories.
+   */
+  @Parameter(defaultValue = "false")
+  protected boolean harvestSuppressUniqueIdentifiers;
+
+  /**
+   * Suppress registry harvesting.
+   */
+  @Parameter(defaultValue = "false")
+  protected boolean harvestSuppressRegistryHarvesting;
+
+  /**
    * Use template, [-template] one of:
    * <ul>
    * <li>fragment
@@ -208,6 +219,9 @@ public class HarvestMojo extends AbstractPackageable {
    */
   @Parameter(defaultValue = "fragment")
   protected String harvestTemplate;
+
+  @Parameter(defaultValue = "")
+  String harvestTransform;
 
   // public final String HT_FRAGMENT="fragment";
   // public final String HT_MODULE="module";
@@ -228,6 +242,12 @@ public class HarvestMojo extends AbstractPackageable {
     if (harvestSuppressRootDirectoryElement)
       cl.addArguments(new String[] {"-srd"});
 
+    if (harvestSuppressUniqueIdentifiers)
+      cl.addArguments(new String[] {"-suid"});
+
+    if (harvestSuppressRegistryHarvesting)
+      cl.addArguments(new String[] {"-sreg"});
+
     // warning HEAT1108 : The command line switch 'template:' is deprecated. Please use 'template'
     // instead
     // many examples show "-template:fragment" however it's standardised since ?? to "-template"
@@ -242,6 +262,9 @@ public class HarvestMojo extends AbstractPackageable {
 
     if (generateBinderVariables)
       cl.addArguments(new String[] {"-wixvar"});
+
+    if (StringUtils.isNotEmpty(harvestTransform))
+      cl.addArguments(new String[] {"-t", harvestTransform});
   }
 
   public void multiHeat(File heatTool, String harvestType, File harvest)
