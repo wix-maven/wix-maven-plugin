@@ -140,8 +140,14 @@ public abstract class AbstractCompilerMojo extends AbstractWixMojo {
         // so -b option used in linking cannot specify just the local repo, it must include the full
         // path to versioned package folder or 'target'
         // ie. foo/target/foo-1.jar repo/com/foo/1/foo-1.jar repo/net/foo/1/foo-1.jar
-        addDefinition(String.format("%1$s.%2$s.TargetJAR=%3$s", jar.getGroupId(),
-            jar.getArtifactId(), defineRepoFile(jar.getFile())));
+
+        if (jar.hasClassifier()) {
+          addDefinition(String.format("%1$s.%2$s.%3$s.TargetJAR=%4$s", jar.getGroupId(),
+              jar.getArtifactId(), jar.getClassifier(), defineRepoFile(jar.getFile())));
+        } else {
+          addDefinition(String.format("%1$s.%2$s.TargetJAR=%3$s", jar.getGroupId(),
+              jar.getArtifactId(), defineRepoFile(jar.getFile())));
+        }
       }
     }
   }
