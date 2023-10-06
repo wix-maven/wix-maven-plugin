@@ -118,7 +118,7 @@ Provides lifecycles for
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-utils</artifactId>
-      <version>3.0.17</version>
+      <version>3.0.24</version>
     </dependency>
 
     <!-- Shared -->
