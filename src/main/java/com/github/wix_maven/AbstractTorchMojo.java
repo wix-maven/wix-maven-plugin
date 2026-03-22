@@ -119,7 +119,7 @@ public abstract class AbstractTorchMojo extends AbstractPackageable {
   }
 
   protected File validateTool() throws MojoExecutionException {
-    File torchTool = new File(toolDirectory, "/bin/torch.exe");
+    File torchTool = getCommandBuilder().resolveToolExecutable(toolDirectory, "torch");
     if (!torchTool.exists())
       throw new MojoExecutionException("Torch tool doesn't exist " + torchTool.getAbsolutePath());
     return torchTool;

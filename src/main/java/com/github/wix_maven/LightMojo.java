@@ -24,7 +24,11 @@ import org.codehaus.plexus.compiler.util.scan.mapping.*;
 import org.codehaus.plexus.components.io.fileselectors.IncludeExcludeFileSelector;
 import org.codehaus.plexus.util.cli.Commandline;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -90,9 +94,14 @@ public class LightMojo extends AbstractLinker {
   @SuppressWarnings("unchecked")
   protected void multilink(File toolDirectory) throws MojoExecutionException {
 
-    File linkTool = new File(toolDirectory, "/bin/light.exe");
+    File linkTool = getCommandBuilder().resolveToolExecutable(toolDirectory, "light");
     if (!linkTool.exists())
       throw new MojoExecutionException("Light tool doesn't exist " + linkTool.getAbsolutePath());
+
+    if (getCommandBuilder().isUnifiedBuild()) {
+      multilinkV4(linkTool);
+      return;
+    }
 
     defaultLocale();
 
@@ -272,5 +281,153 @@ public class LightMojo extends AbstractLinker {
     selectors[0].setIncludes("wix-locale/**,cabs/**".split(","));
     zipUnArchiver.setFileSelectors(selectors);
     zipUnArchiver.extract();
+  }
+
+  /**
+   * WiX v4+ unified build path. Invokes {@code wix.exe build <sources> -o <output>}. Sources are
+   * .wxs files scanned from {@code wxsInputDirectory} and {@code wxsGeneratedDirectory}; there are
+   * no intermediate .wixobj files.
+   */
+  @SuppressWarnings("unchecked")
+  private void multilinkV4(File wixExe) throws MojoExecutionException {
+    defaultLocale();
+
+    Set<String> wxsSources = new HashSet<String>();
+    try {
+      Set<String> wxsIncludes = new HashSet<String>();
+      wxsIncludes.add("**/*.wxs");
+      SourceInclusionScanner scanner =
+          new SimpleSourceInclusionScanner(wxsIncludes, new HashSet<String>());
+      File dummyTarget = new File(intDirectory, "dummy.msi");
+      scanner.addSourceMapping(new SingleTargetSourceMapping(".wxs", dummyTarget.getName()));
+      if (wxsInputDirectory.exists()) {
+        for (Object o : scanner.getIncludedSources(wxsInputDirectory, intDirectory)) {
+          File f = (File) o;
+          wxsSources.add(getRelative(f));
+        }
+      }
+      if (wxsGeneratedDirectory.exists()) {
+        for (Object o : scanner.getIncludedSources(wxsGeneratedDirectory, intDirectory)) {
+          File f = (File) o;
+          wxsSources.add(getRelative(f));
+        }
+      }
+    } catch (InclusionScanException e) {
+      throw new MojoExecutionException("Scanning for .wxs source files failed", e);
+    }
+
+    if (wxsSources.isEmpty()) {
+      getLog().info("No .wxs sources found, skipping wix build");
+      return;
+    }
+
+    for (String arch : getPlatforms()) {
+      for (String culture : culturespecs()) {
+        File archOutputFile = getOutput(arch, culture, outputExtension());
+        if (!archOutputFile.getParentFile().exists())
+          archOutputFile.getParentFile().mkdirs();
+
+        getLog().info(" -- Building (v4): " + archOutputFile.getPath());
+
+        Commandline cl = new Commandline();
+        cl.setExecutable(wixExe.getAbsolutePath());
+        cl.setWorkingDirectory(relativeBase);
+        cl.addArguments(new String[] {"build"});
+
+        addToolsetGeneralOptions(cl);
+        cl.addArguments(new String[] {"-arch", arch});
+        if (culture != null) {
+          cl.addArguments(new String[] {"-culture", culture});
+        }
+        cl.addArguments(new String[] {"-outputType", outputTypeForPackaging()});
+        cl.addArguments(new String[] {"-o", archOutputFile.getAbsolutePath()});
+
+        addWixExtensions(cl);
+        addOtherOptions(cl);
+
+        addUnifiedResponseOptions(cl);
+
+        addUnifiedBindPaths(cl);
+        if (wxsGeneratedDirectory != null && wxsGeneratedDirectory.exists()) {
+          cl.addArguments(new String[] {"-b", wxsGeneratedDirectory.getAbsolutePath()});
+        }
+
+        cl.addArguments(wxsSources.toArray(new String[0]));
+        link(cl);
+      }
+    }
+  }
+
+  private void addUnifiedBindPaths(Commandline cl) {
+    Set<String> allSourceRoots = new LinkedHashSet<String>(fileSourceRoots);
+
+    List<File> roots = new ArrayList<File>();
+    roots.add(wxsInputDirectory);
+    // wxlInputDirectory = src/main/wix-locale: payload files (exes, dlls) live here
+    roots.add(wxlInputDirectory);
+    roots.add(resourceDirectory);
+    roots.add(narUnpackDirectory);
+    roots.add(unpackDirectory);
+    roots.add(localRepository == null ? null : new File(localRepository.getBasedir()));
+
+    for (File root : roots) {
+      if (root != null && root.exists()) {
+        allSourceRoots.add(root.getAbsolutePath());
+      }
+    }
+
+    for (String root : allSourceRoots) {
+      cl.addArguments(new String[] {"-b", root});
+    }
+  }
+
+  private void addUnifiedResponseOptions(Commandline cl) throws MojoExecutionException {
+    File candleResponseFile = new File(intDirectory, CandleMojo.RESPONSE_FILE_NAME);
+    if (!candleResponseFile.exists()) {
+      return;
+    }
+
+    BufferedReader reader = null;
+    try {
+      reader = new BufferedReader(new FileReader(candleResponseFile));
+      String line;
+      while ((line = reader.readLine()) != null) {
+        String arg = line.trim();
+        if (arg.isEmpty()) {
+          continue;
+        }
+        if (arg.startsWith("\"") && arg.endsWith("\"") && arg.length() >= 2) {
+          arg = arg.substring(1, arg.length() - 1);
+        }
+        if (arg.startsWith("-d") && arg.length() > 2) {
+          cl.addArguments(new String[] {"-d", arg.substring(2)});
+          continue;
+        }
+        if (arg.startsWith("-I") && arg.length() > 2) {
+          cl.addArguments(new String[] {"-i", arg.substring(2)});
+        }
+      }
+    } catch (IOException e) {
+      throw new MojoExecutionException("Failed to read response file for unified build "
+          + candleResponseFile.getAbsolutePath(), e);
+    } finally {
+      if (reader != null) {
+        try {
+          reader.close();
+        } catch (IOException e) {
+          getLog().warn("Failed to close response file " + candleResponseFile.getAbsolutePath(), e);
+        }
+      }
+    }
+  }
+
+  private String outputTypeForPackaging() {
+    if (PACK_BUNDLE.equalsIgnoreCase(getPackaging())) {
+      return "Bundle";
+    }
+    if (PACK_MERGE.equalsIgnoreCase(getPackaging())) {
+      return "Module";
+    }
+    return "Package";
   }
 }

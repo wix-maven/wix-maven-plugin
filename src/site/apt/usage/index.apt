@@ -30,6 +30,50 @@ Usage
  Using wix extensions, add as a dependency.
 
 +-----+
+
+ WiX v4+ uses the unified <<<wix.exe>>> CLI and a string-based extension model.
+
++-----+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.github.wix-maven</groupId>
+        <artifactId>wix-maven-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <toolsPluginArtifactId>wix-toolset4</toolsPluginArtifactId>
+          <wixExtensions>
+            <ext>WixToolset.UI.wixext</ext>
+            <ext>WixToolset.Util.wixext</ext>
+            <ext>WixToolset.Bal.wixext</ext>
+          </wixExtensions>
+          <platforms>
+            <arch>x64</arch>
+            <arch>arm64</arch>
+          </platforms>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
++-----+
+
+ Constraints:
+
+ * <<<msix>>> packaging requires WiX v4+.
+
+ * <<<arm64>>> platform requires WiX v4+.
+
+ Common extension name migration:
+
+ * <<<WixUIExtension>>> -> <<<WixToolset.UI.wixext>>>
+ * <<<WixUtilExtension>>> -> <<<WixToolset.Util.wixext>>>
+ * <<<WixBalExtension>>> -> <<<WixToolset.Bal.wixext>>>
+ * <<<WixIISExtension>>> -> <<<WixToolset.Iis.wixext>>>
+ * <<<WixVSExtension>>> -> <<<WixToolset.VisualStudio.wixext>>>
+ * <<<WixNetFxExtension>>> -> <<<WixToolset.Netfx.wixext>>>
+ * <<<WixFirewallExtension>>> -> <<<WixToolset.Firewall.wixext>>>
+ * <<<WixDirectXExtension>>> -> <<<WixToolset.DirectX.wixext>>>
+ * <<<WixHttpExtension>>> -> <<<WixToolset.Http.wixext>>>
   <properties>
     <wix.groupId>org.wixtoolset</wix.groupId>
     <wix.version>3.7</wix.version>

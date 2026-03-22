@@ -303,6 +303,22 @@ public abstract class AbstractWixMojo extends AbstractMojo {
   protected ArtifactResolver resolver;
 
   /**
+   * v4-style NuGet extension names to pass as {@code -ext <name>} on the WiX v4+ unified CLI.
+   * Ignored when using WiX v3 (use Maven {@code wixext} dependencies instead). Example:
+   * 
+   * <pre>
+   * {@code
+   * <wixExtensions>
+   *   <ext>WixToolset.UI.wixext</ext>
+   *   <ext>WixToolset.Util.wixext</ext>
+   * </wixExtensions>
+   * }
+   * </pre>
+   */
+  @Parameter
+  protected Set<String> wixExtensions;
+
+  /**
    * The local Repository
    */
   @Parameter(defaultValue = "${localRepository}", readonly = true, required = true)
@@ -321,11 +337,50 @@ public abstract class AbstractWixMojo extends AbstractMojo {
   @Parameter(defaultValue = "${project}", readonly = true, required = true)
   protected MavenProject project;
 
+  /** Lazily detected toolset version derived from {@link #toolsPluginArtifactId}. */
+  private transient WixToolsetVersion wixVersion;
+
+  /** Lazily created command builder matching the detected {@link #wixVersion}. */
+  private transient WixToolsetCommandBuilder commandBuilder;
+
   public final String PACK_LIB = "wixlib";
   public final String PACK_MERGE = "msm";
   public final String PACK_INSTALL = "msi";
   public final String PACK_PATCH = "msp";
   public final String PACK_BUNDLE = "bundle";
+  public final String PACK_MSIX = "msix";
+
+  /**
+   * Detect and return the WiX toolset version in use. Result is cached after the first call.
+   */
+  protected WixToolsetVersion getWixVersion() {
+    if (wixVersion == null) {
+      wixVersion = WixToolsetVersion.detect(toolsPluginArtifactId);
+      getLog().debug(
+          "Detected WiX toolset version: " + wixVersion + " (toolsPluginArtifactId="
+              + toolsPluginArtifactId + ")");
+    }
+    return wixVersion;
+  }
+
+  /**
+   * Return the {@link WixToolsetCommandBuilder} appropriate for the detected toolset version.
+   * Result is cached after the first call.
+   */
+  protected WixToolsetCommandBuilder getCommandBuilder() {
+    if (commandBuilder == null) {
+      switch (getWixVersion()) {
+        case V4_PLUS:
+          commandBuilder = new WixV4CommandBuilder();
+          break;
+        case V3:
+        default:
+          commandBuilder = new WixV3CommandBuilder();
+          break;
+      }
+    }
+    return commandBuilder;
+  }
 
   protected Set<String> getPlatforms() {
     if (platforms == null)
@@ -393,7 +448,7 @@ public abstract class AbstractWixMojo extends AbstractMojo {
       getLog().debug("unpacking binaries");
 
       Artifact[] tools = findToolsArtifacts();
-      final String subfolder = "bin";
+      final String subfolder = getCommandBuilder().getToolSubdirectory();
       File pluginJar;
       for (Artifact artifact : tools) {
 
@@ -407,7 +462,13 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 
         getLog().info(
             String.format("Extracting %3$s %1$s to %2$s", pluginJar, toolDirectory, subfolder));
-        zipUnArchiver.extract(subfolder, toolDirectory);
+        if (subfolder.isEmpty()) {
+          // Use the two-arg form so the destination is set inside the archiver implementation
+          // (the no-arg extract() with setDestDirectory() doesn't propagate in plexus-archiver 2.1)
+          zipUnArchiver.extract("", toolDirectory);
+        } else {
+          zipUnArchiver.extract(subfolder, toolDirectory);
+        }
       }
       if (!toolDirectory.exists()) {
         throw new MojoExecutionException("Error extracting resources from mapping-tools.");
@@ -512,18 +573,14 @@ public abstract class AbstractWixMojo extends AbstractMojo {
   protected void addWixExtensions(Commandline cl) throws MojoExecutionException {
     Set<Artifact> dependentExtensions = getExtDependencySets();
     getLog().info("Adding " + dependentExtensions.size() + " dependentExtensions");
-    for (Artifact ext : dependentExtensions) {
-      getLog().info(ext.getFile().getName());
-
-      addExtension(cl, ext.getFile().getAbsolutePath());
+    if (getWixVersion() == WixToolsetVersion.V4_PLUS
+        && (wixExtensions == null || wixExtensions.isEmpty()) && !dependentExtensions.isEmpty()) {
+      getLog()
+          .warn(
+              "WiX v4 mode detected but <wixExtensions> is empty while Maven wixext "
+                  + "dependencies were found. Migrate to <wixExtensions> with NuGet-style extension names.");
     }
-    // if (extensions != null) {
-    // for (String ext : extensions) {
-    // // for toolDirectory + referencePaths
-    // File extension = new File(toolDirectory, ext);
-    // cl.addArguments(new String[] { "-ext", extension.getAbsolutePath() });
-    // }
-    // }
+    getCommandBuilder().addExtensions(cl, dependentExtensions, wixExtensions);
   }
 
   protected File getOutput(File baseDir, String arch, String culture, String extension) {
@@ -595,19 +652,7 @@ public abstract class AbstractWixMojo extends AbstractMojo {
   }
 
   protected void addToolsetGeneralOptions(Commandline cl) {
-    if (!verbose)
-      cl.addArguments(new String[] {"-nologo"});
-
-    if (suppress != null) {
-      for (String sup : suppress) {
-        cl.addArguments(new String[] {"-s" + sup});
-      }
-    }
-    if (warn != null) {
-      for (String sup : warn) {
-        cl.addArguments(new String[] {"-w" + sup});
-      }
-    }
+    getCommandBuilder().addGeneralOptions(cl, verbose, suppress, warn);
   }
 
   @SuppressWarnings("unchecked")
@@ -656,7 +701,7 @@ public abstract class AbstractWixMojo extends AbstractMojo {
   protected Set<Artifact> getWixDependencySets() throws MojoExecutionException {
     FilterArtifacts filter = new FilterArtifacts();
     filter.addFilter(new ProjectTransitivityFilter(project.getDependencyArtifacts(), true));
-    filter.addFilter(new TypeFilter("wixlib,msm,msp,msi,bundle", null));
+    filter.addFilter(new TypeFilter("wixlib,msm,msp,msi,bundle,msix", null));
     filter.addFilter(new ClassifierFilter("x86,x64,intel,intel64,ia64", null) {
       /*
        * (non-Javadoc)

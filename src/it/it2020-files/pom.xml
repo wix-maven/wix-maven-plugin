@@ -1,0 +1,51 @@
+﻿<project
+xmlns="http://maven.apache.org/POM/4.0.0"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<modelVersion>4.0.0</modelVersion>
+
+<parent>
+<groupId>com.github.wix-maven.it</groupId>
+<artifactId>it-parent-v5</artifactId>
+<version>1.0-SNAPSHOT</version>
+<relativePath>../it-parent-v5/pom.xml</relativePath>
+</parent>
+
+<artifactId>it2020</artifactId>
+<packaging>jar</packaging>
+<version>0.0.1-SNAPSHOT</version>
+<name>IT2020 - msi - harvest "files", build (wix v5 light)</name>
+<description>Integration test to execute 'harvest' bulk match files, build on a sample .wxs.
+Based on tutorial at http://www.tramontana.co.hu/wix/</description>
+
+<dependencies>
+</dependencies>
+<build>
+<plugins>
+<plugin>
+<groupId>@project.groupId@</groupId>
+<artifactId>@project.artifactId@</artifactId>
+<configuration>
+<verbose>true</verbose>
+<packaging>msi</packaging>
+<platforms>
+<arch>x86</arch>
+<arch>x64</arch>
+</platforms>
+</configuration>
+<executions>
+<execution>
+<id>default</id>
+<phase>compile</phase>
+<goals>
+<goal>toolset</goal>
+<goal>candle</goal>
+<goal>light</goal>
+</goals>
+</execution>
+</executions>
+</plugin>
+</plugins>
+</build>
+
+</project>

@@ -135,7 +135,7 @@ public abstract class AbstractInsigniaMojo extends AbstractPackageable {
   }
 
   protected File validateTool() throws MojoExecutionException {
-    File torchTool = new File(toolDirectory, "/bin/insignia.exe");
+    File torchTool = getCommandBuilder().resolveToolExecutable(toolDirectory, "insignia");
     if (!torchTool.exists())
       throw new MojoExecutionException("Insignia tool doesn't exist " + torchTool.getAbsolutePath());
     return torchTool;

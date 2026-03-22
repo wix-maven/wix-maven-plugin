@@ -284,6 +284,13 @@ public class HarvestMojo extends AbstractPackageable {
     cl.setExecutable(heatTool.getAbsolutePath());
     cl.setWorkingDirectory(relativeBase);
 
+    // In WiX v4, heat.exe (WixToolset.Heat) is a standalone binary resolved separately from
+    // wix.exe. Do NOT add "heat" as a subcommand — heat.exe takes type+path directly.
+    // A future CLI version that truly unifies heat into wix.exe would hit the else branch.
+    if (getCommandBuilder().isUnifiedBuild() && !heatTool.getName().equalsIgnoreCase("heat.exe")) {
+      cl.addArguments(new String[] {"heat"});
+    }
+
     cl.addArguments(new String[] {harvestType, harvest.getAbsolutePath()});
 
     // arch / -platform platform to set when harvesting the project
@@ -370,13 +377,54 @@ public class HarvestMojo extends AbstractPackageable {
       return;
     }
 
-    File heatTool = new File(toolDirectory, "bin/heat.exe");
-    if (!heatTool.exists())
+    File heatTool = getCommandBuilder().resolveToolExecutable(toolDirectory, "heat");
+    if (!heatTool.exists()) {
+      // In WiX v4+ mode heat.exe is provided by the WixToolset.Heat NuGet package (separate
+      // from wix.exe). If it was not installed into the toolset artifact, skip harvest with a
+      // warning rather than failing the build — the wix build step can still succeed if the
+      // WXS sources include any required component groups explicitly.
+      if (getCommandBuilder().isUnifiedBuild()) {
+        getLog().warn(
+            "Heat tool not found at " + heatTool.getAbsolutePath() + ". Install WixToolset.Heat "
+                + "into the toolset artifact for v4 harvesting. " + "Harvest step skipped.");
+        return;
+      }
       throw new MojoExecutionException("Heat tool doesn't exist " + heatTool.getAbsolutePath());
+    }
+
+    if (getCommandBuilder().isUnifiedBuild()) {
+      if (!wxsGeneratedDirectory.exists())
+        wxsGeneratedDirectory.mkdirs();
+
+      if (StringUtils.isNotEmpty(harvestType)) {
+        multiHeat(heatTool, harvestType, harvestInputDirectory);
+      } else {
+
+        FileFilter directoryFilter = new FileFilter() {
+          public boolean accept(File file) {
+            return file.isDirectory();
+          }
+        };
+        getLog().info("Harvesting inputs from " + harvestInputDirectory.getPath());
+
+        for (File folders : harvestInputDirectory.listFiles(directoryFilter)) {
+          if (HT_DIR.equals(folders.getName())) {
+            for (File subfolder : folders.listFiles(directoryFilter)) {
+              multiHeat(heatTool, HT_DIR, subfolder);
+            }
+          } else if (HT_FILE.equals(folders.getName())) {
+            // for (File subfolder: folders.listFiles(fileFilter) ){
+            // multiHeat(heatTool, HT_FILE, subfolder);
+            // }
+          }
+        }
+      }
+      return;
+    }
 
     // Heat requires side by side install of wixext even if unused?
     Set<Artifact> dependentExtensions = getExtDependencySets();
-    File toolDir = new File(toolDirectory, "bin");
+    File toolDir = heatTool.getParentFile();
     getLog().info(
         "Preparing heat tool with WixIISExtension, WixUtilExtension, WixVSExtension from "
             + dependentExtensions.size());

@@ -382,7 +382,7 @@ public class PatchMojo extends AbstractTorchMojo {
     }
 
     File torchTool = validateTool();
-    File pyroTool = new File(toolDirectory, "/bin/pyro.exe");
+    File pyroTool = getCommandBuilder().resolveToolExecutable(toolDirectory, "pyro");
     if (!pyroTool.exists())
       throw new MojoExecutionException("Pyro tool doesn't exist " + pyroTool.getAbsolutePath());
 

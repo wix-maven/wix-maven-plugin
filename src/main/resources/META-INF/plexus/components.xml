@@ -241,6 +241,65 @@
         </phases>
       </configuration>
     </component>
+
+    <component>
+      <role>org.apache.maven.lifecycle.mapping.LifecycleMapping</role>
+      <role-hint>msix</role-hint>
+      <implementation>org.apache.maven.lifecycle.mapping.DefaultLifecycleMapping</implementation>
+      <configuration>
+        <phases>
+          <validate>
+            com.github.wix-maven:wix-maven-plugin:validate
+          </validate>
+          <initialize>
+            com.github.wix-maven:wix-maven-plugin:toolset
+          </initialize>
+          <generate-sources>
+            com.github.wix-maven:wix-maven-plugin:harvest
+          </generate-sources>
+          <process-sources>
+            com.github.wix-maven:wix-maven-plugin:unpack-dependencies
+          </process-sources>
+          <generate-resources></generate-resources>
+          <process-resources>
+            org.apache.maven.plugins:maven-resources-plugin:resources
+          </process-resources>
+          <compile>
+            com.github.wix-maven:wix-maven-plugin:candle,
+            com.github.wix-maven:wix-maven-plugin:light,
+            com.github.wix-maven:wix-maven-plugin:transform
+          </compile>
+          <process-classes></process-classes>
+          <generate-test-sources></generate-test-sources>
+          <process-test-sources></process-test-sources>
+          <generate-test-resources></generate-test-resources>
+          <process-test-resources></process-test-resources>
+          <test-compile></test-compile>
+          <process-test-classes></process-test-classes>
+          <test>
+            com.github.wix-maven:wix-maven-plugin:smoke
+          </test>
+          <prepare-package>
+            com.github.wix-maven:wix-maven-plugin:inscribe,
+            com.github.wix-maven:wix-maven-plugin:prepare-package
+          </prepare-package>
+          <package>
+            com.github.wix-maven:wix-maven-plugin:package,
+            org.apache.maven.plugins:maven-jar-plugin:jar
+          </package>
+          <pre-integration-test></pre-integration-test>
+          <integration-test></integration-test>
+          <post-integration-test></post-integration-test>
+          <verify></verify>
+          <install>
+            org.apache.maven.plugins:maven-install-plugin:install
+          </install>
+          <deploy>
+            org.apache.maven.plugins:maven-deploy-plugin:deploy
+          </deploy>
+        </phases>
+      </configuration>
+    </component>
     
     <component>
       <role>org.apache.maven.artifact.handler.ArtifactHandler</role>
@@ -259,6 +318,16 @@
       <configuration>
         <extension>msp</extension>
         <type>msp</type>
+        <language>wi</language>
+      </configuration>
+    </component>
+    <component>
+      <role>org.apache.maven.artifact.handler.ArtifactHandler</role>
+      <role-hint>msix</role-hint>
+      <implementation>org.apache.maven.artifact.handler.DefaultArtifactHandler</implementation>
+      <configuration>
+        <extension>msix</extension>
+        <type>msix</type>
         <language>wi</language>
       </configuration>
     </component>

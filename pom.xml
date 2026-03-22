@@ -244,7 +244,7 @@ Provides lifecycles for
               <projectsDirectory>src/it</projectsDirectory>
               <cloneProjectsTo>target/it</cloneProjectsTo>
               <pomIncludes>
-                <pomInclude>*/pom.xml</pomInclude>
+                <pomInclude>it0*/pom.xml</pomInclude>
               </pomIncludes>
               <settingsFile>src/it/settings.xml</settingsFile>
               <localRepositoryPath>${project.build.directory}/local repo</localRepositoryPath> <!-- test paths with spaces -->
@@ -267,6 +267,211 @@ Provides lifecycles for
                   <goal>install</goal>
                   <goal>run</goal>
                 </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>run-its-v4</id>
+      <properties>
+        <wixtools4.version>4.0.6</wixtools4.version>
+        <wixtools4.artifactId>wix-toolset4</wixtools4.artifactId>
+        <!-- IT local repo path — mirrors the invoker config below -->
+        <it.v4.localRepo>${project.build.directory}/local repo</it.v4.localRepo>
+      </properties>
+      <build>
+        <plugins>
+          <!-- 1. Install plugin to the IT-local repo (pre-integration-test) -->
+          <plugin>
+            <artifactId>maven-invoker-plugin</artifactId>
+            <version>3.2.2</version>
+            <configuration>
+              <projectsDirectory>src/it</projectsDirectory>
+              <cloneProjectsTo>target/it-v4</cloneProjectsTo>
+              <pomIncludes>
+                <pomInclude>it1*/pom.xml</pomInclude>
+              </pomIncludes>
+              <settingsFile>src/it/settings.xml</settingsFile>
+              <localRepositoryPath>${it.v4.localRepo}</localRepositoryPath> <!-- test paths with spaces -->
+              <postBuildHookScript>verify.bsh</postBuildHookScript>
+              <debug>true</debug>
+              <goals>
+                <goal>clean</goal>
+                <goal>install</goal>
+              </goals>
+            </configuration>
+            <executions>
+              <execution>
+                <id>integration-test-v4</id>
+                <goals>
+                  <goal>install</goal>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- 2. Copy wix-toolset4 artifact into the IT-local repo (runs after invoker:install) -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>3.1.0</version>
+            <executions>
+              <execution>
+                <id>stage-wix-toolset4-artifact</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <copy todir="${it.v4.localRepo}/org/wixtoolset/maven/wix-toolset4/${wixtools4.version}"
+                          overwrite="true">
+                      <fileset dir="${settings.localRepository}/org/wixtoolset/maven/wix-toolset4/${wixtools4.version}">
+                        <include name="wix-toolset4-${wixtools4.version}.jar" />
+                        <include name="wix-toolset4-${wixtools4.version}.pom" />
+                      </fileset>
+                    </copy>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>run-its-v5</id>
+      <properties>
+        <wixtools5.version>5.0.2</wixtools5.version>
+        <!-- IT local repo path — mirrors the invoker config below -->
+        <it.v5.localRepo>${project.build.directory}/local repo</it.v5.localRepo>
+      </properties>
+      <build>
+        <plugins>
+          <!-- 1. Install plugin to the IT-local repo (pre-integration-test) -->
+          <plugin>
+            <artifactId>maven-invoker-plugin</artifactId>
+            <version>3.2.2</version>
+            <configuration>
+              <projectsDirectory>src/it</projectsDirectory>
+              <cloneProjectsTo>target/it-v5</cloneProjectsTo>
+              <pomIncludes>
+                <pomInclude>it2*/pom.xml</pomInclude>
+              </pomIncludes>
+              <pomExcludes>
+                <pomExclude>**/it2020-harvest/pom.xml</pomExclude> <!-- exclude ITs with heat dir tests, which we didn't pack with WiX v5 since 'Files' element is now supported -->
+              </pomExcludes>
+              <settingsFile>src/it/settings.xml</settingsFile>
+              <localRepositoryPath>${it.v5.localRepo}</localRepositoryPath> <!-- test paths with spaces -->
+              <postBuildHookScript>verify.bsh</postBuildHookScript>
+              <debug>true</debug>
+              <goals>
+                <goal>clean</goal>
+                <goal>install</goal>
+              </goals>
+            </configuration>
+            <executions>
+              <execution>
+                <id>integration-test-v5</id>
+                <goals>
+                  <goal>install</goal>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- 2. Copy wix-toolset5 artifact into the IT-local repo (runs after invoker:install) -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>3.1.0</version>
+            <executions>
+              <execution>
+                <id>stage-wix-toolset5-artifact</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <copy todir="${it.v5.localRepo}/org/wixtoolset/maven/wix-toolset5/${wixtools5.version}"
+                          overwrite="true">
+                      <fileset dir="${settings.localRepository}/org/wixtoolset/maven/wix-toolset5/${wixtools5.version}">
+                        <include name="wix-toolset5-${wixtools5.version}.jar" />
+                        <include name="wix-toolset5-${wixtools5.version}.pom" />
+                      </fileset>
+                    </copy>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>run-its-v6</id>
+      <properties>
+        <wixtools6.version>6.0.2</wixtools6.version>
+        <!-- IT local repo path — mirrors the invoker config below -->
+        <it.v6.localRepo>${project.build.directory}/local repo</it.v6.localRepo>
+      </properties>
+      <build>
+        <plugins>
+          <!-- 1. Install plugin to the IT-local repo (pre-integration-test) -->
+          <plugin>
+            <artifactId>maven-invoker-plugin</artifactId>
+            <version>3.2.2</version>
+            <configuration>
+              <projectsDirectory>src/it</projectsDirectory>
+              <cloneProjectsTo>target/it-v6</cloneProjectsTo>
+              <pomIncludes>
+                <pomInclude>it3*/pom.xml</pomInclude>
+              </pomIncludes>
+              <settingsFile>src/it/settings.xml</settingsFile>
+              <localRepositoryPath>${it.v6.localRepo}</localRepositoryPath> <!-- test paths with spaces -->
+              <postBuildHookScript>verify.bsh</postBuildHookScript>
+              <debug>true</debug>
+              <goals>
+                <goal>clean</goal>
+                <goal>install</goal>
+              </goals>
+            </configuration>
+            <executions>
+              <execution>
+                <id>integration-test-v6</id>
+                <goals>
+                  <goal>install</goal>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- 2. Copy wix-toolset6 artifact into the IT-local repo (runs after invoker:install) -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>3.1.0</version>
+            <executions>
+              <execution>
+                <id>stage-wix-toolset6-artifact</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <copy todir="${it.v6.localRepo}/org/wixtoolset/maven/wix-toolset6/${wixtools6.version}"
+                          overwrite="true">
+                      <fileset dir="${settings.localRepository}/org/wixtoolset/maven/wix-toolset6/${wixtools6.version}">
+                        <include name="wix-toolset6-${wixtools6.version}.jar" />
+                        <include name="wix-toolset6-${wixtools6.version}.pom" />
+                      </fileset>
+                    </copy>
+                  </target>
+                </configuration>
               </execution>
             </executions>
           </plugin>

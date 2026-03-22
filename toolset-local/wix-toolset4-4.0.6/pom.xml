@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.wixtoolset.maven</groupId>
+    <artifactId>wix-toolset-local-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>wix-toolset4</artifactId>
+  <version>4.0.6</version>
+  <packaging>jar</packaging>
+  <name>WiX Toolset 4.0.6</name>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>${maven.antrun.version}</version>
+        <executions>
+          <execution>
+            <id>install-wix-dotnet-tool</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <mkdir dir="${project.build.outputDirectory}" />
+                <!-- Remove any prior installation so a re-run without clean succeeds -->
+                <delete dir="${project.build.outputDirectory}/.store" quiet="true" />
+                <delete file="${project.build.outputDirectory}/wix.exe" quiet="true" />
+                <exec executable="dotnet" failonerror="true">
+                  <arg value="tool" />
+                  <arg value="install" />
+                  <arg value="--tool-path" />
+                  <arg value="${project.build.outputDirectory}" />
+                  <arg value="wix" />
+                  <arg value="--version" />
+                  <arg value="4.0.6" />
+                  <arg value="--add-source" />
+                  <arg value="https://api.nuget.org/v3/index.json" />
+                  <arg value="--ignore-failed-sources" />
+                </exec>
+              </target>
+            </configuration>
+          </execution>
+          <execution>
+            <id>install-heat-tool</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <!--
+                  WixToolset.Heat is NOT a dotnet tool - it is a regular NuGet package.
+                  Its nupkg (a ZIP) contains heat.exe and dependencies under tools/net472/x64/.
+                  Download the nupkg and flatten-copy heat.exe + DLLs into the output directory
+                  alongside wix.exe so the Maven plugin resolves both tools from the same dir.
+                -->
+                <delete file="${project.build.outputDirectory}/heat.exe" quiet="true" />
+                <get src="https://api.nuget.org/v3-flatcontainer/wixtoolset.heat/4.0.6/wixtoolset.heat.4.0.6.nupkg"
+                     dest="${project.build.directory}/wixtoolset.heat.4.0.6.nupkg"
+                     skipexisting="true" />
+                <!-- Flatten-copy heat.exe + companion DLLs directly into outputDirectory -->
+                <copy todir="${project.build.outputDirectory}" flatten="true" overwrite="true">
+                  <zipfileset src="${project.build.directory}/wixtoolset.heat.4.0.6.nupkg">
+                    <include name="tools/net472/x64/*.exe" />
+                    <include name="tools/net472/x64/*.exe.config" />
+                    <include name="tools/net472/x64/*.dll" />
+                  </zipfileset>
+                </copy>
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

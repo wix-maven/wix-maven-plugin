@@ -44,8 +44,8 @@ WiX Plugin
  
  * creating patches
 
- The plugin has been developed and tested with WiX version 3.6 and 3.7.  
- It should also work with other versions of WiX, the wix toolset is defined as a dependent artifact.
+ The plugin supports WiX v3 and WiX v4+ toolsets.
+ WiX v4+ uses the unified <<<wix.exe>>> CLI and string-based extension names.
 
  The integration tests for this plugin are (will be) based on the excellent tutorial at
  {{{http://www.tramontana.co.hu/wix/}http://www.tramontana.co.hu/wix/}}.

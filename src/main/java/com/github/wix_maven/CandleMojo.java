@@ -215,7 +215,8 @@ public class CandleMojo extends AbstractCompilerMojo {
 
     Commandline cl = new Commandline();
 
-    cl.setExecutable(new File(toolDirectory, "bin/candle.exe").getAbsolutePath());
+    cl.setExecutable(getCommandBuilder().resolveToolExecutable(toolDirectory, "candle")
+        .getAbsolutePath());
     cl.setWorkingDirectory(relativeBase);
     addToolsetGeneralOptions(cl);
 
@@ -312,6 +313,26 @@ public class CandleMojo extends AbstractCompilerMojo {
     addHarvestDefines();
 
     createCommonResponseFile();
+
+    // In WiX v4+ mode candle is replaced by the unified `wix build` command invoked from
+    // LightMojo/LitMojo. CandleMojo still performs its preparation work (definitions, response
+    // files) but does NOT invoke the compiler — the actual compile+link is deferred to the linker.
+    if (getCommandBuilder().isUnifiedBuild()) {
+      getLog().info("WiX v4+ detected: skipping candle compile step (deferred to wix build)");
+      // Ensure intermediate directories exist so that LightMojo can reference them
+      for (String arch : getPlatforms()) {
+        definitionsArch.clear();
+        addNARArchDefines(arch);
+        if (!compilePerLocale || PACK_LIB.equalsIgnoreCase(packaging)) {
+          getArchIntDirectory(arch, null).mkdirs();
+        } else {
+          for (String culture : culturespecs()) {
+            getArchIntDirectory(arch, culture).mkdirs();
+          }
+        }
+      }
+      return;
+    }
 
     for (String arch : getPlatforms()) {
       definitionsArch.clear();
