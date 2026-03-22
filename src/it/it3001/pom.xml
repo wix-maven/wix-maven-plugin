@@ -1,0 +1,59 @@
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.github.wix-maven.it</groupId>
+		<artifactId>it-parent-v6</artifactId>
+		<version>1.0-SNAPSHOT</version>
+		<relativePath>../it-parent-v6/pom.xml</relativePath>
+	</parent>
+
+	<artifactId>it3001</artifactId>
+	<packaging>jar</packaging>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>IT2001 - simple msi, build (wix v5)</name>
+	<description>Simple integration test to execute candle on a sample .wxs file for WiX v5.
+Based on tutorial at http://www.tramontana.co.hu/wix/</description>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>@project.groupId@</groupId>
+				<artifactId>@project.artifactId@</artifactId>
+				<!--
+					<dependencies>
+					<dependency>
+					<groupId>com.github.wix-maven</groupId>
+					<artifactId>wix-tools</artifactId>
+					<version>${wixtools.version}</version>
+					<classifier>x86</classifier>
+					</dependency>
+					</dependencies>
+				-->
+				<executions>
+					<execution>
+						<id>default</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>toolset</goal>
+							<goal>candle</goal>
+							<goal>light</goal>
+						</goals>
+						<configuration>
+							<verbose>true</verbose>
+							<packaging>msi</packaging>
+							<platforms>
+								<arch>x86</arch>
+								<arch>x64</arch>
+							</platforms>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

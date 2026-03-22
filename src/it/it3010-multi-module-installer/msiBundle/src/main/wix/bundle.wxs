@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:bal="http://wixtoolset.org/schemas/v4/wxs/bal">
+
+  <?define msiPackageName=Sample.msi ?>
+
+  <Bundle Name="WixExamples" UpgradeCode="00000001-7349-453F-94F6-BCB5110BA000"
+    Version="1.0.0"
+    Manufacturer="Acme Ltd.">
+
+    <BootstrapperApplication>
+      <bal:WixStandardBootstrapperApplication Theme="hyperlinkLicense" LicenseUrl="" SuppressOptionsUI="yes" />
+    </BootstrapperApplication> 
+
+    <RelatedBundle Id="BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB" Action="Detect" />
+
+    <Variable Name="ADDLOCAL" bal:Overridable="yes"/>
+		<Chain>
+			<!-- TODO: Define the list of chained packages. -->
+      <!-- <PackageGroupRef Id='NetFx40Web' />-->
+      <MsiPackage Id="EN_64" SourceFile="$(var.com.github.wix-maven.it.msi.TargetPath-x64-en-US)"
+                  Vital="yes" InstallCondition="VersionNT64" />
+      <MsiPackage Id="EN_32" SourceFile="$(var.com.github.wix-maven.it.msi.TargetPath-x86-en-US)"
+                  Vital="yes" InstallCondition="NOT VersionNT64" />
+    </Chain>
+  </Bundle>
+</Wix>

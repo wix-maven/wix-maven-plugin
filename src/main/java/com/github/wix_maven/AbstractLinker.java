@@ -104,6 +104,11 @@ public abstract class AbstractLinker extends AbstractPackageable {
    */
   // private ExecutorService exService;
 
+  /**
+   * Return include filters for intermediate object inputs.
+   * 
+   * @return include patterns for intermediate files.
+   */
   public final Set<String> getIncludes() {
     if (intIncludes.isEmpty()) {
       intIncludes.add("**/*.wixlib");
@@ -142,13 +147,18 @@ public abstract class AbstractLinker extends AbstractPackageable {
     if (unpackDirectory.exists())
       allFileSourceRoots.add(unpackDirectory.getAbsolutePath());
 
-    allFileSourceRoots.add(localRepository.getBasedir());
-
+    allFileSourceRoots.add(repoSession.getLocalRepository().getBasedir().getAbsolutePath());
+    // allFileSourceRoots.add(repoSession.getLocalRepository().getBasePath().toString()); //
+    // getBasePath is not defined in mvn 3.6?
     for (Iterator<String> i = allFileSourceRoots.iterator(); i.hasNext();) {
       // cannot contain a quote. Quotes are often accidentally introduced when trying to refer to a
       // directory path with spaces in it, such as "C:\Out Directory" or "C:\Out
       // Directory\".  The correct representation for that path is: "C:\Out Directory\\"
-      cl.addArguments(new String[] {"-b", i.next() + "\\"});// .getPath()
+      String pathString = i.next();
+      if (pathString.endsWith("\\")) {
+        pathString = pathString + "\\";
+      }
+      cl.addArguments(new String[] {"-b", pathString});// .getPath()
     }
 
     // undocumented command line used by votive?

@@ -45,11 +45,11 @@ public abstract class AbstractTorchMojo extends AbstractPackageable {
   /**
    * Prepare and execute torch command line tool
    * 
-   * @param torchTool
-   * @param baseInputFile
-   * @param archInputFile
-   * @param archOutputFile
-   * @throws MojoExecutionException
+   * @param torchTool torch executable to run.
+   * @param baseInputFile baseline input artifact.
+   * @param archInputFile updated input artifact for the current architecture.
+   * @param archOutputFile output transform file to generate.
+   * @throws MojoExecutionException if torch execution fails.
    */
   protected void torch(File torchTool, File baseInputFile, File archInputFile, File archOutputFile)
       throws MojoExecutionException {
@@ -73,8 +73,8 @@ public abstract class AbstractTorchMojo extends AbstractPackageable {
   /**
    * Execute the given command line parsing output for torch comments
    * 
-   * @param cl
-   * @throws MojoExecutionException
+   * @param cl prepared torch command line.
+   * @throws MojoExecutionException if torch execution fails.
    */
   protected void torch(Commandline cl) throws MojoExecutionException {
     try {
@@ -119,7 +119,7 @@ public abstract class AbstractTorchMojo extends AbstractPackageable {
   }
 
   protected File validateTool() throws MojoExecutionException {
-    File torchTool = new File(toolDirectory, "/bin/torch.exe");
+    File torchTool = getCommandBuilder().resolveToolExecutable(toolDirectory, "torch");
     if (!torchTool.exists())
       throw new MojoExecutionException("Torch tool doesn't exist " + torchTool.getAbsolutePath());
     return torchTool;

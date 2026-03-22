@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.wixtoolset.maven</groupId>
+  <artifactId>wix-toolset-local-parent</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>WiX Toolset Local Artifacts</name>
+  <description>Local reactor that repackages WiX release archives into Maven artifacts used by wix-maven-plugin.</description>
+
+  <modules>
+    <module>wix-toolset-3.14.1</module>
+    <module>wix-bootstrap-3.14.1</module>
+    <module>wix-toolset4-4.0.6</module>
+    <module>wix-toolset5-5.0.2</module>
+    <module>wix-toolset6-6.0.2</module>
+  </modules>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.antrun.version>3.1.0</maven.antrun.version>
+  </properties>
+</project>

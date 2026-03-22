@@ -55,8 +55,9 @@ public abstract class AbstractInsigniaMojo extends AbstractPackageable {
   /**
    * Prepare basic insignia command line
    * 
-   * @param insigniaTool
-   * @throws MojoExecutionException
+   * @param insigniaTool insignia executable to run.
+   * @return prepared insignia command line.
+   * @throws MojoExecutionException if command preparation fails.
    */
   protected Commandline insignia(File insigniaTool) throws MojoExecutionException {
     Commandline cl = new Commandline();
@@ -89,8 +90,8 @@ public abstract class AbstractInsigniaMojo extends AbstractPackageable {
   /**
    * Execute the given command line parsing output for torch comments
    * 
-   * @param cl
-   * @throws MojoExecutionException
+   * @param cl prepared insignia command line.
+   * @throws MojoExecutionException if insignia execution fails.
    */
   protected void insignia(Commandline cl) throws MojoExecutionException {
     try {
@@ -135,7 +136,7 @@ public abstract class AbstractInsigniaMojo extends AbstractPackageable {
   }
 
   protected File validateTool() throws MojoExecutionException {
-    File torchTool = new File(toolDirectory, "/bin/insignia.exe");
+    File torchTool = getCommandBuilder().resolveToolExecutable(toolDirectory, "insignia");
     if (!torchTool.exists())
       throw new MojoExecutionException("Insignia tool doesn't exist " + torchTool.getAbsolutePath());
     return torchTool;

@@ -24,7 +24,12 @@ import org.codehaus.plexus.compiler.util.scan.mapping.*;
 import org.codehaus.plexus.components.io.fileselectors.IncludeExcludeFileSelector;
 import org.codehaus.plexus.util.cli.Commandline;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -74,7 +79,9 @@ public class LightMojo extends AbstractLinker {
 
   protected void addValidationOptions(Commandline cl) throws MojoExecutionException {
     if (VALIDATE_SUPPRESS.equalsIgnoreCase(validate) || VALIDATE_UNIT.equalsIgnoreCase(validate)) {
-      cl.addArguments(new String[] {"-sval"});
+      cl.addArguments(new String[] {"-sval"}); // Suppress MSI/MSM validation. Could be deferred to
+                                               // unit test phase VALIDATE_UNIT, or suppressed
+                                               // entirely VALIDATE_SUPPRESS
     }
   }
 
@@ -90,9 +97,14 @@ public class LightMojo extends AbstractLinker {
   @SuppressWarnings("unchecked")
   protected void multilink(File toolDirectory) throws MojoExecutionException {
 
-    File linkTool = new File(toolDirectory, "/bin/light.exe");
+    File linkTool = getCommandBuilder().resolveToolExecutable(toolDirectory, "light");
     if (!linkTool.exists())
       throw new MojoExecutionException("Light tool doesn't exist " + linkTool.getAbsolutePath());
+
+    if (getCommandBuilder().isUnifiedBuild()) {
+      multilinkV4(linkTool);
+      return;
+    }
 
     defaultLocale();
 
@@ -221,9 +233,9 @@ public class LightMojo extends AbstractLinker {
   /**
    * Add neutral and optional culture specific binder folders
    * 
-   * @param baseFolder
-   * @param culture
-   * @param allSourceRoots
+   * @param baseFolder base folder that may contain neutral and culture-specific resources.
+   * @param culture culture identifier, or null for neutral only.
+   * @param allSourceRoots destination set for discovered source roots.
    */
   private void addBinderOption(File baseFolder, String culture, Set<String> allSourceRoots) {
     if (culture != null) {
@@ -240,9 +252,9 @@ public class LightMojo extends AbstractLinker {
   /**
    * Add resources attached from dependencies
    * 
-   * @param libGroup
-   * @param culture
-   * @param allSourceRoots
+   * @param libGroup dependency artifact containing resources.
+   * @param culture culture identifier, or null for neutral resources.
+   * @param allSourceRoots destination set for discovered source roots.
    */
   private void addResource(Artifact libGroup, String culture, Set<String> allSourceRoots) {
     File resUnpackDirectory = wixUnpackDirectory(libGroup);
@@ -272,5 +284,182 @@ public class LightMojo extends AbstractLinker {
     selectors[0].setIncludes("wix-locale/**,cabs/**".split(","));
     zipUnArchiver.setFileSelectors(selectors);
     zipUnArchiver.extract();
+  }
+
+  /**
+   * WiX v4+ unified build path. Invokes {@code wix.exe build <sources> -o <output>}. Sources are
+   * .wxs files scanned from {@code wxsInputDirectory} and {@code wxsGeneratedDirectory}; there are
+   * no intermediate .wixobj files.
+   */
+  @SuppressWarnings("unchecked")
+  private void multilinkV4(File wixExe) throws MojoExecutionException {
+    defaultLocale();
+
+    Set<String> wxsSources = new HashSet<String>();
+    try {
+      Set<String> wxsIncludes = new HashSet<String>();
+      wxsIncludes.add("**/*.wxs");
+      SourceInclusionScanner scanner =
+          new SimpleSourceInclusionScanner(wxsIncludes, new HashSet<String>());
+      File dummyTarget = new File(intDirectory, "dummy.msi");
+      scanner.addSourceMapping(new SingleTargetSourceMapping(".wxs", dummyTarget.getName()));
+      if (wxsInputDirectory.exists()) {
+        for (Object o : scanner.getIncludedSources(wxsInputDirectory, intDirectory)) {
+          File f = (File) o;
+          wxsSources.add(getRelative(f));
+        }
+      }
+      if (wxsGeneratedDirectory.exists()) {
+        for (Object o : scanner.getIncludedSources(wxsGeneratedDirectory, intDirectory)) {
+          File f = (File) o;
+          wxsSources.add(getRelative(f));
+        }
+      }
+    } catch (InclusionScanException e) {
+      throw new MojoExecutionException("Scanning for .wxs source files failed", e);
+    }
+
+    if (wxsSources.isEmpty()) {
+      // getLog().warn("No .wxs sources found, linking only wixlib dependencies");
+      getLog().info("No .wxs sources found, skipping wix build");
+      return;
+    }
+
+    for (String arch : getPlatforms()) {
+      for (String culture : culturespecs()) {
+        File archOutputFile = getOutput(arch, culture, outputExtension());
+        if (!archOutputFile.getParentFile().exists())
+          archOutputFile.getParentFile().mkdirs();
+
+        getLog().info(" -- Building (v4): " + archOutputFile.getPath());
+        List<File> locales = null; // coming first
+        try {
+          if (wxlInputDirectory.exists()) {
+            getLog().info(">>> wxlInputDirectory found!");
+            // culture might be a list of primary and fallback cultures
+            // include all the wxl files and the -culture option will sort them out.
+            // include the files from only the primary culture and the nuetral.
+            SourceInclusionScanner scanner =
+                new SimpleSourceInclusionScanner(getLocaleIncludes(), getLocaleExcludes());
+            scanner
+                .addSourceMapping(new SingleTargetSourceMapping(".wxl", archOutputFile.getName()));
+            // The order of -loc is currently (wix 3.7) important due to an issue with UI element
+            locales = asSortedList(scanner.getIncludedSources(wxlInputDirectory, archOutputFile));
+
+            // addBinderOption(wxlInputDirectory, culture, allSourceRoots);
+          }
+
+        } catch (InclusionScanException e) {
+          throw new MojoExecutionException("Scanning for updated files failed", e);
+        }
+
+        Commandline cl = new Commandline();
+        cl.setExecutable(wixExe.getAbsolutePath());
+        cl.setWorkingDirectory(relativeBase);
+        cl.addArguments(new String[] {"build"});
+
+        addToolsetGeneralOptions(cl);
+        cl.addArguments(new String[] {"-arch", arch});
+        if (culture != null) { // addLocaleOptions(cl, culture);
+          cl.addArguments(new String[] {"-culture", culture});
+        }
+        cl.addArguments(new String[] {"-outputType", outputTypeForPackaging()});
+        cl.addArguments(new String[] {"-o", archOutputFile.getAbsolutePath()});
+
+        // addValidationOptions(cl); v4 build doesn't have validation options, but we might want to
+        // add some in the future
+        if (locales != null) {
+          for (Iterator<File> i = locales.iterator(); i.hasNext();) {
+            cl.addArguments(new String[] {"-loc", getRelative(i.next())});
+          }
+        }
+
+        addWixExtensions(cl);
+        addOtherOptions(cl);
+
+        addUnifiedResponseOptions(cl);
+
+        addUnifiedBindPaths(cl); // addOptions(cl, allSourceRoots);
+        if (wxsGeneratedDirectory != null && wxsGeneratedDirectory.exists()) {
+          cl.addArguments(new String[] {"-b", wxsGeneratedDirectory.getAbsolutePath()});
+        }
+
+        cl.addArguments(wxsSources.toArray(new String[0]));
+        link(cl);
+      }
+    }
+  }
+
+  private void addUnifiedBindPaths(Commandline cl) {
+    Set<String> allSourceRoots = new LinkedHashSet<String>(fileSourceRoots);
+
+    List<File> roots = new ArrayList<File>();
+    roots.add(wxsInputDirectory);
+    // wxlInputDirectory = src/main/wix-locale: payload files (exes, dlls) live here
+    roots.add(wxlInputDirectory);
+    roots.add(resourceDirectory);
+    roots.add(narUnpackDirectory);
+    roots.add(unpackDirectory);
+    roots.add(repoSession.getLocalRepository().getBasedir().getAbsoluteFile());
+
+    for (File root : roots) {
+      if (root != null && root.exists()) {
+        allSourceRoots.add(root.getAbsolutePath());
+      }
+    }
+
+    for (String root : allSourceRoots) {
+      cl.addArguments(new String[] {"-b", root});
+    }
+  }
+
+  private void addUnifiedResponseOptions(Commandline cl) throws MojoExecutionException {
+    File candleResponseFile = new File(intDirectory, CandleMojo.RESPONSE_FILE_NAME);
+    if (!candleResponseFile.exists()) {
+      return;
+    }
+
+    BufferedReader reader = null;
+    try {
+      reader = new BufferedReader(new FileReader(candleResponseFile));
+      String line;
+      while ((line = reader.readLine()) != null) {
+        String arg = line.trim();
+        if (arg.isEmpty()) {
+          continue;
+        }
+        if (arg.startsWith("\"") && arg.endsWith("\"") && arg.length() >= 2) {
+          arg = arg.substring(1, arg.length() - 1);
+        }
+        if (arg.startsWith("-d") && arg.length() > 2) {
+          cl.addArguments(new String[] {"-d", arg.substring(2)});
+          continue;
+        }
+        if (arg.startsWith("-I") && arg.length() > 2) {
+          cl.addArguments(new String[] {"-i", arg.substring(2)});
+        }
+      }
+    } catch (IOException e) {
+      throw new MojoExecutionException("Failed to read response file for unified build "
+          + candleResponseFile.getAbsolutePath(), e);
+    } finally {
+      if (reader != null) {
+        try {
+          reader.close();
+        } catch (IOException e) {
+          getLog().warn("Failed to close response file " + candleResponseFile.getAbsolutePath(), e);
+        }
+      }
+    }
+  }
+
+  private String outputTypeForPackaging() {
+    if (PACK_BUNDLE.equalsIgnoreCase(getPackaging())) {
+      return "Bundle";
+    }
+    if (PACK_MERGE.equalsIgnoreCase(getPackaging())) {
+      return "Module";
+    }
+    return "Package";
   }
 }

@@ -39,6 +39,18 @@ public class ValidateMojo extends AbstractPackageable {
       return;
     }
 
+    if (PACK_MSIX.equalsIgnoreCase(getPackaging()) && getWixVersion() != WixToolsetVersion.V4_PLUS) {
+      throw new MojoExecutionException(
+          "Packaging 'msix' requires WiX v4+; set wix.toolsPluginArtifactId to a v4+ tools artifact (for example: wix-toolset4).");
+    }
+
+    for (String arch : getPlatforms()) {
+      if ("arm64".equalsIgnoreCase(arch) && getWixVersion() != WixToolsetVersion.V4_PLUS) {
+        throw new MojoExecutionException(
+            "Platform 'arm64' requires WiX v4+; set wix.toolsPluginArtifactId to a v4+ tools artifact (for example: wix-toolset4).");
+      }
+    }
+
     findToolsArtifacts();
 
     if (!wxsInputDirectory.exists()) {

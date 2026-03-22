@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Wix xmlns='http://wixtoolset.org/schemas/v4/wxs'>
+  <Package Name='Foobar' UpgradeCode='00000001-7349-453F-94F6-BCB5110BA4FD'
+    Language='1033' Version='1.0.0' Manufacturer='Acme Ltd.' Scope='perMachine'>
+
+    <MediaTemplate EmbedCab='yes' />
+
+    <Directory Id='ProgramFilesFolder'>
+      <Directory Id='Acme' Name='Acme'>
+        <Directory Id='INSTALLDIR' Name='Foobar 1.0'>
+
+          <Component Id='MainExecutable' Guid='00000001-83F1-4F22-985B-FDB3C8ABD471' Bitness='always32'>
+            <File Id='FoobarEXE' Name='FoobarAppl.exe' Source='FoobarAppl.exe' />
+          </Component>
+
+          <Component Id='HelperLibrary' Guid='00000001-6BE3-460D-A14F-75658D16550B' Bitness='always32'>
+            <File Id='HelperDLL' Name='Helper.dll' Source='Helper.dll' />
+          </Component>
+
+          <Component Id='Manual' Guid='00000001-574D-4A9A-A266-5B5EC2C022A4' Bitness='always32'>
+            <File Id='Manual' Name='Manual.pdf' Source='Manual.pdf' />
+          </Component>
+
+        </Directory>
+      </Directory>
+    </Directory>
+
+    <Feature Id='Complete' Level='1'>
+      <ComponentRef Id='MainExecutable' />
+      <ComponentRef Id='HelperLibrary' />
+      <ComponentRef Id='Manual' />
+    </Feature>
+
+  </Package>
+</Wix>
