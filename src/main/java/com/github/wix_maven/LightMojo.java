@@ -352,6 +352,32 @@ public class LightMojo extends AbstractLinker {
           cl.addArguments(new String[] {"-b", wxsGeneratedDirectory.getAbsolutePath()});
         }
 
+        try {
+          List<File> locales = null; // coming first
+          if (wxlInputDirectory.exists()) {
+            getLog().info(">>> wxlInputDirectory found!");
+            // culture might be a list of primary and fallback cultures
+            // include all the wxl files and the -culture option will sort them out.
+            // include the files from only the primary culture and the nuetral.
+            SourceInclusionScanner scanner =
+                new SimpleSourceInclusionScanner(getLocaleIncludes(), getLocaleExcludes());
+            scanner
+                .addSourceMapping(new SingleTargetSourceMapping(".wxl", archOutputFile.getName()));
+            // The order of -loc is currently (wix 3.7) important due to an issue with UI element
+            locales = asSortedList(scanner.getIncludedSources(wxlInputDirectory, archOutputFile));
+
+            // addBinderOption(wxlInputDirectory, culture, allSourceRoots);
+          }
+
+          if (locales != null) {
+            for (Iterator<File> i = locales.iterator(); i.hasNext();) {
+              cl.addArguments(new String[] {"-loc", getRelative(i.next())});
+            }
+          }
+        } catch (InclusionScanException e) {
+          throw new MojoExecutionException("Scanning for updated files failed", e);
+        }
+
         cl.addArguments(wxsSources.toArray(new String[0]));
         link(cl);
       }
