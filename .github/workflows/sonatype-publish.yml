@@ -45,17 +45,25 @@ jobs:
         run: export MAVEN_OPTS="--add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED --add-opens=java.desktop/java.awt.font=ALL-UNNAMED"
 
       - name: Publish to Apache Maven Central
-        run: mvn deploy -PsonatypeDeploy
+        run: mvn -B deploy -PsonatypeDeploy
         env:
           MAVEN_USERNAME: ${{ secrets.NEXUS_USERNAME }}
           MAVEN_CENTRAL_TOKEN: ${{ secrets.NEXUS_PASSWORD }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+
+      - name: Generate Maven site
+        run: mvn -B site
+
+      - name: Verify generated Maven site directory
+        run: |
+          test -d target/site
+          ls -la target/site
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
         with:
           # Path of the directory containing the static assets.
-          path: target\site # default is _site/
+          path: target/site # default is _site/
 
   # Deployment mvn plugin site job
   deploy:
