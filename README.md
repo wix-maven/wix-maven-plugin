@@ -14,6 +14,7 @@ Provides lifecycles for
  * msp
  * wixlib
  * bundle
+ * msix (WiX v4+)
 
 Goals
  * wix:toolset
@@ -32,6 +33,36 @@ Goals
  * jar:jar
  * install:install
  * deploy:deploy
+
+WiX v4+ configuration
+
+Set the tool artifact to a v4+ package and use string-based extension names.
+
+```xml
+<plugin>
+	<groupId>com.github.wix-maven</groupId>
+	<artifactId>wix-maven-plugin</artifactId>
+	<extensions>true</extensions>
+	<configuration>
+		<toolsPluginArtifactId>wix-toolset4</toolsPluginArtifactId>
+		<wixExtensions>
+			<ext>WixToolset.UI.wixext</ext>
+			<ext>WixToolset.Util.wixext</ext>
+		</wixExtensions>
+		<platforms>
+			<arch>x64</arch>
+			<arch>arm64</arch>
+		</platforms>
+	</configuration>
+</plugin>
+```
+
+Notes
+ * `msix` packaging requires WiX v4+.
+ * `arm64` platform requires WiX v4+.
+ * WiX v3 Maven `wixext` dependencies remain supported for v3 builds.
+ * `mvn verify -Prun-its-v4` requires a resolvable `org.wixtoolset.maven:wix-toolset4` artifact in your configured Maven repositories.
+ * Local toolset artifacts for WiX 3.14.1, 4.0.6, 5.0.2, and 6.0.2 can be installed via `mvn -f toolset-local/pom.xml clean install`.
 
 Major TODO:
  * doc & site

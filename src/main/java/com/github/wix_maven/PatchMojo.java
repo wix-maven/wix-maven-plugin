@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.maven.RepositoryUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
 import org.apache.maven.artifact.resolver.ArtifactResolutionException;
@@ -46,6 +47,16 @@ import org.codehaus.plexus.util.cli.CommandLineException;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.codehaus.plexus.util.cli.Commandline;
 import org.codehaus.plexus.util.cli.StreamConsumer;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.collection.CollectRequest;
+import org.eclipse.aether.graph.DependencyFilter;
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.resolution.ArtifactResult;
+import org.eclipse.aether.resolution.DependencyRequest;
+import org.eclipse.aether.resolution.DependencyResolutionException;
+import org.eclipse.aether.resolution.DependencyResult;
+import org.eclipse.aether.util.artifact.JavaScopes;
+import org.eclipse.aether.util.filter.DependencyFilterUtils;
 
 /**
  * Reference - transform between different versions for patch (note same format must be used for all
@@ -169,8 +180,6 @@ public class PatchMojo extends AbstractTorchMojo {
       throw new MojoExecutionException(e.getMessage(), e);
     } catch (ProjectBuildingException e) {
       throw new MojoExecutionException(e.getMessage(), e);
-    } catch (InvalidDependencyVersionException e) {
-      throw new MojoExecutionException(e.getMessage(), e);
     }
 
     // perform filtering
@@ -211,11 +220,14 @@ public class PatchMojo extends AbstractTorchMojo {
   /**
    * Prepare and execute pyro commandline tool
    * 
-   * @param pyroTool
-   * @param patchInputFile
-   * @param transformInputFile
-   * @param archOutputFile
-   * @throws MojoExecutionException
+   * @param pyroTool pyro executable to run.
+   * @param baseInputArtifact baseline artifact, used to source bind paths.
+   * @param latestInputArtifact latest artifact, used to source bind paths.
+   * @param arch target architecture.
+   * @param patchInputFile patch input file.
+   * @param transformInputFile transform input file.
+   * @param archOutputFile output file to generate.
+   * @throws MojoExecutionException if pyro execution fails.
    */
   protected void pyro(File pyroTool, Artifact baseInputArtifact, Artifact latestInputArtifact,
       String arch, File patchInputFile, File transformInputFile, File archOutputFile)
@@ -250,11 +262,11 @@ public class PatchMojo extends AbstractTorchMojo {
   /**
    * Prepare and execute the Uber pyro commandline
    * 
-   * @param pyroTool
-   * @param patchInputFile
-   * @param transformInputFiles
-   * @param archOutputFile
-   * @throws MojoExecutionException
+   * @param pyroTool pyro executable to run.
+   * @param patchInputFile patch input file.
+   * @param transformInputFiles transforms keyed by culture.
+   * @param archOutputFile output file to generate.
+   * @throws MojoExecutionException if pyro execution fails.
    */
   protected void pyro(File pyroTool, File patchInputFile, Map<String, File> transformInputFiles,
       File archOutputFile) throws MojoExecutionException {
@@ -285,8 +297,8 @@ public class PatchMojo extends AbstractTorchMojo {
   /**
    * Execute the given command line parsing output for pyro comments
    * 
-   * @param cl
-   * @throws MojoExecutionException
+   * @param cl prepared pyro command line.
+   * @throws MojoExecutionException if pyro execution fails.
    */
   protected void pyro(Commandline cl) throws MojoExecutionException {
     try {
@@ -382,7 +394,7 @@ public class PatchMojo extends AbstractTorchMojo {
     }
 
     File torchTool = validateTool();
-    File pyroTool = new File(toolDirectory, "/bin/pyro.exe");
+    File pyroTool = getCommandBuilder().resolveToolExecutable(toolDirectory, "pyro");
     if (!pyroTool.exists())
       throw new MojoExecutionException("Pyro tool doesn't exist " + pyroTool.getAbsolutePath());
 
@@ -436,6 +448,9 @@ public class PatchMojo extends AbstractTorchMojo {
    * will be retrieved from the dependency list or from the DependencyManagement section of the pom.
    * 
    * @param artifactItem containing information about artifact from plugin configuration.
+   * @param arch target architecture classifier prefix.
+   * @param culture target culture, or null for neutral.
+   * @param type artifact type to resolve.
    * @return Artifact object representing the specified file.
    * @throws MojoExecutionException with a message if the version can't be found in
    *         DependencyManagement.
@@ -453,7 +468,7 @@ public class PatchMojo extends AbstractTorchMojo {
     Set<Artifact> artifactSet = new HashSet<Artifact>();
 
     String classifier = arch + "-" + (culture == null ? "neutral" : getPrimaryCulture(culture));
-    getArtifact(artifactItem.getGroupId(), artifactItem.getArtifactId(), type, artifactSet, vr,
+    resolveArtifact(artifactItem.getGroupId(), artifactItem.getArtifactId(), type, artifactSet, vr,
         classifier);
 
     if (artifactSet.size() != 1) // this is more like an assert - we are only asking for one, and if
@@ -482,60 +497,46 @@ public class PatchMojo extends AbstractTorchMojo {
 
   }
 
-  // Maven 3
-  // File repo = this.session.getLocalRepository().getBasedir();
-  // Collection<Artifact> deps = new Aether(this.getProject(), repo).resolve(
-  // new DefaultArtifact("junit", "junit-dep", "", "jar", "4.10"),
-  // JavaScopes.RUNTIME
-  // );
-
-  @SuppressWarnings("unchecked")
-  protected Set<Artifact> resolveDependencyArtifacts(MavenProject theProject)
-      throws ArtifactResolutionException, ArtifactNotFoundException,
-      InvalidDependencyVersionException {
-    Set<Artifact> artifacts =
-        theProject.createArtifacts(this.factory, null, new ScopeArtifactFilter(
-            Artifact.SCOPE_COMPILE));
-    // doubt: scope if not null is ignoring the Provided scope elements - all examples show using
-    // some scope
-
-    getLog().info("Checking " + artifacts.size() + " dependents of " + theProject.getId());
-    for (Artifact artifact : artifacts) {
-      getLog().debug("Checking dependent " + artifact.getId());
-      // resolve the new artifact
-      this.resolver.resolve(artifact, this.remoteArtifactRepositories, this.localRepository);
-    }
-    return artifacts;
-  }
-
   /**
    * This method resolves all transitive dependencies of an artifact.
    * 
    * @param artifact the artifact used to retrieve dependencies
    * @return resolved set of dependencies
-   * @throws ArtifactResolutionException
-   * @throws ArtifactNotFoundException
-   * @throws ProjectBuildingException
-   * @throws InvalidDependencyVersionException
+   * @throws ArtifactResolutionException if dependency artifacts cannot be resolved.
+   * @throws ArtifactNotFoundException if a required artifact cannot be found.
+   * @throws ProjectBuildingException if Maven project metadata cannot be built.
+   * @throws InvalidDependencyVersionException if a dependency version is invalid.
+   * @throws MojoExecutionException if dependency resolution fails unexpectedly.
    * 
    */
   protected Set<Artifact> resolveArtifactDependencies(Artifact artifact)
       throws ArtifactResolutionException, ArtifactNotFoundException, ProjectBuildingException,
-      InvalidDependencyVersionException {
-    Artifact pomArtifact =
-        this.factory.createArtifact(artifact.getGroupId(), artifact.getArtifactId(),
-            artifact.getVersion(), "", "pom");
+      InvalidDependencyVersionException, MojoExecutionException {
 
-    MavenProject pomProject =
-        mavenProjectBuilder.buildFromRepository(pomArtifact, this.remoteArtifactRepositories,
-            this.localRepository);
+    Set<Artifact> artifacts = new HashSet<Artifact>();
+    CollectRequest theCollectRequest = new CollectRequest();
+    theCollectRequest.setRoot(new org.eclipse.aether.graph.Dependency(new DefaultArtifact(artifact
+        .getGroupId(), artifact.getArtifactId(), "", "pom", artifact.getVersion()),
+        JavaScopes.COMPILE));
+    for (RemoteRepository theRepository : remoteRepos) {
+      theCollectRequest.addRepository(theRepository);
+    }
 
-    // List<Dependency> dependencies = pomProject.getDependencies();
-    // for( Dependency dep : dependencies ){
-    // getLog().info( "Checking dependent " + dep.getArtifactId() );
-    // factory.createDependencyArtifact(groupId, artifactId, vr, type, classifier,
-    // Artifact.SCOPE_COMPILE);
-    // }
-    return resolveDependencyArtifacts(pomProject);
+    // We filter dependencies here, as we only want compile scope
+    DependencyFilter theDependencyFilter =
+        DependencyFilterUtils.classpathFilter(JavaScopes.COMPILE);
+    DependencyRequest theDependencyRequest =
+        new DependencyRequest(theCollectRequest, theDependencyFilter);
+    try {
+      DependencyResult theDependencyResult =
+          repoSystem.resolveDependencies(repoSession, theDependencyRequest);
+      for (ArtifactResult theArtifactResult : theDependencyResult.getArtifactResults()) {
+        Artifact theResolved = RepositoryUtils.toArtifact(theArtifactResult.getArtifact());
+        artifacts.add(theResolved);
+      }
+      return artifacts;
+    } catch (DependencyResolutionException e) {
+      throw new MojoExecutionException("Error while resolving dependency", e);
+    }
   }
 }

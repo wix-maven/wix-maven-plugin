@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.wixtoolset.maven</groupId>
+    <artifactId>wix-toolset-local-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>wix-toolset</artifactId>
+  <version>3.14.1</version>
+  <packaging>jar</packaging>
+  <name>WiX Toolset 3.14.1</name>
+
+  <properties>
+    <wix.download.url>https://github.com/wixtoolset/wix3/releases/download/wix3141rtm/wix314-binaries.zip</wix.download.url>
+    <wix.archive.path>${project.build.directory}/downloads/wix314-binaries.zip</wix.archive.path>
+  </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>${maven.antrun.version}</version>
+        <executions>
+          <execution>
+            <id>download-and-unpack</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <mkdir dir="${project.build.directory}/downloads" />
+                <mkdir dir="${project.build.outputDirectory}/bin" />
+                <get src="${wix.download.url}" dest="${wix.archive.path}" skipexisting="true" />
+                <unzip src="${wix.archive.path}" dest="${project.build.outputDirectory}/bin" />
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

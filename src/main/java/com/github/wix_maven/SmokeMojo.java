@@ -89,15 +89,24 @@ public class SmokeMojo extends AbstractPackageable {
 
     getLog().info(" -- Smoke testing : " + files.toString());
 
-    Commandline cl = new Commandline();
-
-    cl.setExecutable(smokeTool.getAbsolutePath());
-    cl.setWorkingDirectory(relativeBase);
-    addToolsetGeneralOptions(cl);
-    addWixExtensions(cl);
-    cl.addArguments(files.toArray(new String[0]));
-
-    smoke(cl);
+    if (getCommandBuilder().isUnifiedBuild()) {
+      // WiX v4+: 'wix msi validate' accepts only one file per invocation
+      for (String file : files) {
+        Commandline cl = new Commandline();
+        cl.setExecutable(smokeTool.getAbsolutePath());
+        cl.setWorkingDirectory(relativeBase);
+        cl.addArguments(new String[] {"msi", "validate", file});
+        smoke(cl);
+      }
+    } else {
+      Commandline cl = new Commandline();
+      cl.setExecutable(smokeTool.getAbsolutePath());
+      cl.setWorkingDirectory(relativeBase);
+      addToolsetGeneralOptions(cl);
+      addWixExtensions(cl);
+      cl.addArguments(files.toArray(new String[0]));
+      smoke(cl);
+    }
   }
 
   protected void smoke(Commandline cl) throws MojoExecutionException {
@@ -194,7 +203,7 @@ public class SmokeMojo extends AbstractPackageable {
     if (reportDirectory != null)
       reportDirectory.mkdirs();
 
-    File smokeTool = new File(toolDirectory, "/bin/smoke.exe");
+    File smokeTool = getCommandBuilder().resolveToolExecutable(toolDirectory, "smoke");
     if (!smokeTool.exists())
       throw new MojoExecutionException("Smoke tool doesn't exist " + smokeTool.getAbsolutePath());
 
@@ -214,8 +223,9 @@ public class SmokeMojo extends AbstractPackageable {
   }
 
   /**
+   * Returns the output file extension for smoke testing.
    * 
-   * @return
+   * @return current packaging type.
    */
   private String outputExtension() {
     return getPackaging();

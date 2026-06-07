@@ -95,8 +95,6 @@ public abstract class AbstractCompilerMojo extends AbstractWixMojo {
   }
 
   protected void addHarvestDefines() throws MojoExecutionException {
-    // TODO: transitive only through direct attached jars...
-    Set<Artifact> jarArtifacts = getJARDependencySets();
     if (!harvestInputDirectory.exists())
       return;
     getLog().info("Adding Harvest input locations from " + harvestInputDirectory.getPath());
@@ -238,7 +236,8 @@ public abstract class AbstractCompilerMojo extends AbstractWixMojo {
   }
 
   protected String defineRepoFile(File toTrim) {
-    return toTrim.getAbsolutePath().replace(localRepository.getBasedir() + "\\", "");
+    return toTrim.getAbsolutePath().replace(
+        repoSession.getLocalRepository().getBasedir().getAbsolutePath() + "\\", "");
   }
 
   protected String defineWixUnpackFile(File toTrim) {

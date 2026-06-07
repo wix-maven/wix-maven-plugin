@@ -47,9 +47,14 @@ public class LitMojo extends AbstractLinker {
   @SuppressWarnings("unchecked")
   protected void multilink(File toolDirectory) throws MojoExecutionException {
 
-    File linkTool = new File(toolDirectory, "/bin/lit.exe");
+    File linkTool = getCommandBuilder().resolveToolExecutable(toolDirectory, "lit");
     if (!linkTool.exists())
       throw new MojoExecutionException("lit tool doesn't exist " + linkTool.getAbsolutePath());
+
+    if (getCommandBuilder().isUnifiedBuild()) {
+      multilinkV4(linkTool);
+      return;
+    }
 
     for (String arch : getPlatforms()) {
       try {
@@ -116,6 +121,68 @@ public class LitMojo extends AbstractLinker {
         throw new MojoExecutionException("XSD: scanning for updated files failed", e);
       }
 
+    }
+  }
+
+  private void multilinkV4(File wixExe) throws MojoExecutionException {
+    Set<String> wxsSources = new HashSet<String>();
+    try {
+      Set<String> wxsIncludes = new HashSet<String>();
+      wxsIncludes.add("**/*.wxs");
+      SourceInclusionScanner scanner =
+          new SimpleSourceInclusionScanner(wxsIncludes, new HashSet<String>());
+      File dummyTarget = new File(intDirectory, "dummy.wixlib");
+      scanner.addSourceMapping(new SingleTargetSourceMapping(".wxs", dummyTarget.getName()));
+      if (wxsInputDirectory.exists()) {
+        for (Object o : scanner.getIncludedSources(wxsInputDirectory, intDirectory)) {
+          File f = (File) o;
+          wxsSources.add(getRelative(f));
+        }
+      }
+      if (wxsGeneratedDirectory.exists()) {
+        for (Object o : scanner.getIncludedSources(wxsGeneratedDirectory, intDirectory)) {
+          File f = (File) o;
+          wxsSources.add(getRelative(f));
+        }
+      }
+    } catch (InclusionScanException e) {
+      throw new MojoExecutionException("Scanning for .wxs source files failed", e);
+    }
+
+    if (wxsSources.isEmpty()) {
+      getLog().info("No .wxs sources found, skipping wix build");
+      return;
+    }
+
+    for (String arch : getPlatforms()) {
+      File archOutputFile = getOutput(arch, null, getPackageOutputExtension());
+      getLog().info(" -- Building wixlib (v4): " + archOutputFile.getPath());
+
+      Commandline cl = new Commandline();
+      cl.setExecutable(wixExe.getAbsolutePath());
+      cl.setWorkingDirectory(relativeBase);
+      cl.addArguments(new String[] {"build"});
+      addToolsetGeneralOptions(cl);
+      cl.addArguments(new String[] {"-arch", arch, "-outputType", "Library", "-o",
+          archOutputFile.getAbsolutePath()});
+
+      addWixExtensions(cl);
+      addOtherOptions(cl);
+
+      // WiX v4 does not search the WXS file directory by default; add bindpaths
+      if (wxsInputDirectory != null && wxsInputDirectory.exists()) {
+        cl.addArguments(new String[] {"-b", wxsInputDirectory.getAbsolutePath()});
+      }
+      if (wxsGeneratedDirectory != null && wxsGeneratedDirectory.exists()) {
+        cl.addArguments(new String[] {"-b", wxsGeneratedDirectory.getAbsolutePath()});
+      }
+
+      cl.addArguments(wxsSources.toArray(new String[0]));
+
+      if (!archOutputFile.getParentFile().exists())
+        archOutputFile.getParentFile().mkdirs();
+
+      link(cl);
     }
   }
 

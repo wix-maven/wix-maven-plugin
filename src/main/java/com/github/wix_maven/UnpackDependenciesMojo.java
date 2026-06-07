@@ -30,9 +30,7 @@ package com.github.wix_maven;
  */
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.resolver.ArtifactCollector;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -67,13 +65,6 @@ public class UnpackDependenciesMojo extends AbstractWixMojo {
    */
   @Parameter(property = "wix.unpack.excludes")
   private String wixUnpackExcludes = "";
-
-  /**
-   * Artifact collector, needed to resolve dependencies.
-   */
-  @Component
-  // ( role = ArtifactCollector.class )
-  protected ArtifactCollector artifactCollector;
 
   /**
    * Perform the Mojo action of getting dependencies and unpacking them.

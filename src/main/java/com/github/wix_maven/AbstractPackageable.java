@@ -16,9 +16,7 @@ package com.github.wix_maven;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.maven.plugins.annotations.Parameter;

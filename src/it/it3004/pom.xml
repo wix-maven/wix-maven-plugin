@@ -1,0 +1,34 @@
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.github.wix-maven.it</groupId>
+		<artifactId>it-parent-v6</artifactId>
+		<version>1.0-SNAPSHOT</version>
+		<relativePath>../it-parent-v6/pom.xml</relativePath>
+	</parent>
+
+	<artifactId>it3004</artifactId>
+	<packaging>msi</packaging>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>IT2004 - test msi lifecycle (wix v5)</name>
+	<description>Integration test to find locale and files for WiX v5.
+Based on tutorial at http://www.tramontana.co.hu/wix/</description>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>@project.groupId@</groupId>
+				<artifactId>@project.artifactId@</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<verbose>true</verbose>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

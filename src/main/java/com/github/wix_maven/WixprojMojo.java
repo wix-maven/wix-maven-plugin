@@ -153,7 +153,8 @@ public class WixprojMojo extends AbstractCompilerMojo {
 
       ele = dom.createElement("MavenRepoPath");
       ele.setAttribute("Condition", " '$(MavenRepoPath)' == '' ");
-      ele.appendChild(dom.createTextNode(localRepository.getBasedir()));
+      ele.appendChild(dom.createTextNode(repoSession.getLocalRepository().getBasedir()
+          .getAbsolutePath()));
       rootEle.appendChild(ele);
 
       ele = dom.createElement("narUnpackDirectory");
@@ -255,7 +256,7 @@ public class WixprojMojo extends AbstractCompilerMojo {
         // doesn't use /b option to path, but niceer to have
         // $(MavenRepoPath) than hard coded root
         linkDep.appendData(lib.getFile().getAbsolutePath()
-            .replace(localRepository.getBasedir() + "\\", "$(MavenRepoPath)\\")
+            .replace(repoSession.getLocalRepository().getBasedir().getAbsolutePath() + "\\", "")
             + "\n");
       }
     }

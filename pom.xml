@@ -76,10 +76,25 @@ Provides lifecycles for
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <github.global.server>github</github.global.server>
-    <mavenVersion>2.2.1</mavenVersion>
+    <mavenVersion>3.1.0</mavenVersion>
+    <resolver.version>2.0.16</resolver.version>
     <wixtools.version>3.11.0</wixtools.version>
     <wixtools.groupId>org.wixtoolset.maven</wixtools.groupId>
     <java.version>1.8</java.version>
+    <javadoc.plugin.version>3.6.0</javadoc.plugin.version>
+    <source.plugin.version>3.3.0</source.plugin.version>
+    <gpg.plugin.version>3.2.0</gpg.plugin.version>
+    <release.plugin.version>3.0.0</release.plugin.version>
+    <formatter.plugin.version>0.4</formatter.plugin.version>
+    <compiler.plugin.version>3.12.1</compiler.plugin.version>
+    <site.plugin.version>3.12.1</site.plugin.version>
+    <invoker.plugin.version>3.6.0</invoker.plugin.version>
+    <nexus.staging.version>1.6.8</nexus.staging.version>
+    <maven.plugin.annotations.version>3.11.0</maven.plugin.annotations.version>
+    <plexus.utils.version>3.5.1</plexus.utils.version>
+    <plexus.compiler.version>2.15.0</plexus.compiler.version>
+    <maven.archiver.version>3.6.2</maven.archiver.version>
+    <maven.shared.version>3.9.0</maven.shared.version>
   </properties>
   
   <dependencies>
@@ -89,38 +104,44 @@ Provides lifecycles for
       <version>${mavenVersion}</version>
     </dependency>
     <dependency>
+        <groupId>org.apache.maven.resolver</groupId>
+        <artifactId>maven-resolver-api</artifactId>
+        <version>${resolver.version}</version>
+        <scope>compile</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.maven.plugin-tools</groupId>
       <artifactId>maven-plugin-annotations</artifactId>
-      <version>3.4</version>
+      <version>${maven.plugin.annotations.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
-      <artifactId>maven-artifact</artifactId>
+      <artifactId>maven-core</artifactId>
       <version>${mavenVersion}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
-      <artifactId>maven-project</artifactId>
+      <artifactId>maven-settings</artifactId>
       <version>${mavenVersion}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-archiver</artifactId>
-      <version>2.5</version>
+      <version>${maven.archiver.version}</version>
     </dependency>
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-compiler-api</artifactId>
-      <version>1.8</version>
+      <version>${plexus.compiler.version}</version>
       <optional>false</optional>
     </dependency>
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-utils</artifactId>
-      <version>3.0.24</version>
+      <version>${plexus.utils.version}</version>
     </dependency>
 
     <!-- Shared -->
@@ -146,7 +167,7 @@ Provides lifecycles for
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-release-plugin</artifactId>
-          <version>2.3</version>
+          <version>${release.plugin.version}</version>
           <configuration>
             <mavenExecutorId>forked-path</mavenExecutorId>
             <useReleaseProfile>false</useReleaseProfile>
@@ -158,7 +179,7 @@ Provides lifecycles for
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.1</version>
+        <version>${compiler.plugin.version}</version>
         <configuration>
           <source>${java.version}</source>
           <target>${java.version}</target>
@@ -167,15 +188,21 @@ Provides lifecycles for
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-plugin-plugin</artifactId>
+        <version>3.6.1</version>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
-        <version>3.3</version>
+        <version>${site.plugin.version}</version>
         <configuration>
         </configuration>
       </plugin>
       <plugin>
         <groupId>org.sonatype.plugins</groupId>
         <artifactId>nexus-staging-maven-plugin</artifactId>
-        <version>1.6.7</version>
+        <version>${nexus.staging.version}</version>
         <extensions>true</extensions>
         <configuration>
           <serverId>ossrh</serverId>
@@ -186,7 +213,7 @@ Provides lifecycles for
       <plugin>
         <groupId>com.googlecode.maven-java-formatter-plugin</groupId>
         <artifactId>maven-java-formatter-plugin</artifactId>
-        <version>0.4</version>
+        <version>${formatter.plugin.version}</version>
         <executions>
           <execution>
             <goals>
@@ -208,12 +235,12 @@ Provides lifecycles for
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-plugin-plugin</artifactId>
-        <version>3.3</version>
+        <version>3.6.1</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.7</version>
+        <version>${javadoc.plugin.version}</version>
       </plugin>
     </plugins>
   </reporting>
@@ -241,12 +268,13 @@ Provides lifecycles for
         <plugins>
           <plugin>
             <artifactId>maven-invoker-plugin</artifactId>
-            <version>3.2.2</version>
+            <version>${invoker.plugin.version}</version>
             <configuration>
               <projectsDirectory>src/it</projectsDirectory>
               <cloneProjectsTo>target/it</cloneProjectsTo>
               <pomIncludes>
-                <pomInclude>*/pom.xml</pomInclude>
+                <pomInclude>it-parent/pom.xml</pomInclude>
+                <pomInclude>it0*/pom.xml</pomInclude>
               </pomIncludes>
               <settingsFile>src/it/settings.xml</settingsFile>
               <localRepositoryPath>${project.build.directory}/local repo</localRepositoryPath> <!-- test paths with spaces -->
@@ -276,6 +304,214 @@ Provides lifecycles for
       </build>
     </profile>
     <profile>
+      <id>run-its-v4</id>
+      <properties>
+        <wixtools4.version>4.0.6</wixtools4.version>
+        <wixtools4.artifactId>wix-toolset4</wixtools4.artifactId>
+        <!-- IT local repo path — mirrors the invoker config below -->
+        <it.v4.localRepo>${project.build.directory}/local repo</it.v4.localRepo>
+      </properties>
+      <build>
+        <plugins>
+          <!-- 1. Install plugin to the IT-local repo (pre-integration-test) -->
+          <plugin>
+            <artifactId>maven-invoker-plugin</artifactId>
+            <version>${invoker.plugin.version}</version>
+            <configuration>
+              <projectsDirectory>src/it</projectsDirectory>
+              <cloneProjectsTo>target/it-v4</cloneProjectsTo>
+              <pomIncludes>
+                <pomInclude>it-parent-v4/pom.xml</pomInclude>
+                <pomInclude>it1*/pom.xml</pomInclude>
+              </pomIncludes>
+              <settingsFile>src/it/settings.xml</settingsFile>
+              <localRepositoryPath>${it.v4.localRepo}</localRepositoryPath> <!-- test paths with spaces -->
+              <postBuildHookScript>verify.bsh</postBuildHookScript>
+              <debug>true</debug>
+              <goals>
+                <goal>clean</goal>
+                <goal>install</goal>
+              </goals>
+            </configuration>
+            <executions>
+              <execution>
+                <id>integration-test-v4</id>
+                <goals>
+                  <goal>install</goal>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- 2. Copy wix-toolset4 artifact into the IT-local repo (runs after invoker:install) -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>1.8</version>
+            <executions>
+              <execution>
+                <id>stage-wix-toolset4-artifact</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <copy todir="${it.v4.localRepo}/org/wixtoolset/maven/wix-toolset4/${wixtools4.version}"
+                          overwrite="true">
+                      <fileset dir="${settings.localRepository}/org/wixtoolset/maven/wix-toolset4/${wixtools4.version}">
+                        <include name="wix-toolset4-${wixtools4.version}.jar" />
+                        <include name="wix-toolset4-${wixtools4.version}.pom" />
+                      </fileset>
+                    </copy>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>run-its-v5</id>
+      <properties>
+        <wixtools5.version>5.0.2</wixtools5.version>
+        <!-- IT local repo path — mirrors the invoker config below -->
+        <it.v5.localRepo>${project.build.directory}/local repo</it.v5.localRepo>
+      </properties>
+      <build>
+        <plugins>
+          <!-- 1. Install plugin to the IT-local repo (pre-integration-test) -->
+          <plugin>
+            <artifactId>maven-invoker-plugin</artifactId>
+            <version>${invoker.plugin.version}</version>
+            <configuration>
+              <projectsDirectory>src/it</projectsDirectory>
+              <cloneProjectsTo>target/it-v5</cloneProjectsTo>
+              <pomIncludes>
+                <pomInclude>it-parent-v5/pom.xml</pomInclude>
+                <pomInclude>it2*/pom.xml</pomInclude>
+              </pomIncludes>
+              <pomExcludes>
+                <pomExclude>**/it2020-harvest/pom.xml</pomExclude> <!-- exclude ITs with heat dir tests, which we didn't pack with WiX v5 since 'Files' element is now supported -->
+              </pomExcludes>
+              <settingsFile>src/it/settings.xml</settingsFile>
+              <localRepositoryPath>${it.v5.localRepo}</localRepositoryPath> <!-- test paths with spaces -->
+              <postBuildHookScript>verify.bsh</postBuildHookScript>
+              <debug>true</debug>
+              <goals>
+                <goal>clean</goal>
+                <goal>install</goal>
+              </goals>
+            </configuration>
+            <executions>
+              <execution>
+                <id>integration-test-v5</id>
+                <goals>
+                  <goal>install</goal>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- 2. Copy wix-toolset5 artifact into the IT-local repo (runs after invoker:install) -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>1.8</version>
+            <executions>
+              <execution>
+                <id>stage-wix-toolset5-artifact</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <copy todir="${it.v5.localRepo}/org/wixtoolset/maven/wix-toolset5/${wixtools5.version}"
+                          overwrite="true">
+                      <fileset dir="${settings.localRepository}/org/wixtoolset/maven/wix-toolset5/${wixtools5.version}">
+                        <include name="wix-toolset5-${wixtools5.version}.jar" />
+                        <include name="wix-toolset5-${wixtools5.version}.pom" />
+                      </fileset>
+                    </copy>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>run-its-v6</id>
+      <properties>
+        <wixtools6.version>6.0.2</wixtools6.version>
+        <!-- IT local repo path — mirrors the invoker config below -->
+        <it.v6.localRepo>${project.build.directory}/local repo</it.v6.localRepo>
+      </properties>
+      <build>
+        <plugins>
+          <!-- 1. Install plugin to the IT-local repo (pre-integration-test) -->
+          <plugin>
+            <artifactId>maven-invoker-plugin</artifactId>
+            <version>${invoker.plugin.version}</version>
+            <configuration>
+              <projectsDirectory>src/it</projectsDirectory>
+              <cloneProjectsTo>target/it-v6</cloneProjectsTo>
+              <pomIncludes>
+                <pomInclude>it-parent-v6/pom.xml</pomInclude>
+                <pomInclude>it3*/pom.xml</pomInclude>
+              </pomIncludes>
+              <settingsFile>src/it/settings.xml</settingsFile>
+              <localRepositoryPath>${it.v6.localRepo}</localRepositoryPath> <!-- test paths with spaces -->
+              <postBuildHookScript>verify.bsh</postBuildHookScript>
+              <debug>true</debug>
+              <goals>
+                <goal>clean</goal>
+                <goal>install</goal>
+              </goals>
+            </configuration>
+            <executions>
+              <execution>
+                <id>integration-test-v6</id>
+                <goals>
+                  <goal>install</goal>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- 2. Copy wix-toolset6 artifact into the IT-local repo (runs after invoker:install) -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>1.8</version>
+            <executions>
+              <execution>
+                <id>stage-wix-toolset6-artifact</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <copy todir="${it.v6.localRepo}/org/wixtoolset/maven/wix-toolset6/${wixtools6.version}"
+                          overwrite="true">
+                      <fileset dir="${settings.localRepository}/org/wixtoolset/maven/wix-toolset6/${wixtools6.version}">
+                        <include name="wix-toolset6-${wixtools6.version}.jar" />
+                        <include name="wix-toolset6-${wixtools6.version}.pom" />
+                      </fileset>
+                    </copy>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
       <!-- required, used in .github/workflows/sonatype-publish.yml -->
       <id>sonatypeDeploy</id>
       <build>
@@ -295,7 +531,7 @@ Provides lifecycles for
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
-            <version>3.1.0</version>
+            <version>${gpg.plugin.version}</version>
             <executions>
               <execution>
                 <id>sign-artifacts</id>
@@ -315,7 +551,7 @@ Provides lifecycles for
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
-            <version>3.3.0</version>
+            <version>${source.plugin.version}</version>
             <executions>
               <execution>
                 <id>attach-sources</id>
@@ -328,7 +564,7 @@ Provides lifecycles for
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>3.6.3</version>
+            <version>${javadoc.plugin.version}</version>
             <executions>
               <execution>
                 <id>attach-javadocs</id>
