@@ -3,6 +3,9 @@ name: Maven Library Publish
 on:
   release:
     types: [ created ]
+  push:
+    branches:
+      - master # Triggers snapshot deployment on every push to the main branch
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
