@@ -419,38 +419,7 @@ public class LightMojo extends AbstractLinker {
       return;
     }
 
-    BufferedReader reader = null;
-    try {
-      reader = new BufferedReader(new FileReader(candleResponseFile));
-      String line;
-      while ((line = reader.readLine()) != null) {
-        String arg = line.trim();
-        if (arg.isEmpty()) {
-          continue;
-        }
-        if (arg.startsWith("\"") && arg.endsWith("\"") && arg.length() >= 2) {
-          arg = arg.substring(1, arg.length() - 1);
-        }
-        if (arg.startsWith("-d") && arg.length() > 2) {
-          cl.addArguments(new String[] {"-d", arg.substring(2)});
-          continue;
-        }
-        if (arg.startsWith("-I") && arg.length() > 2) {
-          cl.addArguments(new String[] {"-i", arg.substring(2)});
-        }
-      }
-    } catch (IOException e) {
-      throw new MojoExecutionException("Failed to read response file for unified build "
-          + candleResponseFile.getAbsolutePath(), e);
-    } finally {
-      if (reader != null) {
-        try {
-          reader.close();
-        } catch (IOException e) {
-          getLog().warn("Failed to close response file " + candleResponseFile.getAbsolutePath(), e);
-        }
-      }
-    }
+    cl.addArguments(new String[] {"@" + candleResponseFile.getAbsolutePath()});
   }
 
   private String outputTypeForPackaging() {
