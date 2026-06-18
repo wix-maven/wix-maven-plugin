@@ -76,7 +76,7 @@ Provides lifecycles for
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <github.global.server>github</github.global.server>
-    <mavenVersion>3.1.0</mavenVersion>
+    <mavenVersion>3.8.1</mavenVersion>
     <resolver.version>2.0.16</resolver.version>
     <wixtools.version>3.11.0</wixtools.version>
     <wixtools.groupId>org.wixtoolset.maven</wixtools.groupId>
@@ -92,12 +92,29 @@ Provides lifecycles for
     <invoker.plugin.version>3.6.0</invoker.plugin.version>
     <nexus.staging.version>1.6.8</nexus.staging.version>
     <maven.plugin.annotations.version>3.11.0</maven.plugin.annotations.version>
-    <plexus.utils.version>3.5.1</plexus.utils.version>
+    <plexus.utils.version>3.6.1</plexus.utils.version>
     <plexus.compiler.version>2.15.0</plexus.compiler.version>
     <maven.archiver.version>3.6.2</maven.archiver.version>
     <maven.shared.version>3.9.0</maven.shared.version>
   </properties>
   
+  <dependencyManagement>
+    <dependencies>
+      <!-- Fix CVE-2022-29599: command injection in maven-shared-utils < 3.3.3 -->
+      <dependency>
+        <groupId>org.apache.maven.shared</groupId>
+        <artifactId>maven-shared-utils</artifactId>
+        <version>3.3.3</version>
+      </dependency>
+      <!-- Fix CVE-2021-29425 / CVE-2024-47554: path traversal / DoS in commons-io < 2.14.0 -->
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>2.15.1</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.maven</groupId>
@@ -149,7 +166,7 @@ Provides lifecycles for
     <dependency>
       <groupId>org.apache.maven.shared</groupId>
       <artifactId>maven-common-artifact-filters</artifactId>
-      <version>1.4</version>
+      <version>3.4.0</version>
     </dependency>
 
     <dependency>
