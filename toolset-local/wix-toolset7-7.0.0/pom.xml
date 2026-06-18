@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.wixtoolset.maven</groupId>
+    <artifactId>wix-toolset-local-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>wix-toolset7</artifactId>
+  <version>7.0.0</version>
+  <packaging>jar</packaging>
+  <name>WiX Toolset 7.0.0</name>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>${maven.antrun.version}</version>
+        <executions>
+          <execution>
+            <id>install-wix-dotnet-tool</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <mkdir dir="${project.build.outputDirectory}" />
+                <delete dir="${project.build.outputDirectory}/.store" quiet="true" />
+                <delete file="${project.build.outputDirectory}/wix.exe" quiet="true" />
+                <exec executable="dotnet" failonerror="true">
+                  <arg value="tool" />
+                  <arg value="install" />
+                  <arg value="--tool-path" />
+                  <arg value="${project.build.outputDirectory}" />
+                  <arg value="wix" />
+                  <arg value="--version" />
+                  <arg value="7.0.0" />
+                  <arg value="--add-source" />
+                  <arg value="https://api.nuget.org/v3/index.json" />
+                  <arg value="--ignore-failed-sources" />
+                </exec>
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

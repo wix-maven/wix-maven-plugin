@@ -1,0 +1,50 @@
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.github.wix-maven.it</groupId>
+		<artifactId>it-parent-v7</artifactId>
+		<version>1.0-SNAPSHOT</version>
+		<relativePath>../../it-parent-v7/pom.xml</relativePath>
+	</parent>
+
+	<artifactId>wixlib</artifactId>
+	<packaging>wixlib</packaging>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>IT4010/wixlib - test wixlib lifecycle (wix v7)</name>
+	<description>Based on tutorial at http://www.tramontana.co.hu/wix/</description>
+
+	<dependencies>
+	</dependencies>
+
+	<build>
+		<resources>
+			<resource>
+				<filtering>false</filtering>
+				<directory>src/main/wix-locale</directory>
+				<targetPath>wix-locale</targetPath>
+				<excludes>
+					<exclude>**\*.wxl</exclude>
+				</excludes>
+			</resource>
+		</resources>
+		<plugins>
+			<plugin>
+				<groupId>@project.groupId@</groupId>
+				<artifactId>@project.artifactId@</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<verbose>true</verbose>
+					<platforms>
+						<arch>x86</arch>
+						<arch>x64</arch>
+					</platforms>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

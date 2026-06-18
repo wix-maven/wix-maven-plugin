@@ -503,6 +503,74 @@ Provides lifecycles for
       </build>
     </profile>
     <profile>
+      <id>run-its-v7</id>
+      <properties>
+        <wixtools7.version>7.0.0</wixtools7.version>
+        <!-- IT local repo path — mirrors the invoker config below -->
+        <it.v7.localRepo>${project.build.directory}/local repo</it.v7.localRepo>
+      </properties>
+      <build>
+        <plugins>
+          <!-- 1. Install plugin to the IT-local repo (pre-integration-test) -->
+          <plugin>
+            <artifactId>maven-invoker-plugin</artifactId>
+            <version>${invoker.plugin.version}</version>
+            <configuration>
+              <projectsDirectory>src/it</projectsDirectory>
+              <cloneProjectsTo>target/it-v7</cloneProjectsTo>
+              <pomIncludes>
+                <pomInclude>it-parent-v7/pom.xml</pomInclude>
+                <pomInclude>it4*/pom.xml</pomInclude>
+              </pomIncludes>
+              <settingsFile>src/it/settings.xml</settingsFile>
+              <localRepositoryPath>${it.v7.localRepo}</localRepositoryPath> <!-- test paths with spaces -->
+              <postBuildHookScript>verify.bsh</postBuildHookScript>
+              <debug>true</debug>
+              <goals>
+                <goal>clean</goal>
+                <goal>install</goal>
+              </goals>
+            </configuration>
+            <executions>
+              <execution>
+                <id>integration-test-v7</id>
+                <goals>
+                  <goal>install</goal>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- 2. Copy wix-toolset7 artifact into the IT-local repo (runs after invoker:install) -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>1.8</version>
+            <executions>
+              <execution>
+                <id>stage-wix-toolset7-artifact</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <copy todir="${it.v7.localRepo}/org/wixtoolset/maven/wix-toolset7/${wixtools7.version}"
+                          overwrite="true">
+                      <fileset dir="${settings.localRepository}/org/wixtoolset/maven/wix-toolset7/${wixtools7.version}">
+                        <include name="wix-toolset7-${wixtools7.version}.jar" />
+                        <include name="wix-toolset7-${wixtools7.version}.pom" />
+                      </fileset>
+                    </copy>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
       <!-- required, used in .github/workflows/sonatype-publish.yml -->
       <id>sonatypeDeploy</id>
       <build>

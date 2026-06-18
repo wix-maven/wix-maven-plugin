@@ -18,6 +18,7 @@
     <module>wix-toolset4-4.0.6</module>
     <module>wix-toolset5-5.0.2</module>
     <module>wix-toolset6-6.0.2</module>
+    <module>wix-toolset7-7.0.0</module>
   </modules>
 
   <properties>
