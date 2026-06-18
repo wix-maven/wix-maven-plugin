@@ -14,8 +14,8 @@
 	<artifactId>it3001</artifactId>
 	<packaging>jar</packaging>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>IT2001 - simple msi, build (wix v5)</name>
-	<description>Simple integration test to execute candle on a sample .wxs file for WiX v5.
+	<name>IT3001 - simple msi, build (wix v6)</name>
+	<description>Simple integration test to execute candle on a sample .wxs file for WiX v6.
 Based on tutorial at http://www.tramontana.co.hu/wix/</description>
 
 	<build>
