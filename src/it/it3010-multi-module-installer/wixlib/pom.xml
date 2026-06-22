@@ -14,7 +14,7 @@
 	<artifactId>wixlib</artifactId>
 	<packaging>wixlib</packaging>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>IT2010/wixlib - test wixlib lifecycle (wix v5)</name>
+	<name>IT3010/wixlib - test wixlib lifecycle (wix v6)</name>
 	<description>Based on tutorial at http://www.tramontana.co.hu/wix/</description>
 
 	<dependencies>

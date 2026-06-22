@@ -14,8 +14,8 @@
 	<artifactId>it3004</artifactId>
 	<packaging>msi</packaging>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>IT2004 - test msi lifecycle (wix v5)</name>
-	<description>Integration test to find locale and files for WiX v5.
+	<name>IT3004 - test msi lifecycle (wix v6)</name>
+	<description>Integration test to find locale and files for WiX v6.
 Based on tutorial at http://www.tramontana.co.hu/wix/</description>
 
 	<build>

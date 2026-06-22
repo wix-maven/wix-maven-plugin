@@ -14,7 +14,7 @@
 	<artifactId>it3010</artifactId>
 	<packaging>pom</packaging>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>IT2010 - test multi module lifecycle, wixlib, msi, bundle (wix v5)</name>
+	<name>IT3010 - test multi module lifecycle, wixlib, msi, bundle (wix v6)</name>
 	<description>Based on tutorial at http://www.tramontana.co.hu/wix/</description>
 
 	<modules>

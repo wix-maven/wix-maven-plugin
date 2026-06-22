@@ -14,7 +14,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 <artifactId>it3020</artifactId>
 <packaging>jar</packaging>
 <version>0.0.1-SNAPSHOT</version>
-<name>IT2020 - msi - harvest "files", build (wix v5 light)</name>
+<name>IT3020 - msi - harvest "files", build (wix v6 light)</name>
 <description>Integration test to execute 'harvest' bulk match files, build on a sample .wxs.
 Based on tutorial at http://www.tramontana.co.hu/wix/</description>
 

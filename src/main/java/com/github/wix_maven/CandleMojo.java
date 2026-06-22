@@ -275,7 +275,7 @@ public class CandleMojo extends AbstractCompilerMojo {
 
     if (includePaths != null) {
       for (String incPath : includePaths) {
-        sb.append("\n\"-I");
+        sb.append("\n-i \"");
         sb.append(incPath); // quoted for spaces, assuming it won't include " as they are invalid in
                             // file name
         sb.append("\"");
@@ -283,8 +283,18 @@ public class CandleMojo extends AbstractCompilerMojo {
     }
     if (definitions != null) {
       for (String def : definitions) {
-        sb.append("\n\"-d");
-        sb.append(StringUtils.escape(def, new char[] {'\"'}, '\\'));
+        if (getCommandBuilder().isUnifiedBuild()) {
+          // v4+ unified CLI requires -d to be followed by key=value, and quotes around value if it
+          // contains spaces or special characters
+          sb.append("\n-d ");
+          sb.append(StringUtils.replaceOnce(StringUtils.escape(def, new char[] {'\"'}, '\\'), "=",
+              "=\""));
+        } else {
+          // v3 CLI requires -d to be followed by key=value, and quotes around the whole argument if
+          // it contains spaces or special characters
+          sb.append("\n\"-d");
+          sb.append(StringUtils.escape(def, new char[] {'\"'}, '\\'));
+        }
         sb.append("\"");
       }
     }
