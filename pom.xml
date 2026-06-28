@@ -78,8 +78,8 @@ Provides lifecycles for
     <github.global.server>github</github.global.server>
     <mavenVersion>3.1.0</mavenVersion>
     <resolver.version>2.0.16</resolver.version>
-    <wixtools.version>3.11.0</wixtools.version>
-    <wixtools.groupId>org.wixtoolset.maven</wixtools.groupId>
+    <wixtools.version>3.14.1</wixtools.version>
+    <wixtools.groupId>com.github.wix-maven</wixtools.groupId>
     <java.version>1.8</java.version>
     <javadoc.plugin.version>3.6.0</javadoc.plugin.version>
     <source.plugin.version>3.3.0</source.plugin.version>
@@ -276,9 +276,9 @@ Provides lifecycles for
                 <goal>install</goal>
               </goals>
               <extraArtifacts>
-                <extraArtifact>org.wixtoolset.maven:wix-toolset:${wixtools.version}:wixext:WixUIExtension</extraArtifact>
-                <extraArtifact>org.wixtoolset.maven:wix-toolset:${wixtools.version}:wixext:WixUtilExtension</extraArtifact>
-                <extraArtifact>org.wixtoolset.maven:wix-toolset:${wixtools.version}:wixext:WixBalExtension</extraArtifact>
+                <extraArtifact>${wixtools.groupId}:wix-toolset:${wixtools.version}:wixext:WixUIExtension</extraArtifact>
+                <extraArtifact>${wixtools.groupId}:wix-toolset:${wixtools.version}:wixext:WixUtilExtension</extraArtifact>
+                <extraArtifact>${wixtools.groupId}:wix-toolset:${wixtools.version}:wixext:WixBalExtension</extraArtifact>
               </extraArtifacts>
             </configuration>
             <executions>
@@ -348,9 +348,9 @@ Provides lifecycles for
                 </goals>
                 <configuration>
                   <target>
-                    <copy todir="${it.v4.localRepo}/org/wixtoolset/maven/wix-toolset4/${wixtools4.version}"
+                    <copy todir="${it.v4.localRepo}/com/github/wix-maven/wix-toolset4/${wixtools4.version}"
                           overwrite="true">
-                      <fileset dir="${settings.localRepository}/org/wixtoolset/maven/wix-toolset4/${wixtools4.version}">
+                      <fileset dir="${settings.localRepository}/com/github/wix-maven/wix-toolset4/${wixtools4.version}">
                         <include name="wix-toolset4-${wixtools4.version}.jar" />
                         <include name="wix-toolset4-${wixtools4.version}.pom" />
                       </fileset>
@@ -419,9 +419,9 @@ Provides lifecycles for
                 </goals>
                 <configuration>
                   <target>
-                    <copy todir="${it.v5.localRepo}/org/wixtoolset/maven/wix-toolset5/${wixtools5.version}"
+                    <copy todir="${it.v5.localRepo}/com/github/wix-maven/wix-toolset5/${wixtools5.version}"
                           overwrite="true">
-                      <fileset dir="${settings.localRepository}/org/wixtoolset/maven/wix-toolset5/${wixtools5.version}">
+                      <fileset dir="${settings.localRepository}/com/github/wix-maven/wix-toolset5/${wixtools5.version}">
                         <include name="wix-toolset5-${wixtools5.version}.jar" />
                         <include name="wix-toolset5-${wixtools5.version}.pom" />
                       </fileset>
@@ -487,9 +487,9 @@ Provides lifecycles for
                 </goals>
                 <configuration>
                   <target>
-                    <copy todir="${it.v6.localRepo}/org/wixtoolset/maven/wix-toolset6/${wixtools6.version}"
+                    <copy todir="${it.v6.localRepo}/com/github/wix-maven/wix-toolset6/${wixtools6.version}"
                           overwrite="true">
-                      <fileset dir="${settings.localRepository}/org/wixtoolset/maven/wix-toolset6/${wixtools6.version}">
+                      <fileset dir="${settings.localRepository}/com/github/wix-maven/wix-toolset6/${wixtools6.version}">
                         <include name="wix-toolset6-${wixtools6.version}.jar" />
                         <include name="wix-toolset6-${wixtools6.version}.pom" />
                       </fileset>

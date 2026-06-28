@@ -22,13 +22,13 @@
           <artifactId>@project.artifactId@</artifactId>
           <version>@project.version@</version>
           <configuration>
-            <toolsPluginArtifactId>@wixtools4.artifactId@</toolsPluginArtifactId>
+            <toolsPluginArtifactId>wix-toolset4</toolsPluginArtifactId>
             <bootstrapPluginArtifactId>@wixtools4.artifactId@</bootstrapPluginArtifactId>
           </configuration>
           <dependencies>
             <dependency>
               <groupId>${wixtools.groupId}</groupId>
-              <artifactId>@wixtools4.artifactId@</artifactId>
+              <artifactId>wix-toolset4</artifactId>
               <version>${wixtools.version}</version>
             </dependency>
           </dependencies>

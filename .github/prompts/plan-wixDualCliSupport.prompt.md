@@ -229,6 +229,6 @@ WixToolsetCommandBuilder (interface)
 - **Extension naming**: Users must update extension dependencies for v4+. No auto-translation. Document the v3→v4 mapping as reference.
 - **v4 extension model**: String-based — new `<wixExtensions>` config element. Users declare NuGet extension names directly, plugin passes them as `-ext <name>` to `wix.exe`. Matches native wix.exe usage. v3 Maven dep model (`type=wixext`) unchanged.
 - **v4+ builder structure**: Single `WixV4CommandBuilder`. Expand with version sub-strategies only when a concrete breaking CLI change between v4/v5/v6 is identified.
-- **v4 toolset Maven artifact**: Separate packaging project (outside this repo) that downloads official WiX v4+ and repackages as Maven artifact (e.g., `org.wixtoolset.maven:wix-toolset4`).
+- **v4 toolset Maven artifact**: Separate packaging project (outside this repo) that downloads official WiX v4+ and repackages as Maven artifact (e.g., `com.github.wix-maven:wix-toolset4`).
 - **Scope included**: v4/5/6 CLI, NuGet extensions, MSIX output type
 - **Scope excluded**: Cross-platform (Linux/Mac) support, `wix convert` migration tooling, ARM64 (deferred to follow-up)

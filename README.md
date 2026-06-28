@@ -61,7 +61,7 @@ Notes
  * `msix` packaging requires WiX v4+.
  * `arm64` platform requires WiX v4+.
  * WiX v3 Maven `wixext` dependencies remain supported for v3 builds.
- * `mvn verify -Prun-its-v4` requires a resolvable `org.wixtoolset.maven:wix-toolset4` artifact in your configured Maven repositories.
+ * `mvn verify -Prun-its-v4` requires a resolvable `com.github.wix-maven:wix-toolset4` artifact in your configured Maven repositories.
  * Local toolset artifacts for WiX 3.14.1, 4.0.6, 5.0.2, and 6.0.2 can be installed via `mvn -f toolset-local/pom.xml clean install`.
 
 Major TODO:

@@ -230,7 +230,7 @@ public abstract class AbstractWixMojo extends AbstractMojo {
   /**
    * Group id of the toolset jar to unpack.
    */
-  @Parameter(property = "wix.toolsPluginGroupId", defaultValue = "org.wixtoolset.maven")
+  @Parameter(property = "wix.toolsPluginGroupId", defaultValue = "com.github.wix-maven")
   private String toolsPluginGroupId;
 
   /**
@@ -254,7 +254,7 @@ public abstract class AbstractWixMojo extends AbstractMojo {
   /**
    * Group id of the bootstrap archive to unpack.
    */
-  @Parameter(property = "wix.bootstrapPluginGroupId", defaultValue = "org.wixtoolset.maven")
+  @Parameter(property = "wix.bootstrapPluginGroupId", defaultValue = "com.github.wix-maven")
   private String bootstrapPluginGroupId;
 
   /**
