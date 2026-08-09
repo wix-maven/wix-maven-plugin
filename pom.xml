@@ -298,7 +298,6 @@ Provides lifecycles for
       <id>run-its-v4</id>
       <properties>
         <wixtools4.version>4.0.6</wixtools4.version>
-        <wixtools4.artifactId>wix-toolset4</wixtools4.artifactId>
         <!-- IT local repo path — mirrors the invoker config below -->
         <it.v4.localRepo>${project.build.directory}/local repo</it.v4.localRepo>
       </properties>

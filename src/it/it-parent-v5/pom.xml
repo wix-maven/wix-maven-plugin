@@ -23,7 +23,6 @@
           <version>@project.version@</version>
           <configuration>
             <toolsPluginArtifactId>wix-toolset5</toolsPluginArtifactId>
-            <bootstrapPluginArtifactId>wix-toolset5</bootstrapPluginArtifactId>
           </configuration>
           <dependencies>
             <dependency>
