@@ -2,11 +2,11 @@
 
 This reactor creates local Maven artifacts for WiX toolsets used by `wix-maven-plugin`:
 
-- `org.wixtoolset.maven:wix-toolset:3.14.1`
-- `org.wixtoolset.maven:wix-bootstrap:3.14.1`
-- `org.wixtoolset.maven:wix-toolset4:4.0.6`
-- `org.wixtoolset.maven:wix-toolset5:5.0.2`
-- `org.wixtoolset.maven:wix-toolset6:6.0.2`
+- `com.github.wix-maven:wix-toolset:3.14.1`
+- `com.github.wix-maven:wix-bootstrap:3.14.1`
+- `com.github.wix-maven:wix-toolset4:4.0.6`
+- `com.github.wix-maven:wix-toolset5:5.0.2`
+- `com.github.wix-maven:wix-toolset6:6.0.2`
 
 ## Build and install locally
 

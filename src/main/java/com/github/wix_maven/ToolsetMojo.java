@@ -152,10 +152,18 @@ public class ToolsetMojo extends AbstractWixMojo {
     Artifact[] tools = findToolsArtifacts();
     for (Artifact artifact : tools) {
       if (toolsPluginArtifactId.equals(artifact.getArtifactId())) {
-        return artifact.getVersion();
+        return normalizeToolsetVersion(artifact.getBaseVersion());
       }
     }
-    return tools.length > 0 ? tools[0].getVersion() : null;
+    return tools.length > 0 ? normalizeToolsetVersion(tools[0].getBaseVersion()) : null;
+  }
+
+  private String normalizeToolsetVersion(String toolsetVersion) {
+    if (toolsetVersion == null) {
+      return null;
+    }
+    return toolsetVersion.endsWith("-SNAPSHOT") ? toolsetVersion.substring(0,
+        toolsetVersion.length() - "-SNAPSHOT".length()) : toolsetVersion;
   }
 
   private String withToolsetVersion(String extensionRef, String toolsetVersion) {

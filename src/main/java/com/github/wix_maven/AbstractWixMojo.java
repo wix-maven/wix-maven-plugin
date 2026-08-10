@@ -230,7 +230,7 @@ public abstract class AbstractWixMojo extends AbstractMojo {
   /**
    * Group id of the toolset jar to unpack.
    */
-  @Parameter(property = "wix.toolsPluginGroupId", defaultValue = "org.wixtoolset.maven")
+  @Parameter(property = "wix.toolsPluginGroupId", defaultValue = "com.github.wix-maven")
   private String toolsPluginGroupId;
 
   /**
@@ -247,14 +247,16 @@ public abstract class AbstractWixMojo extends AbstractMojo {
 
   /**
    * Artifact id of the bootstrap archive to unpack.
+   * Will not be used with Wix4+
    */
   @Parameter(property = "wix.bootstrapPluginArtifactId", defaultValue = "wix-bootstrap")
   private String bootstrapPluginArtifactId;
 
   /**
    * Group id of the bootstrap archive to unpack.
+   * Will not be used with Wix4+
    */
-  @Parameter(property = "wix.bootstrapPluginGroupId", defaultValue = "org.wixtoolset.maven")
+  @Parameter(property = "wix.bootstrapPluginGroupId", defaultValue = "com.github.wix-maven")
   private String bootstrapPluginGroupId;
 
   /**
@@ -415,7 +417,7 @@ public abstract class AbstractWixMojo extends AbstractMojo {
     ArrayList<Artifact> tools = new ArrayList<Artifact>(2);
     tools.add(findToolsArtifact(toolsPluginGroupId, toolsPluginArtifactId, toolsPluginClassifier,
         toolsPluginType));
-    if (PACK_BUNDLE.equalsIgnoreCase(packaging))
+    if (getWixVersion() != WixToolsetVersion.V4_PLUS && PACK_BUNDLE.equalsIgnoreCase(packaging))
       tools.add(findToolsArtifact(bootstrapPluginGroupId, bootstrapPluginArtifactId,
           bootstrapPluginClassifier, bootstrapPluginType));
 
